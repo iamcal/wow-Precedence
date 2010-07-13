@@ -1,0 +1,10 @@
+## Interface: 30300
+## Title : Bee Team
+## Notes: Hunter dashboard.
+## Author: Cal Henderson (Bees on Hyjal-US)
+## Version: 1.0
+## Dependencies: 
+## SavedVariablesPerCharacter: BeeTeamDB
+
+BeeTeam.lua
+BeeTeam_Options.xml
