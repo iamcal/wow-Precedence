@@ -303,7 +303,7 @@ function BT.StartFrame()
 
 	-- create a button that covers the entire addon
 	BT.Cover = CreateFrame("Button", "foo", BT.UIFrame);
-	BT.Cover:SetFrameStrata("HIGH")
+	BT.Cover:SetFrameLevel(128)
 	BT.Cover:SetPoint("TOPLEFT", 0, 0)
 	BT.Cover:SetWidth(BT.fullW)
 	BT.Cover:SetHeight(BT.fullH)
