@@ -8,67 +8,66 @@ BT.options = {
 	max_prios = 10,
 	max_mtrs = 10,
 	mtr_icon_size = 20,
-};
+	priorities = {
+		p1 = {
+			which = "rapid",
+			bind = "ALT-1",
+			who = "boss",
+		},
+		p2 = {
+			which = "readiness",
+			bind = "ALT-7",
+			waitbuff = "Rapid Fire",
+			who = "boss",
+		},
+		p3 = {
+			which = "kill",
+			bind = "ALT-2",
+			who = "any",
+		},
+		p4 = {
+			which = "serpent",
+			bind = "ALT-3",
+			who = "any",
+		},
+		p5 = {
+			which = "chimera",
+			bind = "ALT-4",
+			--label = "Chim",
+			who = "any",
+		},
+		p6 = {
+			which = "aimed",
+			bind = "ALT-5",
+			who = "any",
+		},
+		p7 = {
+			which = "steady",
+			bind = "ALT-6",
+			who = "any",
+			cmd = "MACRO Steady",
+		},
+		p8 = {
+			which = "trap_frost",
+			bind = "ALT-8",
+			who = "any",
+		},
+		p9 = "-",
+		p10 = "-",
 
-BT.priorities = {
-	p1 = {
-		which = "rapid",
-		bind = "ALT-1",
-		who = "boss",
 	},
-	p2 = {
-		which = "readiness",
-		bind = "ALT-7",
-		waitbuff = "Rapid Fire",
-		who = "boss",
+	meters = {
+		m1 = "misdirect",
+		m2 = "hunters_mark",
+		m3 = "serpent_sting",
+		m4 = "mend_pet",
+		m5 = "-",
+		m6 = "-",
+		m7 = "-",
+		m8 = "-",
+		m9 = "-",
+		m10 = "-",
 	},
-	p3 = {
-		which = "kill",
-		bind = "ALT-2",
-		who = "any",
-	},
-	p4 = {
-		which = "serpent",
-		bind = "ALT-3",
-		who = "any",
-	},
-	p5 = {
-		which = "chimera",
-		bind = "ALT-4",
-		--label = "Chim",
-		who = "any",
-	},
-	p6 = {
-		which = "aimed",
-		bind = "ALT-5",
-		who = "any",
-	},
-	p7 = {
-		which = "steady",
-		bind = "ALT-6",
-		who = "any",
-		cmd = "MACRO Steady",
-	},
-	p8 = {
-		which = "trap_frost",
-		bind = "ALT-8",
-		who = "any",
-	},
-	p9 = "-",
-	p10 = "-",
-};
-
-BT.meters = {
-	m1 = "misdirect",
-	m2 = "hunters_mark",
-	m3 = "serpent_sting",
-	m4 = "mend_pet",
-	m5 = "-",
-	m6 = "-",
-	m7 = "-",
-	m8 = "-",
-	m9 = "-",
-	m10 = "-",
 };
 
 BT.abilities = {
@@ -409,7 +408,7 @@ function BT.RebuildFrame()
 
 	for i=1,BT.options.max_prios do
 		local key = 'p'..i;
-		local ability = BT.abilities[BT.priorities[key].which];
+		local ability = BT.abilities[BT.options.priorities[key].which];
 		if (ability) then
 			BT.rot_btns[key]:SetNormalTexture([[Interface\Icons\]] .. ability.icon);
 		else
@@ -424,7 +423,7 @@ function BT.BindKeys()
 
 	for i=1,BT.options.max_prios do
 		local key = 'p'..i;
-		local prio = BT.priorities[key];
+		local prio = BT.options.priorities[key];
 		local ability = BT.abilities[prio.which];
 
 		if (ability and prio and prio.bind) then
@@ -453,6 +452,7 @@ function BT.UpdateFrame()
 	local done_at_limit = 0;
 	local done_at_rdy = 0;
 	local btns_at_limit = {};
+	local active_shots = 0;
 
 	local can_attack = UnitCanAttack("player", "target");
 	if (can_attack and UnitIsDeadOrGhost("target")) then
@@ -461,7 +461,7 @@ function BT.UpdateFrame()
 
 	for i=1,BT.options.max_prios do
 		local key = 'p'..i;
-		local prio = BT.priorities[key];
+		local prio = BT.options.priorities[key];
 		local ability = BT.abilities[prio.which];
 		local ok, t = false, 0;
 		if (ability) then
@@ -499,6 +499,7 @@ function BT.UpdateFrame()
 			end
 		
 			BT.rot_btns[key]:Show();
+			active_shots = active_shots + 1;
 		else
 			BT.rot_btns[key]:Hide();
 		end
@@ -509,6 +510,12 @@ function BT.UpdateFrame()
 		else
 			BT.rot_btns[key]:SetAlpha(0.5);
 		end
+	end
+
+	if (active_shots > 0) then
+		BT.Label:SetText(" ");
+	else
+		BT.Label:SetText("No abilities configured - Right click to hide");
 	end
 
 
@@ -561,7 +568,7 @@ function BT.UpdateFrame()
 	for i=1,BT.options.max_mtrs do
 		local key = 'm'..i;
 
-		local info = BT.meterinfo[BT.meters[key]];
+		local info = BT.meterinfo[BT.options.meters[key]];
 		if (info) then
 			local t, max, phase = BT.GetMeter(info.phase1);
 			if (t == 0) then
