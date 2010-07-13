@@ -3,7 +3,7 @@ BT = {}
 BT.options = {
 	runway = 200,
 	time_limit = 10,
-	font_size = 10,
+	font_size = 8,
 	cooldown_size = 20,
 	max_prios = 10,
 	max_mtrs = 10,
@@ -148,6 +148,11 @@ BT.specials = {
 	md_target = "?",
 };
 
+BT.everything_ready = false;
+BT.waiting_for_bind = false;
+BT.last_check = 0;
+BT.time_between_checks = 5;
+
 
 function BT.OnLoad()
 
@@ -197,12 +202,8 @@ end
 function BT.OnEvent(frame, event, ...)
 
 	if (event == 'COMBAT_LOG_EVENT_UNFILTERED') then
-		local timestamp, type, sourceGUID, sourceName, sourceFlags, destGUID, destName, destFlags = select(1, ...)
-		if (type == "SPELL_CAST_SUCCESS") then
-			local spellId, spellName, spellSchool = select(9, ...);
-			if (spellName == "Misdirection") then
-				BT.specials.md_target = destName;
-			end
+		if (arg3 == UnitGUID("player") and arg2 == "SPELL_CAST_SUCCESS" and arg10 == "Misdirection") then
+			BT.specials.md_target = arg7;
 		end
 		return;
 	end
@@ -218,13 +219,13 @@ function BT.OnEvent(frame, event, ...)
 	if (event == 'PLAYER_LOGIN') then
 
 		BT.BindKeys();
+		BT.everything_ready = true;
 	end
 
 	if (event == 'PLAYER_LOGOUT') then
 
 		BT.OnSaving();
 	end
-
 end
 
 function BT.OnDragStart(frame)
@@ -417,9 +418,9 @@ function BT.RebuildFrame()
 	end
 end
 
-function BT.BindKeys()
+function BT.GetBinds()
 
-	local set = GetCurrentBindingSet();
+	local map = {};
 
 	for i=1,BT.options.max_prios do
 		local key = 'p'..i;
@@ -440,9 +441,58 @@ function BT.BindKeys()
 				cmd = prio.cmd;
 			end
 
-			local ok = SetBinding(prio.bind, cmd, set);
-			-- TODO: report error if we can't bind...
+			map[prio.bind] = cmd;
 		end
+	end
+
+	return map;
+end
+
+function BT.CheckBinds()
+
+	if (BT.waiting_for_bind) then
+		-- we mind now be out of combat...
+		BT.BindKeys();
+		return;
+	end
+
+	local binds = BT.GetBinds();
+	local dirty = false;
+
+	for bind, cmd in pairs(binds) do
+
+		local test = GetBindingAction(bind, true);
+		if (not (test == cmd)) then
+			--print(string.format("bad binding on %s (expecting %s, got %s)", bind,cmd,test));
+			dirty = true;
+		end
+	end
+
+	if (dirty) then
+		print("BeeTeam: Something is messing with our bindings. Check other addons.");
+		BT.BindKeys();
+	end
+end
+
+function BT.BindKeys()
+
+	if (InCombatLockdown()) then
+		if (not BT.waiting_for_bind) then
+			print("Waiting until combat ends to bind keys");
+		end
+		return ;
+	end
+
+	BT.waiting_for_bind = false;
+
+	local binds = BT.GetBinds();
+
+	local set = GetCurrentBindingSet();
+
+	for bind, cmd in pairs(binds) do
+
+		local ok = SetOverrideBinding(BT.UIFrame, true, bind, cmd);
+		-- TODO: report error if we can't bind...
 	end
 end
 
@@ -453,6 +503,14 @@ function BT.UpdateFrame()
 	local done_at_rdy = 0;
 	local btns_at_limit = {};
 	local active_shots = 0;
+
+	local inVehicle = UnitInVehicle("player");
+	if (inVehicle) then
+		BT.UIFrame:Hide();
+		return;
+	else
+		BT.UIFrame:Show();
+	end
 
 	local can_attack = UnitCanAttack("player", "target");
 	if (can_attack and UnitIsDeadOrGhost("target")) then
@@ -785,7 +843,21 @@ function BT.FormatTime(s)
 	return string.format("%ds", s);
 end
 
+function BT.PeriodicCheck()
+	--print('check!');
+	BT.CheckBinds();
+end
+
 function BT.OnUpdate()
+	if (not BT.everything_ready) then
+		return;
+	end
+
+	if (BT.last_check +BT.time_between_checks < GetTime()) then
+		BT.last_check = GetTime();
+		BT.PeriodicCheck();
+	end
+
 	if (_G.BeeTeamDB.opts.hide) then 
 		return;
 	end
@@ -797,7 +869,9 @@ end
 function BT.SetFontSize(string, size)
 
 	local Font, Height, Flags = string:GetFont()
-	string:SetFont(Font, size, Flags)
+	if (not (Height == size)) then
+		string:SetFont(Font, size, Flags)
+	end
 end
 
 function BT.SetHide(a)
