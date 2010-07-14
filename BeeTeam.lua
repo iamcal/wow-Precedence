@@ -5,6 +5,8 @@ BT.options = {
 	time_limit = 10,
 	font_size = 8,
 	cooldown_size = 20,
+	label_font_size = 10,
+	warning_font_size = 20,
 	max_prios = 10,
 	max_mtrs = 10,
 	mtr_icon_size = 20,
@@ -274,13 +276,6 @@ function BT.StartFrame()
 	BT.UIFrame:SetMovable(true);
 	BT.UIFrame:EnableMouse(true);
 
-	-- some text
-	BT.Label = BT.UIFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-	BT.Label:SetPoint("CENTER", BT.UIFrame, "CENTER", 2, 0)
-	BT.Label:SetJustifyH("LEFT")
-	BT.Label:SetText(" "); -- Good place to put debug text
-	BT.Label:SetTextColor(1,1,1,1)
-	BT.SetFontSize(BT.Label, 10)
 
 	-- buttons!
 	BT.rot_btns = {};
@@ -313,6 +308,16 @@ function BT.StartFrame()
 	BT.Cover:SetScript("OnDragStart", BT.OnDragStart);
 	BT.Cover:SetScript("OnDragStop", BT.OnDragStop);
 	BT.Cover:SetScript("OnClick", BT.OnClick);
+
+	-- main label - shows help & warnings
+	BT.Label = BT.Cover:CreateFontString(nil, "OVERLAY")
+	BT.Label:SetPoint("CENTER", BT.UIFrame, "CENTER", 2, 0)
+	BT.Label:SetJustifyH("LEFT")
+	BT.Label:SetFont([[Fonts\FRIZQT__.TTF]], 12, "OUTLINE");
+	BT.Label:SetText(" ");
+	BT.Label:SetTextColor(1,1,1,1)
+	BT.SetFontSize(BT.Label, 10)
+
 
 	--BT.Cover.texture = BT.Cover:CreateTexture("ARTWORK")
 	--BT.Cover.texture:SetAllPoints()
@@ -498,6 +503,10 @@ end
 
 function BT.UpdateFrame()
 
+	if (_G.BeeTeamDB.opts.hide) then 
+		return;
+	end
+
 	local count_past_limit = 0;
 	local done_at_limit = 0;
 	local done_at_rdy = 0;
@@ -570,11 +579,56 @@ function BT.UpdateFrame()
 		end
 	end
 
-	if (active_shots > 0) then
-		BT.Label:SetText(" ");
-	else
-		BT.Label:SetText("No abilities configured - Right click to hide");
+
+	--
+	-- label over the main bar
+	--
+
+	local label = " ";
+	local warning = false;
+
+	local cur_mana = UnitPower("player", 0);
+	local max_mana = UnitPowerMax("player", 0);
+	local mana_per = cur_mana / max_mana;
+
+	if (mana_per < 0.1) then
+
+		warning = true;
+		label = string.format("Mana Low (%d%%)", 100*mana_per);
 	end
+
+	if (active_shots > 0) then
+
+		if (can_attack) then
+			local inShotRange = IsSpellInRange("Auto Shot");
+			local inMeleeRange = IsSpellInRange("Wing Clip");
+
+			if (not (inShotRange == 1)) then
+				if (inMeleeRange == 1) then
+					label = "Too Close";
+					warning = true;
+				else
+					label = "Too Far";
+					warning = true;
+				end
+			end
+		end
+	else
+		warning = false;
+		label = "No abilities configured - Right click to hide";
+	end
+
+	if (warning) then
+		BT.Label:SetTextColor(1,0,0,1)
+		BT.SetFontSize(BT.Label, BT.options.warning_font_size);
+	else
+		BT.Label:SetTextColor(1,1,1,1)
+		BT.SetFontSize(BT.Label, BT.options.label_font_size);
+	end
+	BT.Label:SetText(label);
+
+
+
 
 
 	if (can_attack) then
