@@ -1,5 +1,9 @@
 BT = {}
 
+BT.defaults = {
+	-- put options here and they will get copied into the real options hash
+};
+
 BT.options = {
 	runway = 200,
 	time_limit = 10,
@@ -9,6 +13,7 @@ BT.options = {
 	warning_font_size = 20,
 	max_prios = 10,
 	max_mtrs = 10,
+	max_warns = 10,
 	mtr_icon_size = 20,
 	priorities = {
 		p1 = {
@@ -56,19 +61,20 @@ BT.options = {
 		},
 		p9 = "-",
 		p10 = "-",
-
 	},
 	meters = {
-		m1 = "misdirect",
-		m2 = "hunters_mark",
-		m3 = "serpent_sting",
-		m4 = "mend_pet",
-		m5 = "-",
-		m6 = "-",
-		m7 = "-",
-		m8 = "-",
-		m9 = "-",
-		m10 = "-",
+		md_applied = true,
+		md_cooldown = true,
+		hunters_mark = true,
+		serpent_sting = false,
+		mend_pet = true,
+	},
+	warnings = {
+		no_pet = true,
+		sad_pet = true,
+		bad_aspect = true,
+		no_hunters_mark = true,
+		bad_weapon = true, -- fishing pole, lance
 	},
 };
 
@@ -110,39 +116,34 @@ BT.abilities = {
 }
 
 BT.meterinfo = {
-	misdirect = {
+	md_applied = {
+		title = "Misdirect Active",
 		icon = "ability_hunter_misdirection",
-		phase1 = {
-			buff = "Misdirection",
-			color = "green",
-			special_label = "md_target",
-		},
-		phase2 = {
-			spell = "Misdirection",
-			color = "red",
-			label = "Cooldown",
-		},
+		buff = "Misdirection",
+		color = "green",
+		special_label = "md_target",
+	},
+	md_cooldown = {
+		title = "Misdirect Cooldown",
+		icon = "ability_hunter_misdirection",
+		spell = "Misdirection",
+		color = "red",
+		label = "Cooldown",
 	},
 	hunters_mark = {
 		icon = "ability_hunter_snipershot",
-		phase1 = {
-			debuff = "Hunter's Mark",
-			color = "green",
-		},
+		debuff = "Hunter's Mark",
+		color = "green",
 	},
 	serpent_sting = {
 		icon = "ability_hunter_quickshot",
-		phase1 = {
-			debuff = "Serpent Sting",
-			color = "green",
-		},
+		debuff = "Serpent Sting",
+		color = "green",
 	},
 	mend_pet = {
 		icon = "ability_hunter_mendpet",
-		phase1 = {
-			petbuff = "Mend Pet",
-			color = "green",
-		},
+		petbuff = "Mend Pet",
+		color = "green",
 	},
 }
 
@@ -324,7 +325,31 @@ function BT.StartFrame()
 	--BT.Cover.texture:SetTexture(1, 0.5, 0)
 	--BT.Cover.texture:SetAlpha(0.5);
 
+	-- Add options to the dialog
+	local py = 100;
+	for key, info in pairs(BT.meterinfo) do
 
+		local label = "?";
+		if (info.spell) then label = info.spell; end
+		if (info.debuff) then label = info.debuff; end
+		if (info.buff) then label = info.buff; end
+		if (info.petbuff) then label = info.petbuff; end
+		if (info.title) then label = info.title; end
+
+		local check = BT.CreateCheckBox("BTCheckMeter-"..key, 0, py, BT.options.meters[key], label);
+		check.key = key;
+		check:SetScript("OnClick", function(self)
+			if (self:GetChecked()) then
+				print("option "..self.key.." is ON");
+				BT.options.meters[self.key] = true;
+			else
+				print("option "..self.key.." is OFF");
+				BT.options.meters[self.key] = false;
+			end
+		end);
+
+		py = py + 20;
+	end
 
 	BT.SetLocked(_G.BeeTeamDB.opts.locked);
 	BT.SetHide(_G.BeeTeamDB.opts.hide);
@@ -408,6 +433,18 @@ function BT.CreateBar(x, y, w, h)
 	b.label:SetText(" ");
 
 	return b;
+end
+
+function BT.CreateCheckBox(id, x, y, checked, text)
+
+	local check = CreateFrame("CheckButton", id, BT.UIFrame, "InterfaceOptionsCheckButtonTemplate");
+	check:SetChecked(checked);
+	check.label = _G[check:GetName().."Text"];
+	check.label:SetText(text);
+	check:SetHitRectInsets(0, -300, 0, 0);
+	check:SetPoint("TOPLEFT", x, 0-y);
+
+	return check;
 end
 
 function BT.RebuildFrame()
@@ -677,20 +714,15 @@ function BT.UpdateFrame()
 
 	local show_mtrs = {};
 
-	for i=1,BT.options.max_mtrs do
-		local key = 'm'..i;
+	for key, info in pairs(BT.meterinfo) do
 
-		local info = BT.meterinfo[BT.options.meters[key]];
-		if (info) then
-			local t, max, phase = BT.GetMeter(info.phase1);
-			if (t == 0) then
-				t, max, phase = BT.GetMeter(info.phase2);
-			end
+		if (BT.options.meters[key] and info) then
+
+			local t, max = BT.GetMeter(info);
 			if (max > 2) then
 				table.insert(show_mtrs, {
 					t = t,
 					max = max,
-					phase = phase,
 					info = info,
 				});
 			end
@@ -707,11 +739,11 @@ function BT.UpdateFrame()
 		use_idx = use_idx + 1;
 
 		local label = BT.FormatTime(mtr.t);
-		if (mtr.phase.label) then
-			label = label .. " - " .. mtr.phase.label;
+		if (mtr.info.label) then
+			label = label .. " - " .. mtr.info.label;
 		end
-		if (mtr.phase.special_label) then
-			label = label .. " - " .. BT.specials[mtr.phase.special_label];
+		if (mtr.info.special_label) then
+			label = label .. " - " .. BT.specials[mtr.info.special_label];
 		end
 
 		BT.mtrs[key].btn:SetNormalTexture([[Interface\Icons\]] .. mtr.info.icon);
@@ -720,12 +752,14 @@ function BT.UpdateFrame()
 		BT.mtrs[key].bar:SetValue(mtr.t);
 
 		BT.mtrs[key].bar:SetStatusBarColor(1, 1, 1);
-		if (mtr.phase.color == "green") then 	BT.mtrs[key].bar:SetStatusBarColor(0, 1, 0); end
-		if (mtr.phase.color == "red") then 	BT.mtrs[key].bar:SetStatusBarColor(1, 0, 0); end
+		if (mtr.info.color == "green") then 	BT.mtrs[key].bar:SetStatusBarColor(0, 1, 0); end
+		if (mtr.info.color == "red") then 	BT.mtrs[key].bar:SetStatusBarColor(1, 0, 0); end
 
 		BT.mtrs[key].bar:Show();
 		BT.mtrs[key].btn:Show();
 	end
+
+--BT.Label:SetText(string.format("showing %d timers", use_idx-1))
 
 	for i=use_idx,BT.options.max_mtrs do
 		local key = 'm'..i;
@@ -806,7 +840,7 @@ end
 function BT.GetMeter(info)
 
 	if (not info) then
-		return 0, 0, info;
+		return 0, 0;
 	end
 
 	local t = 0;
@@ -863,7 +897,7 @@ function BT.GetMeter(info)
 		end
 	end
 
-	return t, max, info;
+	return t, max;
 end
 
 function BT.CheckWho(who)
