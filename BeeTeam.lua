@@ -652,15 +652,13 @@ end
 
 function BT.UpdateFrame()
 
+	--
+	-- are we showing the frame?
+	--
+
 	if (_G.BeeTeamDB.opts.hide) then 
 		return;
 	end
-
-	local count_past_limit = 0;
-	local done_at_limit = 0;
-	local done_at_rdy = 0;
-	local btns_at_limit = {};
-	local active_shots = 0;
 
 	local inVehicle = UnitInVehicle("player");
 	if (inVehicle) then
@@ -670,31 +668,34 @@ function BT.UpdateFrame()
 		BT.UIFrame:Show();
 	end
 
-	local can_attack = UnitCanAttack("player", "target");
-	if (can_attack and UnitIsDeadOrGhost("target")) then
-		can_attack = false;
-	end
 
-	for i=1,BT.options.max_prios do
-		local key = 'p'..i;
-		local prio = BT.options.priorities[key];
-		local ability = BT.abilities[prio.which];
-		local ok, t = false, 0;
-		if (ability) then
-			ok, t = BT.GetStatus(ability, prio);
-		end
-		if (not (prio.who == "any")) then
-			ok = BT.CheckWho(prio.who);
-		end
+	--
+	-- gather the data
+	--
 
-		if (ok) then
+	local status = BT.GatherStatus();
 
-			if (t > BT.options.time_limit) then
+
+	--
+	-- display priorities
+	--
+
+	local done_at_limit = 0;
+	local done_at_rdy = 0;
+	local btns_at_limit = {};
+
+	for _,info in pairs(status.priorities) do
+
+		local key = info.key;
+
+		if (info.ok) then
+
+			if (info.t > BT.options.time_limit) then
 				done_at_limit = done_at_limit + 1;
-				BT.rot_btns[key].label:SetText(string.format("%d", t));
+				BT.rot_btns[key].label:SetText(string.format("%d", info.t));
 				table.insert(btns_at_limit, BT.rot_btns[key]);
 			else
-				local x = BT.options.runway * t / BT.options.time_limit;
+				local x = BT.options.runway * info.t / BT.options.time_limit;
 				local y = 0;
 
 				if (x < 40) then
@@ -702,90 +703,26 @@ function BT.UpdateFrame()
 					done_at_rdy = done_at_rdy + 1;
 				end
 
-				local label = " ";
-				if (prio.bind) then label = prio.bind; end
-				if (prio.label) then label = prio.label; end
-
 				BT.rot_btns[key]:SetWidth(40);
 				BT.rot_btns[key]:SetHeight(40);
 				BT.rot_btns[key]:SetPoint("TOPLEFT", x, y);
 
 				BT.SetFontSize(BT.rot_btns[key].label, BT.options.font_size);
-				BT.rot_btns[key].label:SetText(label);
+				BT.rot_btns[key].label:SetText(info.label);
 			end
 		
 			BT.rot_btns[key]:Show();
-			active_shots = active_shots + 1;
 		else
 			BT.rot_btns[key]:Hide();
 		end
 
-		if (can_attack) then
+		if (status.has_viable_target) then
 
 			BT.rot_btns[key]:SetAlpha(1);
 		else
 			BT.rot_btns[key]:SetAlpha(0.5);
 		end
 	end
-
-
-	--
-	-- label over the main bar
-	--
-
-	local label = " ";
-	local warning = false;
-
-	local cur_mana = UnitPower("player", 0);
-	local max_mana = UnitPowerMax("player", 0);
-	local mana_per = cur_mana / max_mana;
-
-	if (mana_per < 0.1) then
-
-		warning = true;
-		label = string.format("Mana Low (%d%%)", 100*mana_per);
-	end
-
-	if (active_shots > 0) then
-
-		if (can_attack) then
-			local inShotRange = IsSpellInRange("Auto Shot");
-			local inMeleeRange = IsSpellInRange("Wing Clip");
-
-			if (not (inShotRange == 1)) then
-				if (inMeleeRange == 1) then
-					label = "Too Close";
-					warning = true;
-				else
-					label = "Too Far";
-					warning = true;
-				end
-			end
-		end
-	else
-		warning = false;
-		label = "No abilities configured - Right click to hide";
-	end
-
-	if (warning) then
-		BT.Label:SetTextColor(1,0,0,1)
-		BT.SetFontSize(BT.Label, BT.options.warning_font_size);
-	else
-		BT.Label:SetTextColor(1,1,1,1)
-		BT.SetFontSize(BT.Label, BT.options.label_font_size);
-	end
-	BT.Label:SetText(label);
-
-
-
-
-
-	if (can_attack) then
-		--BT.UIFrame:SetAlpha(1);
-	else
-		--BT.UIFrame:SetAlpha(0.5);
-	end
-	
 
 	if (done_at_limit > 0) then
 
@@ -818,34 +755,63 @@ function BT.UpdateFrame()
 		end
 	end
 
-	--BT.Label:SetText(string.format("%0.2f, %0.2f", t1, t2))
 
 	--
-	-- start of meters
+	-- center label
 	--
 
-	local show_mtrs = {};
+	local label = " ";
+	local warning = false;
 
-	for key, info in pairs(BT.meterinfo) do
+	if (status.low_on_mana) then
 
-		if (BT.options.meters[key] and info) then
-
-			local temp = BT.GetMeter(info);
-			if (temp.max > 2) then
-				table.insert(show_mtrs, {
-					t = temp.t,
-					max = temp.max,
-					info = info,
-				});
-			end
-		end
+		warning = true;
+		label = string.format("Mana Low (%d%%)", status.mana_percent);
 	end
 
-	table.sort(show_mtrs, function(a,b) return a.max<b.max end);
+	if (status.too_close) then
+		label = "Too Close";
+		warning = true;
+	end
+
+	if (status.too_far) then
+		label = "Too Far";
+		warning = true;
+	end
+
+	if (status.active_shots == 0) then
+		warning = false;
+		label = "No abilities configured - Right click to hide";
+	end
+
+	if (warning) then
+		BT.Label:SetTextColor(1,0,0,1)
+		BT.SetFontSize(BT.Label, BT.options.warning_font_size);
+	else
+		BT.Label:SetTextColor(1,1,1,1)
+		BT.SetFontSize(BT.Label, BT.options.label_font_size);
+	end
+	BT.Label:SetText(label);
+
+
+	--
+	-- whole frame
+	--
+
+	if (status.has_viable_target) then
+		--BT.UIFrame:SetAlpha(1);
+	else
+		--BT.UIFrame:SetAlpha(0.5);
+	end
+
+
+	--
+	-- meters
+	--
 
 	local use_idx = 1;
 
-	for _,mtr in pairs(show_mtrs) do
+	for _,mtr in pairs(status.meters) do
 
 		local key = 'm'..use_idx;
 		use_idx = use_idx + 1;
@@ -871,37 +837,20 @@ function BT.UpdateFrame()
 		BT.mtrs[key].btn:Show();
 	end
 
---BT.Label:SetText(string.format("showing %d timers", use_idx-1))
-
 	for i=use_idx,BT.options.max_mtrs do
 		local key = 'm'..i;
 		BT.mtrs[key].bar:Hide();
-		BT.mtrs[key].btn:Hide();		
+		BT.mtrs[key].btn:Hide();
 	end
 
 
 	--
-	-- start of warnings
+	-- warnings
 	--
-
-	local show_warns = {};
-
-	for key, info in pairs(BT.warningdefs) do
-
-		if (BT.options.warnings[key] and info) then
-
-			local warn = BT.GetWarning(key, info);
-			if (warn.show) then
-				table.insert(show_warns, warn);
-			end
-		end
-	end
-
-	--table.sort(show_warns, function(a,b) return a.max<b.max end);
 
 	local use_idx = 1;
 
-	for _,warn in pairs(show_warns) do
+	for _,warn in pairs(status.warnings) do
 
 		local key = 'w'..use_idx;
 		use_idx = use_idx + 1;
@@ -922,6 +871,137 @@ function BT.UpdateFrame()
 		BT.warn_btns[key]:Hide();		
 	end
 
+end
+
+function BT.GatherStatus()
+
+	local ret = {};
+
+	ret.has_viable_target = UnitCanAttack("player", "target");
+	if (ret.has_viable_target and UnitIsDeadOrGhost("target")) then
+		ret.has_viable_target = false;
+	end
+
+	ret.active_shots = 0;
+	ret.priorities = {};
+
+	for i=1,BT.options.max_prios do
+		local key = 'p'..i;
+		local prio = BT.options.priorities[key];
+		local ability = BT.abilities[prio.which];
+		local ok, t = false, 0;
+		if (ability) then
+			ok, t = BT.GetStatus(ability, prio);
+		end
+		if (not (prio.who == "any")) then
+			ok = BT.CheckWho(prio.who);
+		end
+
+		if (ok) then
+			ret.active_shots = ret.active_shots + 1;
+		end
+
+		local label = " ";
+		if (prio.bind) then label = prio.bind; end
+		if (prio.label) then label = prio.label; end
+
+		table.insert(ret.priorities, {
+			key = key,
+			ok = ok,
+			t = t,
+			label = label,
+		});
+	end
+
+
+	--
+	-- mana level
+	--
+
+	ret.low_on_mana = false;
+
+	local cur_mana = UnitPower("player", 0);
+	local max_mana = UnitPowerMax("player", 0);
+	local mana_per = cur_mana / max_mana;
+
+	if (mana_per < 0.1) then
+
+		ret.low_on_mana = true;
+		ret.mana_percent = 100*mana_per;
+	end
+
+
+	--
+	-- range
+	--
+
+	ret.too_close = false;
+	ret.too_far = false;
+
+	local inShotRange = IsSpellInRange("Auto Shot");
+	local inMeleeRange = IsSpellInRange("Wing Clip");
+
+	if ((ret.active_shots > 0) and ret.has_viable_target) then
+
+		if (not (inShotRange == 1)) then
+			if (inMeleeRange == 1) then
+				ret.too_close = true;
+			else
+				ret.too_far = true;
+			end
+		end
+	end
+
+
+	--
+	-- meters
+	--
+
+	ret.meters = {};
+
+	for key, info in pairs(BT.meterinfo) do
+
+		if (BT.options.meters[key] and info) then
+
+			local temp = BT.GetMeter(info);
+			if (temp.max > 2) then
+				table.insert(ret.meters, {
+					t = temp.t,
+					max = temp.max,
+					info = info,
+				});
+			end
+		end
+	end
+
+	table.sort(ret.meters, function(a,b) return a.max<b.max end);
+
+
+	--
+	-- warnings
+	--
+
+	ret.warnings = {};
+
+	for key, info in pairs(BT.warningdefs) do
+
+		if (BT.options.warnings[key] and info) then
+
+			local warn = BT.GetWarning(key, info);
+			if (warn.show) then
+				table.insert(ret.warnings, warn);
+			end
+		end
+	end
+
+	--table.sort(ret.warnings, function(a,b) return a.max<b.max end);
+
+	return ret;
+end
+
+function BT.GatherDemoStatus()
+
+	local ret = {};
 
 end
 
