@@ -74,6 +74,8 @@ BT.default_options = {
 		hunters_mark = true,
 		serpent_sting = false,
 		mend_pet = true,
+		trap_set = true,
+		trap_triggered = true,
 	},
 	warnings = {
 		no_pet = true,
@@ -151,6 +153,14 @@ BT.meterinfo = {
 		petbuff = "Mend Pet",
 		color = "green",
 	},
+	trap_set = {
+		title = "Freeze Trap Set",
+		color = "green",
+	},
+	trap_triggered = {
+		title = "Freeze Trap Triggered",
+		color = "green",
+	},
 }
 
 BT.warningdefs = {
@@ -177,14 +187,19 @@ BT.warningdefs = {
 	},
 };
 
-BT.specials = {
+BT.state = {
 	md_target = "?",
+	trap_set = false,
+	trap_set_start = 0,
+	trapped_mobs = {},
 };
 
 BT.everything_ready = false;
 BT.waiting_for_bind = false;
 BT.last_check = 0;
 BT.time_between_checks = 5;
+BT.default_icon = "INV_Misc_QuestionMark";
+BT.default_icon_full = [[Interface\Icons\INV_Misc_QuestionMark]];
 
 
 function BT.OnLoad()
@@ -253,9 +268,56 @@ end
 function BT.OnEvent(frame, event, ...)
 
 	if (event == 'COMBAT_LOG_EVENT_UNFILTERED') then
-		if (arg3 == UnitGUID("player") and arg2 == "SPELL_CAST_SUCCESS" and arg10 == "Misdirection") then
-			BT.specials.md_target = arg7;
+
+		local srcUs = false;
+		if (arg3 == UnitGUID("player")) then srcUs = true; end
+
+		if (srcUs and arg2 == "SPELL_CAST_SUCCESS" and arg10 == "Misdirection") then
+			BT.state.md_target = arg7;
 		end
+
+		if ((arg2 == "SPELL_CREATE") and (srcUs) and ((arg10 == "Freezing Arrow") or (arg10 == "Freezing Trap"))) then
+			BT.state.trap_set = true;
+			BT.state.trap_set_start = GetTime();
+			if (arg10 == "Freezing Trap") then BT.meterinfo.trap_set.icon = "spell_frost_chainsofice"; end
+			if (arg10 == "Freezing Arrow") then BT.meterinfo.trap_set.icon = "spell_frost_chillingbolt"; end
+			return;
+		end
+
+		if ((arg2 == "SPELL_MISSED") and srcUs and ((arg10 == "Freezing Arrow Effect") or (arg10 == "Freezing Trap Effect"))) then
+			BT.state.trap_set = false;
+		end
+
+		if ((arg2 == "SPELL_AURA_APPLIED") and srcUs and ((arg10 == "Freezing Arrow Effect") or (arg10 == "Freezing Trap Effect"))) then
+
+			BT.state.trap_set = false;
+			BT.state.trapped_mobs[arg6] = {
+				start = GetTime(),
+				aura = arg10,
+				guid = arg6,
+				name = arg7,
+			};
+			return;
+		end
+
+		if ((arg2 == "SPELL_AURA_REMOVED") and srcUs and ((arg10 == "Freezing Arrow Effect") or (arg10 == "Freezing Trap Effect"))) then
+
+			BT.state.trapped_mobs[arg6] = nil;
+			return;
+		end
+
+
+		if (false) then
+			local dest = arg7;
+			if (not dest) then dest = "?"; end
+			local src = arg4;
+			if (not src) then src = "?"; end
+			local spell = arg10;
+			if (not spell) then spell = "?"; end
+
+			print(string.format("%s (%s -> %s) %s", arg2, src, dest, spell));
+		end
+
 		return;
 	end
 
@@ -854,21 +916,24 @@ function BT.UpdateFrame()
 		use_idx = use_idx + 1;
 
 		local label = BT.FormatTime(mtr.t);
-		if (mtr.info.label) then
-			label = label .. " - " .. mtr.info.label;
+		if (mtr.label) then
+			label = label .. " - " .. mtr.label;
 		end
-		if (mtr.info.special_label) then
-			label = label .. " - " .. BT.specials[mtr.info.special_label];
+		if (mtr.special_label) then
+			label = label .. " - " .. BT.state[mtr.special_label];
 		end
 
-		BT.mtrs[key].btn:SetNormalTexture([[Interface\Icons\]] .. mtr.info.icon);
+		local icon = mtr.icon;
+		if (not icon) then icon = BT.default_icon; end
+
+		BT.mtrs[key].btn:SetNormalTexture([[Interface\Icons\]] .. icon);
 		BT.mtrs[key].bar.label:SetText(label);
 		BT.mtrs[key].bar:SetMinMaxValues(0, mtr.max);
 		BT.mtrs[key].bar:SetValue(mtr.t);
 
 		BT.mtrs[key].bar:SetStatusBarColor(1, 1, 1);
-		if (mtr.info.color == "green") then 	BT.mtrs[key].bar:SetStatusBarColor(0, 1, 0); end
-		if (mtr.info.color == "red") then 	BT.mtrs[key].bar:SetStatusBarColor(1, 0, 0); end
+		if (mtr.color == "green") then 	BT.mtrs[key].bar:SetStatusBarColor(0, 1, 0); end
+		if (mtr.color == "red") then 	BT.mtrs[key].bar:SetStatusBarColor(1, 0, 0); end
 
 		BT.mtrs[key].bar:Show();
 		BT.mtrs[key].btn:Show();
@@ -892,7 +957,10 @@ function BT.UpdateFrame()
 		local key = 'w'..use_idx;
 		use_idx = use_idx + 1;
 
-		BT.warn_btns[key].texture:SetTexture(warn.icon);
+		local icon = warn.icon;
+		if (not icon) then icon = BT.default_icon_full; end;
+
+		BT.warn_btns[key].texture:SetTexture(icon);
 
 		if (warn.tex_coords) then
 			BT.warn_btns[key].texture:SetTexCoord(warn.tex_coords[1], warn.tex_coords[2], warn.tex_coords[3], warn.tex_coords[4]);
@@ -1000,13 +1068,19 @@ function BT.GatherStatus()
 
 		if (BT.options.meters[key] and info) then
 
+			info.key = key;
+
 			local temp = BT.GetMeter(info);
-			if (temp.max > 2) then
-				table.insert(ret.meters, {
-					t = temp.t,
-					max = temp.max,
-					info = info,
-				});
+			if (temp.multi) then
+				for _,temp2 in pairs(temp.multi) do
+					if (temp2.max > 2) then
+						table.insert(ret.meters, temp2);
+					end
+				end
+			else
+				if (temp.max > 2) then
+					table.insert(ret.meters, temp);
+				end
 			end
 		end
 	end
@@ -1100,11 +1174,10 @@ function BT.GatherDemoStatus()
 
 		if (BT.options.meters[key] and info) then
 
-			table.insert(ret.meters, {
-				t = v,
-				max = 10,
-				info = info,
-			});
+			info.t = v;
+			info.max = 10;
+
+			table.insert(ret.meters, info);
 		end
 
 		v = v - 1;
@@ -1144,11 +1217,6 @@ function BT.GetWarning(key, info)
 
 	info.key = key;
 	info.show = false;
-
-	if (BT.options.demo_mode) then
-		info.show = true;
-		return info;
-	end
 
 	if (key == "no_pet") then
 		if (IsMounted()) then return info; end
@@ -1225,10 +1293,6 @@ end
 
 function BT.GetStatus(ability, prio)
 
-	if (BT.options.demo_mode) then
-		return true, 1;
-	end
-
 	local t = 0;
 
 	if (ability.spell) then
@@ -1295,51 +1359,98 @@ end
 
 function BT.GetMeter(info)
 
-	local ret = {
-		t = 0,
-		max = 0,
-	};
-
-	if (BT.options.demo_mode) then
-		return {
-			t = 10,
-			max = 10,
-		};
-	end
+	info.t = 0;
+	info.max = 0;
 
 	if (not info) then
-		return ret;
+		return info;
+	end
+
+	if (info.key == "trap_set") then
+
+		if (BT.state.trap_set) then
+
+			local duration = GetTime() - BT.state.trap_set_start;
+			local max = 30;
+
+			if (duration > max) then
+				BT.state.trap_set = false;
+			else
+				info.max = max;
+				info.t = max - duration;
+			end
+		end
+		return info;
+	end
+
+	if (info.key == "trap_triggered") then
+
+		info.multi = {};
+
+		for guid, details in pairs(BT.state.trapped_mobs) do
+
+			local info2 = BT.CopyTable(info);
+			local duration = GetTime() - details.start;
+			local max = 20;
+
+			if (duration > max) then
+				info2.t = 0.1;
+				info2.max = max;
+			else
+				info2.max = max;
+				info2.t = max - duration;
+			end		
+
+			info2.label = details.name;
+
+			if (details.aura == "Freezing Trap Effect") then info2.icon = "spell_frost_chainsofice"; end
+			if (details.aura == "Freezing Arrow Effect") then info2.icon = "spell_frost_chillingbolt"; end
+
+			info.multi[guid] = info2;
+		end
+
+		return info;
 	end
 
 	if (info.buff) then
 		local temp = BT.CheckBuff(UnitBuff, info.buff, "player", false);
 		if (temp.t > 0) then
-			ret = temp;
+			info.t = temp.t;
+			info.max = temp.max;
 		end
 	end
 
 	if (info.debuff) then
 		local temp = BT.CheckBuff(UnitDebuff, info.debuff, "target", true);
 		if (temp.t > 0) then
-			ret = temp;
+			info.t = temp.t;
+			info.max = temp.max;
 		end
 	end
 
 	if (info.spell) then
 		local temp = BT.CheckCooldown(info.spell);
 		if (temp.usable and temp.t > 0) then
-			ret = temp;
+			info.t = temp.t;
+			info.max = temp.max;
 		end
 	end
 
 	if (info.petbuff) then
 		local temp = BT.CheckBuff(UnitBuff, info.petbuff, "pet", false);
 		if (temp.t > 0) then
-			ret = temp;
+			info.t = temp.t;
+			info.max = temp.max;
 		end
 	end
 
-	return ret;
+	return info;
+end
+
+function BT.CopyTable(a)
+	local b = {};
+	for k, v in pairs(a) do b[k] = v end
+	return b;
 end
 
 function BT.CheckCooldown(spell)
