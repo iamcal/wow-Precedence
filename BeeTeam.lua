@@ -160,9 +160,12 @@ BT.warningdefs = {
 	},
 	sad_pet = {
 		title = "Sad Pet",
+		icon = [[Interface\PetPaperDollFrame\UI-PetHappiness]],
+		tex_coords = {0.375, 0.5625, 0, 0.359375},
 	},
 	bad_aspect = {
 		title = "Wrong Aspect",
+		icon = [[Interface\Icons\ability_hunter_pet_dragonhawk]],
 	},
 	no_hunters_mark = {
 		title = "Missing Hunter's Mark",
