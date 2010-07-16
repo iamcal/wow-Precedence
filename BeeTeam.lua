@@ -1,10 +1,15 @@
 BT = {}
 
-BT.defaults = {
-	-- put options here and they will get copied into the real options hash
-};
+BT.options = {};
+BT.default_options = {
 
-BT.options = {
+	frameRef = "CENTER",
+	frameX = 0,
+	frameY = 0,
+
+	locked = false,
+	hide = false,
+
 	runway = 200,
 	time_limit = 10,
 	font_size = 8,
@@ -188,6 +193,8 @@ function BT.OnReady()
 	_G.BeeTeamDB = _G.BeeTeamDB or {};
 	_G.BeeTeamDB.opts = _G.BeeTeamDB.opts or {};
 
+	BT.options = BT.LoadOptions(BT.default_options, _G.BeeTeamDB.opts);
+
 	BTOptionsFrame.name = 'Bee Team';
 	InterfaceOptions_AddCategory(BTOptionsFrame);
 
@@ -214,13 +221,29 @@ function BT.OptionClick(button, name)
 
 end
 
+function BT.LoadOptions(defaults, current)
+
+	local out = {};
+
+	for k,v in pairs(defaults) do
+		if (current[k]) then
+			out[k] = current[k];
+		else
+			out[k] = v;
+		end
+	end
+
+	return out;
+end
 
 function BT.OnSaving()
 
 	local point, relativeTo, relativePoint, xOfs, yOfs = BT.UIFrame:GetPoint()
-	_G.BeeTeamDB.opts.frameRef = relativePoint;
-	_G.BeeTeamDB.opts.frameX = xOfs;
-	_G.BeeTeamDB.opts.frameY = yOfs;
+	BT.options.frameRef = relativePoint;
+	BT.options.frameX = xOfs;
+	BT.options.frameY = yOfs;
+
+	_G.BeeTeamDB.opts = BT.options;
 end
 
 
@@ -254,7 +277,7 @@ function BT.OnEvent(frame, event, ...)
 end
 
 function BT.OnDragStart(frame)
-	if (_G.BeeTeamDB.opts.locked) then
+	if (BT.options.locked) then
 		return;
 	end
 	BT.UIFrame:StartMoving();
@@ -288,10 +311,10 @@ function BT.StartFrame()
 	local frameRef = "CENTER";
 	local frameX = 0;
 	local frameY = 0;
-	if (_G.BeeTeamDB.opts.frameRef) then
-		frameRef = _G.BeeTeamDB.opts.frameRef;
-		frameX = _G.BeeTeamDB.opts.frameX;
-		frameY = _G.BeeTeamDB.opts.frameY;
+	if (BT.options.frameRef) then
+		frameRef = BT.options.frameRef;
+		frameX = BT.options.frameX;
+		frameY = BT.options.frameY;
 	end
 	BT.UIFrame:SetPoint(frameRef, frameX, frameY);
 
@@ -413,8 +436,8 @@ function BT.StartFrame()
 	end
 
 
-	BT.SetLocked(_G.BeeTeamDB.opts.locked);
-	BT.SetHide(_G.BeeTeamDB.opts.hide);
+	BT.SetLocked(BT.options.locked);
+	BT.SetHide(BT.options.hide);
 end
 
 function BT.ShowMenu()
@@ -433,7 +456,7 @@ function BT.ShowMenu()
 	});
 
 	local locked = false;
-	if (_G.BeeTeamDB.opts.locked) then locked = true; end
+	if (BT.options.locked) then locked = true; end
 
 	table.insert(menuList, {
 		text = "Demo Mode",
@@ -656,7 +679,7 @@ function BT.UpdateFrame()
 	-- are we showing the frame?
 	--
 
-	if (_G.BeeTeamDB.opts.hide) then 
+	if (BT.options.hide) then 
 		return;
 	end
 
@@ -673,7 +696,13 @@ function BT.UpdateFrame()
 	-- gather the data
 	--
 
-	local status = BT.GatherStatus();
+	local status = nil;
+
+	if (BT.options.demo_mode) then
+		status = BT.GatherDemoStatus();
+	else
+		status = BT.GatherStatus();
+	end
 
 
 	--
@@ -782,6 +811,11 @@ function BT.UpdateFrame()
 	if (status.active_shots == 0) then
 		warning = false;
 		label = "No abilities configured - Right click to hide";
+	end
+
+	if (BT.options.demo_mode) then
+		warning = true;
+		label = "Demo Mode Active";
 	end
 
 	if (warning) then
@@ -1003,6 +1037,104 @@ function BT.GatherDemoStatus()
 
 	local ret = {};
 
+	ret.has_viable_target = true;
+	ret.low_on_mana = false;
+	ret.too_close = false;
+	ret.too_far = false;
+
+	ret.active_shots = 0;
+	ret.priorities = {};
+
+	for i=1,BT.options.max_prios do
+		local key = 'p'..i;
+		local prio = BT.options.priorities[key];
+		local ability = BT.abilities[prio.which];
+
+		local ok = false;
+		local t = 0;
+		local label = " ";
+		if (prio.bind) then label = prio.bind; end
+		if (prio.label) then label = prio.label; end
+
+		if (ability) then
+			ret.active_shots = ret.active_shots + 1;
+			ok = true;
+			if (ret.active_shots < 3) then
+				ok = true;
+				t = 0;
+			elseif (ret.active_shots == 3) then
+				ok = true;
+				t = 0.5;
+			elseif (ret.active_shots == 4) then
+				ok = true;
+				t = BT.options.time_limit + 1;
+			elseif (ret.active_shots == 5) then
+				ok = true;
+				t = 99;
+			else
+				ok = true;
+				t = ret.active_shots - 2;
+			end
+		end
+
+		table.insert(ret.priorities, {
+			key = key,
+			ok = ok,
+			t = t,
+			label = label,
+		});
+	end
+
+
+	--
+	-- meters
+	--
+
+	ret.meters = {};
+	local v = 10;
+
+	for key, info in pairs(BT.meterinfo) do
+
+		if (BT.options.meters[key] and info) then
+
+			table.insert(ret.meters, {
+				t = v,
+				max = 10,
+				info = info,
+			});
+		end
+
+		v = v - 1;
+	end
+
+	table.sort(ret.meters, function(a,b)
+		if (a.max == b.max) then
+			return a.t < b.t
+		end
+		return a.max < b.max
+	end);
+
+
+	--
+	-- warnings
+	--
+
+	ret.warnings = {};
+
+	for key, info in pairs(BT.warningdefs) do
+
+		if (BT.options.warnings[key] and info) then
+
+			info.key = key;
+			info.show = true;
+
+			table.insert(ret.warnings, info);
+		end
+	end
+
+	--table.sort(ret.warnings, function(a,b) return a.max<b.max end);
+
+	return ret;
 end
 
 function BT.GetWarning(key, info)
@@ -1296,7 +1428,7 @@ function BT.OnUpdate()
 		BT.PeriodicCheck();
 	end
 
-	if (_G.BeeTeamDB.opts.hide) then 
+	if (BT.options.hide) then 
 		return;
 	end
 
@@ -1313,7 +1445,7 @@ function BT.SetFontSize(string, size)
 end
 
 function BT.SetHide(a)
-	_G.BeeTeamDB.opts.hide = a;
+	BT.options.hide = a;
 	if (a) then
 		BT.UIFrame:Hide();
 		BTOptionsFrameCheck1:SetChecked(false);
@@ -1326,7 +1458,7 @@ function BT.SetHide(a)
 end
 
 function BT.SetLocked(a)
-	_G.BeeTeamDB.opts.locked = a;
+	BT.options.locked = a;
 	BTOptionsFrameCheck2:SetChecked(a);
 end
 
@@ -1338,7 +1470,7 @@ function BT.ResetPos()
 end
 
 function BT.ToggleLock()
-	if (_G.BeeTeamDB.opts.locked) then
+	if (BT.options.locked) then
 		BT.SetLocked(false);
 	else
 		BT.SetLocked(true);
@@ -1346,7 +1478,7 @@ function BT.ToggleLock()
 end
 
 function BT.ToggleHide()
-	if (_G.BeeTeamDB.opts.hide) then
+	if (BT.options.hide) then
 		BT.SetHide(false);
 	else
 		BT.SetHide(true);
