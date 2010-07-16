@@ -147,6 +147,23 @@ BT.meterinfo = {
 	},
 }
 
+BT.warningdefs = {
+	no_pet = {
+		label = "Missing Pet",
+		icon = [[Interface\Icons\inv_box_petcarrier_01]],
+	},
+	sad_pet = {
+		label = "Sad Pet",
+	},
+	bad_aspect = {
+		label = "Wrong Aspect",
+	},
+	no_hunters_mark = {
+	},
+	bad_weapon = {
+	},
+};
+
 BT.specials = {
 	md_target = "?",
 };
@@ -283,7 +300,7 @@ function BT.StartFrame()
 	for i=1,BT.options.max_prios do
 		local key = 'p'..i;
 		BT.rot_btns[key] = BT.CreateButton(0, 0, 40, 40, [[Interface\Icons\ability_hunter_pet_dragonhawk]]);
-		BT.rot_btns[key]:SetFrameLevel(1 + BT.options.max_prios - i);
+		BT.rot_btns[key]:SetFrameLevel(100 + BT.options.max_prios - i);
 	end
 
 	-- progress meters
@@ -295,6 +312,14 @@ function BT.StartFrame()
 			bar = BT.CreateBar(BT.options.mtr_icon_size, 40 + ((i-1) * BT.options.mtr_icon_size), BT.fullW-BT.options.mtr_icon_size, BT.options.mtr_icon_size),
 		};
 	end
+
+	-- warnings
+	BT.warn_btns = {};
+	for i=1,BT.options.max_warns do
+		local key = 'w'..i;
+		BT.warn_btns[key] = BT.CreateTextureFrame(BT.fullW-(i * 20), 0-20, 20, 20, [[Interface\Icons\ability_hunter_pet_dragonhawk]]);
+	end
+	
 
 
 	-- create a button that covers the entire addon
@@ -408,6 +433,28 @@ function BT.CreateButton(x, y, w, h, texture)
 	b.label:SetFont([[Fonts\FRIZQT__.TTF]], 12, "OUTLINE");
 	b.label:SetPoint("CENTER", b, "CENTER", 0, 0);
 	b.label:SetText(" ");
+
+	return b;
+end
+
+function BT.CreateTextureFrame(x, y, w, h, texture)
+
+	local b = CreateFrame("Frame", nil, BT.UIFrame);
+	b:SetPoint("TOPLEFT", x, 0-y)
+	b:SetWidth(w)
+	b:SetHeight(h)
+
+	b.texture = b:CreateTexture(nil, "ARTWORK");
+	b.texture:SetAllPoints(b)
+	b.texture:SetTexture(texture)
+
+	b.border = b:CreateTexture(nil, "OVERLAY");
+	b.border:SetPoint("CENTER", 0, 0);
+	b.border:SetWidth(math.floor(w * 62/36));
+	b.border:SetHeight(math.floor(h * 62/36));
+	b.border:SetTexture([[Interface\Buttons\UI-ActionButton-Border]]);
+	b.border:SetBlendMode("ADD");
+	b.border:SetVertexColor(1, 0, 0);
 
 	return b;
 end
@@ -767,8 +814,116 @@ function BT.UpdateFrame()
 		BT.mtrs[key].btn:Hide();		
 	end
 
-	
 
+	--
+	-- start of warnings
+	--
+
+	local show_warns = {};
+
+	for key, info in pairs(BT.warningdefs) do
+
+		if (BT.options.warnings[key] and info) then
+
+			local warn = BT.GetWarning(key, info);
+			if (warn.show) then
+				table.insert(show_warns, warn);
+			end
+		end
+	end
+
+	--table.sort(show_warns, function(a,b) return a.max<b.max end);
+
+	local use_idx = 1;
+
+	for _,warn in pairs(show_warns) do
+
+		local key = 'w'..use_idx;
+		use_idx = use_idx + 1;
+
+		BT.warn_btns[key].texture:SetTexture(warn.icon);
+
+		if (warn.tex_coords) then
+			BT.warn_btns[key].texture:SetTexCoord(warn.tex_coords[1], warn.tex_coords[2], warn.tex_coords[3], warn.tex_coords[4]);
+		else
+			BT.warn_btns[key].texture:SetTexCoord(0, 1, 0, 1);
+		end
+
+		BT.warn_btns[key]:Show();
+	end
+
+	for i=use_idx,BT.options.max_warns do
+		local key = 'w'..i;
+		BT.warn_btns[key]:Hide();		
+	end
+
+
+end
+
+function BT.GetWarning(key, info)
+
+	info.key = key;
+	info.show = false;
+
+	if (key == "no_pet") then
+		if (IsMounted()) then return info; end
+		if (UnitGUID("pet")) then
+			if (UnitHealth("pet") == 0) then
+				info.show = true;
+				return info;
+			end
+			return info;
+		end
+		info.show = true;
+		return info;
+	end
+
+	if (key == "sad_pet") then
+		local happiness, damagePercentage, loyaltyRate = GetPetHappiness()
+		if (not happiness) then return info; end -- no pet
+		if (happiness == 3) then return info; end -- happy
+
+		info.icon = [[Interface\PetPaperDollFrame\UI-PetHappiness]];
+		info.show = true;
+
+		if (happiness == 1) then info.tex_coords = {0.375, 0.5625, 0, 0.359375}; end
+		if (happiness == 2) then info.tex_coords = {0.1875, 0.375, 0, 0.359375}; end
+
+		return info;
+	end
+
+	if (key == "bad_aspect") then
+
+		local bad_icon = nil;
+		local found_dh = false;
+		local index = 1
+
+		while UnitBuff("player", index) do
+			local name, _, _, count, _, _, buffExpires, caster = UnitBuff("player", index)
+			if (name == "Aspect of the Beast"	) then bad_icon = "ability_mount_pinktiger"; end
+			if (name == "Aspect of the Cheetah"	) then bad_icon = "ability_mount_jungletiger"; end
+			if (name == "Aspect of the Hawk"	) then bad_icon = "spell_nature_ravenform"; end
+			if (name == "Aspect of the Monkey"	) then bad_icon = "ability_hunter_aspectofthemonkey"; end
+			if (name == "Aspect of the Pack"	) then bad_icon = "ability_mount_whitetiger"; end
+			if (name == "Aspect of the Viper"	) then bad_icon = "ability_hunter_aspectoftheviper"; end
+			if (name == "Aspect of the Wild"	) then bad_icon = "spell_nature_protectionformnature"; end
+			if (name == "Aspect of the Dragonhawk"	) then found_dh = true; end
+			index = index + 1
+		end
+
+		if (bad_icon) then
+			info.show = true;
+			info.icon = [[Interface\Icons\]] .. bad_icon;
+		else
+			if (not found_dh) then
+				info.show = true;
+				info.icon = [[Interface\Icons\ability_hunter_pet_dragonhawk]];
+			end
+		end
+		return info;
+	end
+
+	return info;
 end
 
 function BT.GetStatus(ability, prio)
@@ -847,28 +1002,18 @@ function BT.GetMeter(info)
 	local max = 0;
 
 	if (info.buff) then
-
-		local index = 1
-		while UnitBuff("player", index) do
-			local name, _, _, count, _, duration, buffExpires, caster = UnitBuff("player", index)
-			if (name == info.buff) then
-				t = buffExpires - GetTime()
-				max = duration;
-			end
-			index = index + 1
+		local t2, max2 = BT.PlayerBuffed(info.buff);
+		if (t2 > 0) then
+			t = t2;
+			max = max2;
 		end
 	end
 
 	if (info.debuff) then
-
-		local index = 1
-		while UnitDebuff("target", index) do
-			local name, _, _, count, _, duration, debuffExpires, caster = UnitDebuff("target", index)
-			if ((name == info.debuff) and (caster == "player")) then
-				t = debuffExpires - GetTime();
-				max = duration;
-			end
-			index = index + 1
+		local t2, max2 = BT.TargetDebuffed(info.debuff, true);
+		if (t2 > 0) then
+			t = t2;
+			max = max2;
 		end
 	end
 
@@ -898,6 +1043,38 @@ function BT.GetMeter(info)
 	end
 
 	return t, max;
+end
+
+function BT.PlayerBuffed(buff)
+
+	local index = 1
+	while UnitBuff("player", index) do
+		local name, _, _, count, _, duration, buffExpires, caster = UnitBuff("player", index)
+		if (name == buff) then
+			local t = buffExpires - GetTime()
+			local max = duration;
+			return t, max;
+		end
+		index = index + 1
+	end
+
+	return 0, 0;
+end
+
+function BT.TargetDebuffed(debuff, must_be_ours)
+
+	local index = 1
+	while UnitDebuff("target", index) do
+		local name, _, _, count, _, duration, debuffExpires, caster = UnitDebuff("target", index)
+		if ((name == debuff) and ((not must_be_ours) or (caster == "player"))) then
+			local t = debuffExpires - GetTime();
+			local max = duration;
+			return t, max;
+		end
+		index = index + 1
+	end
+
+	return 0, 0;
 end
 
 function BT.CheckWho(who)
