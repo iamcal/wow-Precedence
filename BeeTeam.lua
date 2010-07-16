@@ -384,7 +384,7 @@ function BT.StartFrame()
 	-- Add options to the dialog
 	local py = 100;
 
-	BT.CreateHeading(0, py, "Timers");
+	BT.CreateHeading(16, py, "Timers");
 	py = py + 20;
 
 	for key, info in pairs(BT.meterinfo) do
@@ -396,7 +396,7 @@ function BT.StartFrame()
 		if (info.petbuff) then label = info.petbuff; end
 		if (info.title) then label = info.title; end
 
-		local check = BT.CreateCheckBox("BTCheckMeter-"..key, 0, py, BT.options.meters[key], label);
+		local check = BT.CreateCheckBox("BTCheckMeter-"..key, 16, py, BT.options.meters[key], label);
 		check.key = key;
 		check:SetScript("OnClick", function(self)
 			if (self:GetChecked()) then
@@ -412,7 +412,7 @@ function BT.StartFrame()
 	end
 
 	py = py + 20;
-	BT.CreateHeading(0, py, "Warnings");
+	BT.CreateHeading(16, py, "Warnings");
 	py = py + 20;
 
 	for key, info in pairs(BT.warningdefs) do
@@ -420,7 +420,7 @@ function BT.StartFrame()
 		local label = "?";
 		if (info.title) then label = info.title; end
 
-		local check = BT.CreateCheckBox("BTCheckWarn-"..key, 0, py, BT.options.warnings[key], label);
+		local check = BT.CreateCheckBox("BTCheckWarn-"..key, 16, py, BT.options.warnings[key], label);
 		check.key = key;
 		check:SetScript("OnClick", function(self)
 			if (self:GetChecked()) then
@@ -491,7 +491,7 @@ end
 
 function BT.CreateHeading(x, y, text)
 
-	local h = BT.UIFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge");
+	local h = BTOptionsFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge");
 	h:SetPoint("TOPLEFT", x, 0-y);
 	h:SetText(text);
 	h:Show();
@@ -567,7 +567,7 @@ end
 
 function BT.CreateCheckBox(id, x, y, checked, text)
 
-	local check = CreateFrame("CheckButton", id, BT.UIFrame, "InterfaceOptionsCheckButtonTemplate");
+	local check = CreateFrame("CheckButton", id, BTOptionsFrame, "InterfaceOptionsCheckButtonTemplate");
 	check:SetChecked(checked);
 	check.label = _G[check:GetName().."Text"];
 	check.label:SetText(text);
