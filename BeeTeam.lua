@@ -15,6 +15,7 @@ BT.options = {
 	max_mtrs = 10,
 	max_warns = 10,
 	mtr_icon_size = 20,
+	demo_mode = false,
 	priorities = {
 		p1 = {
 			which = "rapid",
@@ -149,18 +150,22 @@ BT.meterinfo = {
 
 BT.warningdefs = {
 	no_pet = {
-		label = "Missing Pet",
+		title = "Missing Pet",
 		icon = [[Interface\Icons\inv_box_petcarrier_01]],
 	},
 	sad_pet = {
-		label = "Sad Pet",
+		title = "Sad Pet",
 	},
 	bad_aspect = {
-		label = "Wrong Aspect",
+		title = "Wrong Aspect",
 	},
 	no_hunters_mark = {
+		title = "Missing Hunter's Mark",
+		icon = [[Interface\Icons\ability_hunter_snipershot]],
 	},
 	bad_weapon = {
+		title = "Bad Weapon Equipped",
+		not_implemented = true,
 	},
 };
 
@@ -352,6 +357,10 @@ function BT.StartFrame()
 
 	-- Add options to the dialog
 	local py = 100;
+
+	BT.CreateHeading(0, py, "Timers");
+	py = py + 20;
+
 	for key, info in pairs(BT.meterinfo) do
 
 		local label = "?";
@@ -365,16 +374,44 @@ function BT.StartFrame()
 		check.key = key;
 		check:SetScript("OnClick", function(self)
 			if (self:GetChecked()) then
-				print("option "..self.key.." is ON");
+				--print("option "..self.key.." is ON");
 				BT.options.meters[self.key] = true;
 			else
-				print("option "..self.key.." is OFF");
+				--print("option "..self.key.." is OFF");
 				BT.options.meters[self.key] = false;
 			end
 		end);
 
 		py = py + 20;
 	end
+
+	py = py + 20;
+	BT.CreateHeading(0, py, "Warnings");
+	py = py + 20;
+
+	for key, info in pairs(BT.warningdefs) do
+
+		local label = "?";
+		if (info.title) then label = info.title; end
+
+		local check = BT.CreateCheckBox("BTCheckWarn-"..key, 0, py, BT.options.warnings[key], label);
+		check.key = key;
+		check:SetScript("OnClick", function(self)
+			if (self:GetChecked()) then
+				--print("warning "..self.key.." is ON");
+				BT.options.warnings[self.key] = true;
+			else
+				--print("warning "..self.key.." is OFF");
+				BT.options.warnings[self.key] = false;
+			end
+		end);
+		if (info.not_implemented) then
+			check.label:SetTextColor(1,0,0);
+		end
+
+		py = py + 20;
+	end
+
 
 	BT.SetLocked(_G.BeeTeamDB.opts.locked);
 	BT.SetHide(_G.BeeTeamDB.opts.hide);
@@ -399,6 +436,14 @@ function BT.ShowMenu()
 	if (_G.BeeTeamDB.opts.locked) then locked = true; end
 
 	table.insert(menuList, {
+		text = "Demo Mode",
+		func = function() BT.options.demo_mode = not BT.options.demo_mode end,
+		isTitle = false,
+		checked = BT.options.demo_mode,
+		disabled = false,
+	});
+
+	table.insert(menuList, {
 		text = "Lock Frame",
 		func = function() BT.ToggleLock() end,
 		isTitle = false,
@@ -416,6 +461,18 @@ function BT.ShowMenu()
 
 	EasyMenu(menuList, menu_frame, "cursor", 0 , 0, "MENU")
 
+end
+
+function BT.CreateHeading(x, y, text)
+
+	local h = BT.UIFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge");
+	h:SetPoint("TOPLEFT", x, 0-y);
+	h:SetText(text);
+	h:Show();
+	--BT.Label:SetTextColor(1,1,1,1)
+	--BT.SetFontSize(BT.Label, 10)
+
+	return h;
 end
 
 function BT.CreateButton(x, y, w, h, texture)
@@ -583,6 +640,14 @@ function BT.BindKeys()
 		local ok = SetOverrideBinding(BT.UIFrame, true, bind, cmd);
 		-- TODO: report error if we can't bind...
 	end
+end
+
+function BT.HasViableTarget()
+	local can_attack = UnitCanAttack("player", "target");
+	if (can_attack and UnitIsDeadOrGhost("target")) then
+		can_attack = false;
+	end
+	return can_attack;
 end
 
 function BT.UpdateFrame()
@@ -765,11 +830,11 @@ function BT.UpdateFrame()
 
 		if (BT.options.meters[key] and info) then
 
-			local t, max = BT.GetMeter(info);
-			if (max > 2) then
+			local temp = BT.GetMeter(info);
+			if (temp.max > 2) then
 				table.insert(show_mtrs, {
-					t = t,
-					max = max,
+					t = temp.t,
+					max = temp.max,
 					info = info,
 				});
 			end
@@ -865,6 +930,11 @@ function BT.GetWarning(key, info)
 	info.key = key;
 	info.show = false;
 
+	if (BT.options.demo_mode) then
+		info.show = true;
+		return info;
+	end
+
 	if (key == "no_pet") then
 		if (IsMounted()) then return info; end
 		if (UnitGUID("pet")) then
@@ -923,10 +993,26 @@ function BT.GetWarning(key, info)
 		return info;
 	end
 
+
+	if (key == "no_hunters_mark") then
+
+		if (BT.HasViableTarget()) then
+
+			local temp = BT.CheckBuff(UnitDebuff, "Hunter's Mark", "target", false);
+			if (temp.t == 0) then
+				info.show = true;
+			end
+		end
+	end
+
 	return info;
 end
 
 function BT.GetStatus(ability, prio)
+
+	if (BT.options.demo_mode) then
+		return true, 1;
+	end
 
 	local t = 0;
 
@@ -994,88 +1080,95 @@ end
 
 function BT.GetMeter(info)
 
-	if (not info) then
-		return 0, 0;
+	local ret = {
+		t = 0,
+		max = 0,
+	};
+
+	if (BT.options.demo_mode) then
+		return {
+			t = 10,
+			max = 10,
+		};
 	end
 
-	local t = 0;
-	local max = 0;
+	if (not info) then
+		return ret;
+	end
 
 	if (info.buff) then
-		local t2, max2 = BT.PlayerBuffed(info.buff);
-		if (t2 > 0) then
-			t = t2;
-			max = max2;
+		local temp = BT.CheckBuff(UnitBuff, info.buff, "player", false);
+		if (temp.t > 0) then
+			ret = temp;
 		end
 	end
 
 	if (info.debuff) then
-		local t2, max2 = BT.TargetDebuffed(info.debuff, true);
-		if (t2 > 0) then
-			t = t2;
-			max = max2;
+		local temp = BT.CheckBuff(UnitDebuff, info.debuff, "target", true);
+		if (temp.t > 0) then
+			ret = temp;
 		end
 	end
 
 	if (info.spell) then
-
-		local usable = IsUsableSpell(info.spell);
-		if (usable) then
-			local start, duration = GetSpellCooldown(info.spell);
-			if duration > 0 then
-				t = start + duration - GetTime()
-				max = duration;
-			end
+		local temp = BT.CheckCooldown(info.spell);
+		if (temp.usable and temp.t > 0) then
+			ret = temp;
 		end
 	end
 
 	if (info.petbuff) then
-
-		local index = 1
-		while UnitBuff("player", index) do
-			local name, _, _, count, _, duration, buffExpires, caster = UnitBuff("pet", index)
-			if (name == info.petbuff) then
-				t = buffExpires - GetTime()
-				max = duration;
-			end
-			index = index + 1
+		local temp = BT.CheckBuff(UnitBuff, info.petbuff, "pet", false);
+		if (temp.t > 0) then
+			ret = temp;
 		end
 	end
 
-	return t, max;
+	return ret;
 end
 
-function BT.PlayerBuffed(buff)
+function BT.CheckCooldown(spell)
+
+	local usable = IsUsableSpell(spell);
+	local t = 0;
+	local max = 0;
+
+	if (usable) then
+		local start, duration = GetSpellCooldown(spell);
+		if duration > 0 then
+			t = start + duration - GetTime();
+			max = duration;
+		end
+	end
+
+	return {
+		usable = usable,
+		t = t,
+		max = max,
+	};
+end
+
+function BT.CheckBuff(qfunc, buff, target, must_be_ours)
 
 	local index = 1
-	while UnitBuff("player", index) do
-		local name, _, _, count, _, duration, buffExpires, caster = UnitBuff("player", index)
-		if (name == buff) then
-			local t = buffExpires - GetTime()
-			local max = duration;
-			return t, max;
+	while qfunc(target, index) do
+		local name, _, _, count, _, duration, buffExpires, caster = qfunc(target, index)
+
+		if ((name == buff) and ((not must_be_ours) or (caster == "player"))) then
+			return {
+				t = buffExpires - GetTime(),
+				max = duration,
+			};
 		end
 		index = index + 1
 	end
 
-	return 0, 0;
+	return {
+		t = 0,
+		max = 0,
+	};
 end
 
-function BT.TargetDebuffed(debuff, must_be_ours)
-
-	local index = 1
-	while UnitDebuff("target", index) do
-		local name, _, _, count, _, duration, debuffExpires, caster = UnitDebuff("target", index)
-		if ((name == debuff) and ((not must_be_ours) or (caster == "player"))) then
-			local t = debuffExpires - GetTime();
-			local max = duration;
-			return t, max;
-		end
-		index = index + 1
-	end
-
-	return 0, 0;
-end
 
 function BT.CheckWho(who)
 	local lvl = UnitLevel("target");
