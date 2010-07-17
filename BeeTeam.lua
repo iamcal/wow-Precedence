@@ -10,6 +10,9 @@ BT.default_options = {
 	locked = false,
 	hide = false,
 
+	viper_mana_bigger = 90,
+	mana_low_warning = 10,
+
 	runway = 200,
 	time_limit = 10,
 	font_size = 8,
@@ -83,6 +86,7 @@ BT.default_options = {
 		bad_aspect = true,
 		no_hunters_mark = true,
 		bad_weapon = true, -- fishing pole, lance
+		low_ammo = true,
 	},
 };
 
@@ -183,7 +187,8 @@ BT.warningdefs = {
 	},
 	bad_weapon = {
 		title = "Bad Weapon Equipped",
-		not_implemented = true,
+		icon = [[Interface\Icons\inv_weapon_shortblade_05]],
+		--not_implemented = true,
 	},
 };
 
@@ -416,7 +421,7 @@ function BT.StartFrame()
 
 
 	-- create a button that covers the entire addon
-	BT.Cover = CreateFrame("Button", "foo", BT.UIFrame);
+	BT.Cover = CreateFrame("Button", "BTCover", BT.UIFrame);
 	BT.Cover:SetFrameLevel(128)
 	BT.Cover:SetPoint("TOPLEFT", 0, 0)
 	BT.Cover:SetWidth(BT.fullW)
@@ -501,8 +506,39 @@ function BT.StartFrame()
 	end
 
 
+	local a = BT.CreateSlider('mySlider', 0, -100, 200, 20, "Meter Size", BT.options.mtr_icon_size, 5, 40, 1);
+	a:SetScript("OnValueChanged", function(self)
+		local value = self:GetValue();
+		self.label:SetText(self.default_label.." : "..value);
+		BT.options.mtr_icon_size = value;
+	end);
+
 	BT.SetLocked(BT.options.locked);
 	BT.SetHide(BT.options.hide);
+end
+
+function BT.CreateSlider(id, x, y, w, h, text, value, lo, hi, step)
+
+	local slider = CreateFrame("Slider", id, BT.UIFrame, "OptionsSliderTemplate");
+	slider.label = _G[slider:GetName().."Text"];
+	slider.high = _G[slider:GetName().."High"];
+	slider.low = _G[slider:GetName().."Low"];
+
+	slider.high:SetText(hi);
+	slider.low:SetText(lo);
+	slider.default_label = text;
+	slider.label:SetText(text.." : "..value);
+
+	slider:SetMinMaxValues(lo, hi);
+	slider:SetValueStep(step);
+	slider:SetValue(value);
+
+
+	slider:SetPoint("TOPLEFT", x, 0-y);
+	slider:SetWidth(w);
+	slider:SetHeight(h);
+
+	return slider;
 end
 
 function BT.ShowMenu()
@@ -927,9 +963,16 @@ function BT.UpdateFrame()
 		if (not icon) then icon = BT.default_icon; end
 
 		BT.mtrs[key].btn:SetNormalTexture([[Interface\Icons\]] .. icon);
+		BT.mtrs[key].btn:SetPoint("TOPLEFT", 0, 0 - (40 + ((use_idx-2) * BT.options.mtr_icon_size)));
+		BT.mtrs[key].btn:SetWidth(BT.options.mtr_icon_size);
+		BT.mtrs[key].btn:SetHeight(BT.options.mtr_icon_size);
+
 		BT.mtrs[key].bar.label:SetText(label);
 		BT.mtrs[key].bar:SetMinMaxValues(0, mtr.max);
 		BT.mtrs[key].bar:SetValue(mtr.t);
+		BT.mtrs[key].bar:SetPoint("TOPLEFT", BT.options.mtr_icon_size, 0 - (40 + ((use_idx-2) * BT.options.mtr_icon_size)));
+		BT.mtrs[key].bar:SetWidth(BT.fullW - BT.options.mtr_icon_size);
+		BT.mtrs[key].bar:SetHeight(BT.options.mtr_icon_size);
 
 		BT.mtrs[key].bar:SetStatusBarColor(1, 1, 1);
 		if (mtr.color == "green") then 	BT.mtrs[key].bar:SetStatusBarColor(0, 1, 0); end
@@ -951,6 +994,7 @@ function BT.UpdateFrame()
 	--
 
 	local use_idx = 1;
+	local px = 0;
 
 	for _,warn in pairs(status.warnings) do
 
@@ -968,14 +1012,35 @@ function BT.UpdateFrame()
 			BT.warn_btns[key].texture:SetTexCoord(0, 1, 0, 1);
 		end
 
+
+		local size = 20;
+		if (warn.scale) then
+			size = size * warn.scale;
+		end
+
+		BT.PositionWarning(BT.warn_btns[key], size, px);
 		BT.warn_btns[key]:Show();
+
+		px = px + size;
 	end
 
 	for i=use_idx,BT.options.max_warns do
 		local key = 'w'..i;
-		BT.warn_btns[key]:Hide();		
+		BT.warn_btns[key]:Hide();
 	end
 
+end
+
+function BT.PositionWarning(btn, size, x)
+
+	btn:ClearAllPoints();
+	btn:SetPoint("TOPRIGHT", 0-x, size);
+
+	btn:SetWidth(size);
+	btn:SetHeight(size);
+
+	btn.border:SetWidth(math.floor(size * 62/36));
+	btn.border:SetHeight(math.floor(size * 62/36));
 end
 
 function BT.GatherStatus()
@@ -1027,12 +1092,11 @@ function BT.GatherStatus()
 
 	local cur_mana = UnitPower("player", 0);
 	local max_mana = UnitPowerMax("player", 0);
-	local mana_per = cur_mana / max_mana;
+	ret.mana_percent = 100 * cur_mana / max_mana;
 
-	if (mana_per < 0.1) then
+	if (ret.mana_percent < BT.options.mana_low_warning) then
 
 		ret.low_on_mana = true;
-		ret.mana_percent = 100*mana_per;
 	end
 
 
@@ -1203,6 +1267,7 @@ function BT.GatherDemoStatus()
 
 			info.key = key;
 			info.show = true;
+			info.scale = 1;
 
 			table.insert(ret.warnings, info);
 		end
@@ -1267,6 +1332,18 @@ function BT.GetWarning(key, info)
 		if (bad_icon) then
 			info.show = true;
 			info.icon = [[Interface\Icons\]] .. bad_icon;
+			info.scale = 1;
+
+			if (bad_icon == "ability_hunter_aspectoftheviper") then
+
+				local cur_mana = UnitPower("player", 0);
+				local max_mana = UnitPowerMax("player", 0);
+				local per_mana = 100 * cur_mana / max_mana;
+
+				if (per_mana > BT.options.viper_mana_bigger) then
+					info.scale = 1 + ((per_mana - BT.options.viper_mana_bigger) / (100 - BT.options.viper_mana_bigger));
+				end
+			end
 		else
 			if (not found_dh) then
 				info.show = true;
@@ -1286,6 +1363,26 @@ function BT.GetWarning(key, info)
 				info.show = true;
 			end
 		end
+	end
+
+	if (key == "bad_weapon") then
+
+		local itemId = GetInventoryItemID("player", 16);
+
+		if (not itemId) then return info; end
+
+		local _, _, _, _, _, type, subtype = GetItemInfo(itemId);
+
+		if (type == "Weapon" and subtype == "Daggers"		) then return info; end
+		if (type == "Weapon" and subtype == "Fist Weapons"	) then return info; end
+		if (type == "Weapon" and subtype == "One-Handed Axes"	) then return info; end
+		if (type == "Weapon" and subtype == "One-Handed Swords"	) then return info; end
+		if (type == "Weapon" and subtype == "Polearms"		) then return info; end
+		if (type == "Weapon" and subtype == "Staves"		) then return info; end
+		if (type == "Weapon" and subtype == "Two-Handed Axes"	) then return info; end
+		if (type == "Weapon" and subtype == "Two-Handed Swords"	) then return info; end
+
+		info.show = true;
 	end
 
 	return info;
