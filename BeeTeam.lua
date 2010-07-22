@@ -519,7 +519,7 @@ end
 
 function BT.CreateSlider(id, x, y, w, h, text, value, lo, hi, step)
 
-	local slider = CreateFrame("Slider", id, BT.UIFrame, "OptionsSliderTemplate");
+	local slider = CreateFrame("Slider", id, BTOptionsFrame, "OptionsSliderTemplate");
 	slider.label = _G[slider:GetName().."Text"];
 	slider.high = _G[slider:GetName().."High"];
 	slider.low = _G[slider:GetName().."Low"];
