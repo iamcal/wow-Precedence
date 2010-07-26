@@ -87,6 +87,8 @@ PREC.default_options = {
 		no_hunters_mark = true,
 		bad_weapon = true, -- fishing pole, lance
 		low_ammo = true,
+		growl_solo = true,
+		growl_party = true,
 	},
 };
 
@@ -189,6 +191,14 @@ PREC.warningdefs = {
 		title = "Bad Weapon Equipped",
 		icon = [[Interface\Icons\inv_weapon_shortblade_05]],
 		--not_implemented = true,
+	},
+	growl_solo = {
+		title = "Growl Disabled When Solo",
+		icon = [[Interface\Icons\ability_physical_taunt]],
+	},
+	growl_party = {
+		title = "Growl Enabled In Party",
+		icon = [[Interface\Icons\ability_physical_taunt]],
 	},
 };
 
@@ -1411,7 +1421,32 @@ function PREC.GetWarning(key, info)
 		info.show = true;
 	end
 
+	if (key == "growl_solo") then
+		local _, autostate = GetSpellAutocast("Growl", "pet");
+		if (not autostate and not PREC.InGroup()) then
+			info.show = true;
+		end
+	end
+
+	if (key == "growl_party") then
+		local _, autostate = GetSpellAutocast("Growl", "pet");
+		if (autostate and PREC.InGroup()) then
+			info.show = true;
+		end
+	end
+
 	return info;
+end
+
+function PREC.InGroup()
+
+	local np = GetNumPartyMembers();
+	if (np > 0) then return true; end
+
+	local nr = GetNumRaidMembers();
+	if (nr > 0) then return true; end
+
+	return false;
 end
 
 function PREC.GetStatus(ability, prio)
