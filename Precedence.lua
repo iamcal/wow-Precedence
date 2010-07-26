@@ -1,7 +1,7 @@
-BT = {}
+PREC = {}
 
-BT.options = {};
-BT.default_options = {
+PREC.options = {};
+PREC.default_options = {
 
 	frameRef = "CENTER",
 	frameX = 0,
@@ -90,7 +90,7 @@ BT.default_options = {
 	},
 };
 
-BT.abilities = {
+PREC.abilities = {
 	rapid = {
 		icon = [[ability_hunter_runningshot]],
 		spell = "Rapid Fire",
@@ -127,7 +127,7 @@ BT.abilities = {
 	},
 }
 
-BT.meterinfo = {
+PREC.meterinfo = {
 	md_applied = {
 		title = "Misdirect Active",
 		icon = "ability_hunter_misdirection",
@@ -167,7 +167,7 @@ BT.meterinfo = {
 	},
 }
 
-BT.warningdefs = {
+PREC.warningdefs = {
 	no_pet = {
 		title = "Missing Pet",
 		icon = [[Interface\Icons\inv_box_petcarrier_01]],
@@ -192,58 +192,58 @@ BT.warningdefs = {
 	},
 };
 
-BT.state = {
+PREC.state = {
 	md_target = "?",
 	trap_set = false,
 	trap_set_start = 0,
 	trapped_mobs = {},
 };
 
-BT.everything_ready = false;
-BT.waiting_for_bind = false;
-BT.last_check = 0;
-BT.time_between_checks = 5;
-BT.default_icon = "INV_Misc_QuestionMark";
-BT.default_icon_full = [[Interface\Icons\INV_Misc_QuestionMark]];
+PREC.everything_ready = false;
+PREC.waiting_for_bind = false;
+PREC.last_check = 0;
+PREC.time_between_checks = 5;
+PREC.default_icon = "INV_Misc_QuestionMark";
+PREC.default_icon_full = [[Interface\Icons\INV_Misc_QuestionMark]];
 
 
-function BT.OnLoad()
+function PREC.OnLoad()
 
 end
 
-function BT.OnReady()
+function PREC.OnReady()
 
-	_G.BeeTeamDB = _G.BeeTeamDB or {};
-	_G.BeeTeamDB.opts = _G.BeeTeamDB.opts or {};
+	_G.PrecedenceDB = _G.PrecedenceDB or {};
+	_G.PrecedenceDB.opts = _G.PrecedenceDB.opts or {};
 
-	BT.options = BT.LoadOptions(BT.default_options, _G.BeeTeamDB.opts);
+	PREC.options = PREC.LoadOptions(PREC.default_options, _G.PrecedenceDB.opts);
 
-	BT.CreateOptionsFrame()
+	PREC.CreateOptionsFrame()
 
-	BT.fullW = 40 + 40 + BT.options.runway;
-	BT.fullH = 40;
+	PREC.fullW = 40 + 40 + PREC.options.runway;
+	PREC.fullH = 40;
 
-	BT.StartFrame();
+	PREC.StartFrame();
 end
 
-function BT.ShowOptions()
+function PREC.ShowOptions()
 
-	InterfaceOptionsFrame_OpenToCategory(BT.OptionsFrame.name);
+	InterfaceOptionsFrame_OpenToCategory(PREC.OptionsFrame.name);
 end
 
-function BT.OptionClick(button, name)
+function PREC.OptionClick(button, name)
 
 	if (name == 'hide') then
-		BT.ToggleHide();
+		PREC.ToggleHide();
 	end
 
 	if (name == 'lock') then
-		BT.ToggleLock();
+		PREC.ToggleLock();
 	end
 
 end
 
-function BT.LoadOptions(defaults, current)
+function PREC.LoadOptions(defaults, current)
 
 	local out = {};
 
@@ -258,18 +258,18 @@ function BT.LoadOptions(defaults, current)
 	return out;
 end
 
-function BT.OnSaving()
+function PREC.OnSaving()
 
-	local point, relativeTo, relativePoint, xOfs, yOfs = BT.UIFrame:GetPoint()
-	BT.options.frameRef = relativePoint;
-	BT.options.frameX = xOfs;
-	BT.options.frameY = yOfs;
+	local point, relativeTo, relativePoint, xOfs, yOfs = PREC.UIFrame:GetPoint()
+	PREC.options.frameRef = relativePoint;
+	PREC.options.frameX = xOfs;
+	PREC.options.frameY = yOfs;
 
-	_G.BeeTeamDB.opts = BT.options;
+	_G.PrecedenceDB.opts = PREC.options;
 end
 
 
-function BT.OnEvent(frame, event, ...)
+function PREC.OnEvent(frame, event, ...)
 
 	if (event == 'COMBAT_LOG_EVENT_UNFILTERED') then
 
@@ -277,25 +277,25 @@ function BT.OnEvent(frame, event, ...)
 		if (arg3 == UnitGUID("player")) then srcUs = true; end
 
 		if (srcUs and arg2 == "SPELL_CAST_SUCCESS" and arg10 == "Misdirection") then
-			BT.state.md_target = arg7;
+			PREC.state.md_target = arg7;
 		end
 
 		if ((arg2 == "SPELL_CREATE") and (srcUs) and ((arg10 == "Freezing Arrow") or (arg10 == "Freezing Trap"))) then
-			BT.state.trap_set = true;
-			BT.state.trap_set_start = GetTime();
-			if (arg10 == "Freezing Trap") then BT.meterinfo.trap_set.icon = "spell_frost_chainsofice"; end
-			if (arg10 == "Freezing Arrow") then BT.meterinfo.trap_set.icon = "spell_frost_chillingbolt"; end
+			PREC.state.trap_set = true;
+			PREC.state.trap_set_start = GetTime();
+			if (arg10 == "Freezing Trap") then PREC.meterinfo.trap_set.icon = "spell_frost_chainsofice"; end
+			if (arg10 == "Freezing Arrow") then PREC.meterinfo.trap_set.icon = "spell_frost_chillingbolt"; end
 			return;
 		end
 
 		if ((arg2 == "SPELL_MISSED") and srcUs and ((arg10 == "Freezing Arrow Effect") or (arg10 == "Freezing Trap Effect"))) then
-			BT.state.trap_set = false;
+			PREC.state.trap_set = false;
 		end
 
 		if ((arg2 == "SPELL_AURA_APPLIED") and srcUs and ((arg10 == "Freezing Arrow Effect") or (arg10 == "Freezing Trap Effect"))) then
 
-			BT.state.trap_set = false;
-			BT.state.trapped_mobs[arg6] = {
+			PREC.state.trap_set = false;
+			PREC.state.trapped_mobs[arg6] = {
 				start = GetTime(),
 				aura = arg10,
 				guid = arg6,
@@ -306,7 +306,7 @@ function BT.OnEvent(frame, event, ...)
 
 		if ((arg2 == "SPELL_AURA_REMOVED") and srcUs and ((arg10 == "Freezing Arrow Effect") or (arg10 == "Freezing Trap Effect"))) then
 
-			BT.state.trapped_mobs[arg6] = nil;
+			PREC.state.trapped_mobs[arg6] = nil;
 			return;
 		end
 
@@ -328,159 +328,159 @@ function BT.OnEvent(frame, event, ...)
 
 	if (event == 'ADDON_LOADED') then
 		local name = ...;
-		if name == 'BeeTeam' then
-			BT.OnReady();
+		if name == 'Precedence' then
+			PREC.OnReady();
 		end
 	end
 
 	if (event == 'PLAYER_LOGIN') then
 
-		BT.BindKeys();
-		BT.everything_ready = true;
+		PREC.BindKeys();
+		PREC.everything_ready = true;
 	end
 
 	if (event == 'PLAYER_LOGOUT') then
 
-		BT.OnSaving();
+		PREC.OnSaving();
 	end
 end
 
-function BT.OnDragStart(frame)
-	if (BT.options.locked) then
+function PREC.OnDragStart(frame)
+	if (PREC.options.locked) then
 		return;
 	end
-	BT.UIFrame:StartMoving();
-	BT.UIFrame.isMoving = true;
+	PREC.UIFrame:StartMoving();
+	PREC.UIFrame.isMoving = true;
 	GameTooltip:Hide()
 end
 
-function BT.OnDragStop(frame)
-	BT.UIFrame:StopMovingOrSizing();
-	BT.UIFrame.isMoving = false;
+function PREC.OnDragStop(frame)
+	PREC.UIFrame:StopMovingOrSizing();
+	PREC.UIFrame.isMoving = false;
 end
 
-function BT.OnClick(self, aButton)
+function PREC.OnClick(self, aButton)
 	if (aButton == "RightButton") then
-		BT.ShowMenu();
+		PREC.ShowMenu();
 	end
 end
 
-function BT.CreateOptionsFrame()
+function PREC.CreateOptionsFrame()
 
-	BT.OptionsFrame = CreateFrame("Frame", nil, UIParent);
-	BT.OptionsFrame:SetFrameStrata("DIALOG");
-	BT.OptionsFrame:SetWidth(300);
-	BT.OptionsFrame:SetHeight(410);
-	BT.OptionsFrame:Hide();
-	BT.OptionsFrame.name = 'Bee Team';
+	PREC.OptionsFrame = CreateFrame("Frame", nil, UIParent);
+	PREC.OptionsFrame:SetFrameStrata("DIALOG");
+	PREC.OptionsFrame:SetWidth(300);
+	PREC.OptionsFrame:SetHeight(410);
+	PREC.OptionsFrame:Hide();
+	PREC.OptionsFrame.name = 'Bee Team';
 
-	BT.OptionsFrame.title = BT.OptionsFrame:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge");
-	BT.OptionsFrame.title:SetPoint("TOPLEFT", 16, -16);
-	BT.OptionsFrame.title:SetText("Bee Team Options");
-	BT.OptionsFrame.title:Show();
+	PREC.OptionsFrame.title = PREC.OptionsFrame:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge");
+	PREC.OptionsFrame.title:SetPoint("TOPLEFT", 16, -16);
+	PREC.OptionsFrame.title:SetText("Bee Team Options");
+	PREC.OptionsFrame.title:Show();
 
-	local c1 = BT.CreateCheckBox("BTCheck1", 16, 35, false, "Enable");
+	local c1 = PREC.CreateCheckBox("PRECCheck1", 16, 35, false, "Enable");
 	c1:SetScript("OnClick", function(self)
-		BT.OptionClick(self, 'hide');
+		PREC.OptionClick(self, 'hide');
 	end);
 
-	local c2 = BT.CreateCheckBox("BTCheck2", 16, 55, false, "Lock Frame");
+	local c2 = PREC.CreateCheckBox("PRECCheck2", 16, 55, false, "Lock Frame");
 	c2:SetScript("OnClick", function(self)
-		BT.OptionClick(self, 'lock');
+		PREC.OptionClick(self, 'lock');
 	end);
 
-	InterfaceOptions_AddCategory(BT.OptionsFrame);
+	InterfaceOptions_AddCategory(PREC.OptionsFrame);
 end
 
-function BT.StartFrame()
+function PREC.StartFrame()
 
-	BT.UIFrame = CreateFrame("Frame",nil,UIParent);
-	BT.UIFrame:SetFrameStrata("BACKGROUND")
-	BT.UIFrame:SetWidth(BT.fullW)
-	BT.UIFrame:SetHeight(BT.fullH)
+	PREC.UIFrame = CreateFrame("Frame",nil,UIParent);
+	PREC.UIFrame:SetFrameStrata("BACKGROUND")
+	PREC.UIFrame:SetWidth(PREC.fullW)
+	PREC.UIFrame:SetHeight(PREC.fullH)
 
-	BT.UIFrame.texture = BT.UIFrame:CreateTexture()
-	BT.UIFrame.texture:SetAllPoints(BT.UIFrame)
-	BT.UIFrame.texture:SetTexture(0, 0, 0)
+	PREC.UIFrame.texture = PREC.UIFrame:CreateTexture()
+	PREC.UIFrame.texture:SetAllPoints(PREC.UIFrame)
+	PREC.UIFrame.texture:SetTexture(0, 0, 0)
 
 	-- position the parent frame
 	local frameRef = "CENTER";
 	local frameX = 0;
 	local frameY = 0;
-	if (BT.options.frameRef) then
-		frameRef = BT.options.frameRef;
-		frameX = BT.options.frameX;
-		frameY = BT.options.frameY;
+	if (PREC.options.frameRef) then
+		frameRef = PREC.options.frameRef;
+		frameX = PREC.options.frameX;
+		frameY = PREC.options.frameY;
 	end
-	BT.UIFrame:SetPoint(frameRef, frameX, frameY);
+	PREC.UIFrame:SetPoint(frameRef, frameX, frameY);
 
 	-- make it draggable
-	BT.UIFrame:SetMovable(true);
-	BT.UIFrame:EnableMouse(true);
+	PREC.UIFrame:SetMovable(true);
+	PREC.UIFrame:EnableMouse(true);
 
 
 	-- buttons!
-	BT.rot_btns = {};
-	for i=1,BT.options.max_prios do
+	PREC.rot_btns = {};
+	for i=1,PREC.options.max_prios do
 		local key = 'p'..i;
-		BT.rot_btns[key] = BT.CreateButton(0, 0, 40, 40, [[Interface\Icons\ability_hunter_pet_dragonhawk]]);
-		BT.rot_btns[key]:SetFrameLevel(100 + BT.options.max_prios - i);
+		PREC.rot_btns[key] = PREC.CreateButton(0, 0, 40, 40, [[Interface\Icons\ability_hunter_pet_dragonhawk]]);
+		PREC.rot_btns[key]:SetFrameLevel(100 + PREC.options.max_prios - i);
 	end
 
 	-- progress meters
-	BT.mtrs = {};
-	for i=1,BT.options.max_mtrs do
+	PREC.mtrs = {};
+	for i=1,PREC.options.max_mtrs do
 		local key = 'm'..i;
-		BT.mtrs[key] = {
-			btn = BT.CreateButton(0, 40 + ((i-1) * BT.options.mtr_icon_size), BT.options.mtr_icon_size, BT.options.mtr_icon_size, [[Interface\Icons\ability_hunter_pet_dragonhawk]]),
-			bar = BT.CreateBar(BT.options.mtr_icon_size, 40 + ((i-1) * BT.options.mtr_icon_size), BT.fullW-BT.options.mtr_icon_size, BT.options.mtr_icon_size),
+		PREC.mtrs[key] = {
+			btn = PREC.CreateButton(0, 40 + ((i-1) * PREC.options.mtr_icon_size), PREC.options.mtr_icon_size, PREC.options.mtr_icon_size, [[Interface\Icons\ability_hunter_pet_dragonhawk]]),
+			bar = PREC.CreateBar(PREC.options.mtr_icon_size, 40 + ((i-1) * PREC.options.mtr_icon_size), PREC.fullW-PREC.options.mtr_icon_size, PREC.options.mtr_icon_size),
 		};
 	end
 
 	-- warnings
-	BT.warn_btns = {};
-	for i=1,BT.options.max_warns do
+	PREC.warn_btns = {};
+	for i=1,PREC.options.max_warns do
 		local key = 'w'..i;
-		BT.warn_btns[key] = BT.CreateTextureFrame(BT.fullW-(i * 20), 0-20, 20, 20, [[Interface\Icons\ability_hunter_pet_dragonhawk]]);
+		PREC.warn_btns[key] = PREC.CreateTextureFrame(PREC.fullW-(i * 20), 0-20, 20, 20, [[Interface\Icons\ability_hunter_pet_dragonhawk]]);
 	end
 	
 
 
 	-- create a button that covers the entire addon
-	BT.Cover = CreateFrame("Button", "BTCover", BT.UIFrame);
-	BT.Cover:SetFrameLevel(128)
-	BT.Cover:SetPoint("TOPLEFT", 0, 0)
-	BT.Cover:SetWidth(BT.fullW)
-	BT.Cover:SetHeight(BT.fullH)
-	BT.Cover:EnableMouse(true);
-	BT.Cover:RegisterForClicks("AnyUp");
-	BT.Cover:RegisterForDrag("LeftButton");
-	BT.Cover:SetScript("OnDragStart", BT.OnDragStart);
-	BT.Cover:SetScript("OnDragStop", BT.OnDragStop);
-	BT.Cover:SetScript("OnClick", BT.OnClick);
+	PREC.Cover = CreateFrame("Button", nil, PREC.UIFrame);
+	PREC.Cover:SetFrameLevel(128)
+	PREC.Cover:SetPoint("TOPLEFT", 0, 0)
+	PREC.Cover:SetWidth(PREC.fullW)
+	PREC.Cover:SetHeight(PREC.fullH)
+	PREC.Cover:EnableMouse(true);
+	PREC.Cover:RegisterForClicks("AnyUp");
+	PREC.Cover:RegisterForDrag("LeftButton");
+	PREC.Cover:SetScript("OnDragStart", PREC.OnDragStart);
+	PREC.Cover:SetScript("OnDragStop", PREC.OnDragStop);
+	PREC.Cover:SetScript("OnClick", PREC.OnClick);
 
 	-- main label - shows help & warnings
-	BT.Label = BT.Cover:CreateFontString(nil, "OVERLAY")
-	BT.Label:SetPoint("CENTER", BT.UIFrame, "CENTER", 2, 0)
-	BT.Label:SetJustifyH("LEFT")
-	BT.Label:SetFont([[Fonts\FRIZQT__.TTF]], 12, "OUTLINE");
-	BT.Label:SetText(" ");
-	BT.Label:SetTextColor(1,1,1,1)
-	BT.SetFontSize(BT.Label, 10)
+	PREC.Label = PREC.Cover:CreateFontString(nil, "OVERLAY")
+	PREC.Label:SetPoint("CENTER", PREC.UIFrame, "CENTER", 2, 0)
+	PREC.Label:SetJustifyH("LEFT")
+	PREC.Label:SetFont([[Fonts\FRIZQT__.TTF]], 12, "OUTLINE");
+	PREC.Label:SetText(" ");
+	PREC.Label:SetTextColor(1,1,1,1)
+	PREC.SetFontSize(PREC.Label, 10)
 
 
-	--BT.Cover.texture = BT.Cover:CreateTexture("ARTWORK")
-	--BT.Cover.texture:SetAllPoints()
-	--BT.Cover.texture:SetTexture(1, 0.5, 0)
-	--BT.Cover.texture:SetAlpha(0.5);
+	--PREC.Cover.texture = PREC.Cover:CreateTexture("ARTWORK")
+	--PREC.Cover.texture:SetAllPoints()
+	--PREC.Cover.texture:SetTexture(1, 0.5, 0)
+	--PREC.Cover.texture:SetAlpha(0.5);
 
 	-- Add options to the dialog
 	local py = 100;
 
-	BT.CreateHeading(16, py, "Timers");
+	PREC.CreateHeading(16, py, "Timers");
 	py = py + 20;
 
-	for key, info in pairs(BT.meterinfo) do
+	for key, info in pairs(PREC.meterinfo) do
 
 		local label = "?";
 		if (info.spell) then label = info.spell; end
@@ -489,15 +489,15 @@ function BT.StartFrame()
 		if (info.petbuff) then label = info.petbuff; end
 		if (info.title) then label = info.title; end
 
-		local check = BT.CreateCheckBox("BTCheckMeter-"..key, 16, py, BT.options.meters[key], label);
+		local check = PREC.CreateCheckBox("PRECCheckMeter-"..key, 16, py, PREC.options.meters[key], label);
 		check.key = key;
 		check:SetScript("OnClick", function(self)
 			if (self:GetChecked()) then
 				--print("option "..self.key.." is ON");
-				BT.options.meters[self.key] = true;
+				PREC.options.meters[self.key] = true;
 			else
 				--print("option "..self.key.." is OFF");
-				BT.options.meters[self.key] = false;
+				PREC.options.meters[self.key] = false;
 			end
 		end);
 
@@ -505,23 +505,23 @@ function BT.StartFrame()
 	end
 
 	py = py + 20;
-	BT.CreateHeading(16, py, "Warnings");
+	PREC.CreateHeading(16, py, "Warnings");
 	py = py + 20;
 
-	for key, info in pairs(BT.warningdefs) do
+	for key, info in pairs(PREC.warningdefs) do
 
 		local label = "?";
 		if (info.title) then label = info.title; end
 
-		local check = BT.CreateCheckBox("BTCheckWarn-"..key, 16, py, BT.options.warnings[key], label);
+		local check = PREC.CreateCheckBox("PRECCheckWarn-"..key, 16, py, PREC.options.warnings[key], label);
 		check.key = key;
 		check:SetScript("OnClick", function(self)
 			if (self:GetChecked()) then
 				--print("warning "..self.key.." is ON");
-				BT.options.warnings[self.key] = true;
+				PREC.options.warnings[self.key] = true;
 			else
 				--print("warning "..self.key.." is OFF");
-				BT.options.warnings[self.key] = false;
+				PREC.options.warnings[self.key] = false;
 			end
 		end);
 		if (info.not_implemented) then
@@ -532,20 +532,20 @@ function BT.StartFrame()
 	end
 
 
-	local a = BT.CreateSlider('mySlider', 0, -100, 200, 20, "Meter Size", BT.options.mtr_icon_size, 5, 40, 1);
+	local a = PREC.CreateSlider('mySlider', 0, -100, 200, 20, "Meter Size", PREC.options.mtr_icon_size, 5, 40, 1);
 	a:SetScript("OnValueChanged", function(self)
 		local value = self:GetValue();
 		self.label:SetText(self.default_label.." : "..value);
-		BT.options.mtr_icon_size = value;
+		PREC.options.mtr_icon_size = value;
 	end);
 
-	BT.SetLocked(BT.options.locked);
-	BT.SetHide(BT.options.hide);
+	PREC.SetLocked(PREC.options.locked);
+	PREC.SetHide(PREC.options.hide);
 end
 
-function BT.CreateSlider(id, x, y, w, h, text, value, lo, hi, step)
+function PREC.CreateSlider(id, x, y, w, h, text, value, lo, hi, step)
 
-	local slider = CreateFrame("Slider", id, BT.OptionsFrame, "OptionsSliderTemplate");
+	local slider = CreateFrame("Slider", id, PREC.OptionsFrame, "OptionsSliderTemplate");
 	slider.label = _G[slider:GetName().."Text"];
 	slider.high = _G[slider:GetName().."High"];
 	slider.low = _G[slider:GetName().."Low"];
@@ -567,7 +567,7 @@ function BT.CreateSlider(id, x, y, w, h, text, value, lo, hi, step)
 	return slider;
 end
 
-function BT.ShowMenu()
+function PREC.ShowMenu()
 
 	local menu_frame = CreateFrame("Frame", "menuFrame", UIParent, "UIDropDownMenuTemplate")
 
@@ -576,26 +576,26 @@ function BT.ShowMenu()
 
 	table.insert(menuList, {
 		text = "Options",
-		func = function() BT.ShowOptions() end,
+		func = function() PREC.ShowOptions() end,
 		isTitle = false,
 		checked = false,
 		disabled = false,
 	});
 
 	local locked = false;
-	if (BT.options.locked) then locked = true; end
+	if (PREC.options.locked) then locked = true; end
 
 	table.insert(menuList, {
 		text = "Demo Mode",
-		func = function() BT.options.demo_mode = not BT.options.demo_mode end,
+		func = function() PREC.options.demo_mode = not PREC.options.demo_mode end,
 		isTitle = false,
-		checked = BT.options.demo_mode,
+		checked = PREC.options.demo_mode,
 		disabled = false,
 	});
 
 	table.insert(menuList, {
 		text = "Lock Frame",
-		func = function() BT.ToggleLock() end,
+		func = function() PREC.ToggleLock() end,
 		isTitle = false,
 		checked = locked,
 		disabled = false,
@@ -603,7 +603,7 @@ function BT.ShowMenu()
 
 	table.insert(menuList, {
 		text = "Hide Window",
-		func = function() BT.SetHide(true) end,
+		func = function() PREC.SetHide(true) end,
 		isTitle = false,
 		checked = false,
 		disabled = false,
@@ -613,21 +613,21 @@ function BT.ShowMenu()
 
 end
 
-function BT.CreateHeading(x, y, text)
+function PREC.CreateHeading(x, y, text)
 
-	local h = BT.OptionsFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge");
+	local h = PREC.OptionsFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge");
 	h:SetPoint("TOPLEFT", x, 0-y);
 	h:SetText(text);
 	h:Show();
-	--BT.Label:SetTextColor(1,1,1,1)
-	--BT.SetFontSize(BT.Label, 10)
+	--PREC.Label:SetTextColor(1,1,1,1)
+	--PREC.SetFontSize(PREC.Label, 10)
 
 	return h;
 end
 
-function BT.CreateButton(x, y, w, h, texture)
+function PREC.CreateButton(x, y, w, h, texture)
 
-	local b = CreateFrame("Button", nil, BT.UIFrame);
+	local b = CreateFrame("Button", nil, PREC.UIFrame);
 	b:SetPoint("TOPLEFT", x, 0-y)
 	b:SetWidth(w)
 	b:SetHeight(h)
@@ -644,9 +644,9 @@ function BT.CreateButton(x, y, w, h, texture)
 	return b;
 end
 
-function BT.CreateTextureFrame(x, y, w, h, texture)
+function PREC.CreateTextureFrame(x, y, w, h, texture)
 
-	local b = CreateFrame("Frame", nil, BT.UIFrame);
+	local b = CreateFrame("Frame", nil, PREC.UIFrame);
 	b:SetPoint("TOPLEFT", x, 0-y)
 	b:SetWidth(w)
 	b:SetHeight(h)
@@ -666,9 +666,9 @@ function BT.CreateTextureFrame(x, y, w, h, texture)
 	return b;
 end
 
-function BT.CreateBar(x, y, w, h)
+function PREC.CreateBar(x, y, w, h)
 
-	local b = CreateFrame("StatusBar", nil, BT.UIFrame)
+	local b = CreateFrame("StatusBar", nil, PREC.UIFrame)
 	b:SetPoint("TOPLEFT", x, 0-y);
 	b:SetWidth(w);
 	b:SetHeight(h);
@@ -689,9 +689,9 @@ function BT.CreateBar(x, y, w, h)
 	return b;
 end
 
-function BT.CreateCheckBox(id, x, y, checked, text)
+function PREC.CreateCheckBox(id, x, y, checked, text)
 
-	local check = CreateFrame("CheckButton", id, BT.OptionsFrame, "InterfaceOptionsCheckButtonTemplate");
+	local check = CreateFrame("CheckButton", id, PREC.OptionsFrame, "InterfaceOptionsCheckButtonTemplate");
 	check:SetChecked(checked);
 	check.label = _G[check:GetName().."Text"];
 	check.label:SetText(text);
@@ -701,27 +701,27 @@ function BT.CreateCheckBox(id, x, y, checked, text)
 	return check;
 end
 
-function BT.RebuildFrame()
+function PREC.RebuildFrame()
 
-	for i=1,BT.options.max_prios do
+	for i=1,PREC.options.max_prios do
 		local key = 'p'..i;
-		local ability = BT.abilities[BT.options.priorities[key].which];
+		local ability = PREC.abilities[PREC.options.priorities[key].which];
 		if (ability) then
-			BT.rot_btns[key]:SetNormalTexture([[Interface\Icons\]] .. ability.icon);
+			PREC.rot_btns[key]:SetNormalTexture([[Interface\Icons\]] .. ability.icon);
 		else
-			BT.rot_btns[key]:SetNormalTexture([[Interface\Icons\ability_hunter_pet_dragonhawk]]);
+			PREC.rot_btns[key]:SetNormalTexture([[Interface\Icons\ability_hunter_pet_dragonhawk]]);
 		end
 	end
 end
 
-function BT.GetBinds()
+function PREC.GetBinds()
 
 	local map = {};
 
-	for i=1,BT.options.max_prios do
+	for i=1,PREC.options.max_prios do
 		local key = 'p'..i;
-		local prio = BT.options.priorities[key];
-		local ability = BT.abilities[prio.which];
+		local prio = PREC.options.priorities[key];
+		local ability = PREC.abilities[prio.which];
 
 		if (ability and prio and prio.bind) then
 
@@ -744,15 +744,15 @@ function BT.GetBinds()
 	return map;
 end
 
-function BT.CheckBinds()
+function PREC.CheckBinds()
 
-	if (BT.waiting_for_bind) then
+	if (PREC.waiting_for_bind) then
 		-- we mind now be out of combat...
-		BT.BindKeys();
+		PREC.BindKeys();
 		return;
 	end
 
-	local binds = BT.GetBinds();
+	local binds = PREC.GetBinds();
 	local dirty = false;
 
 	for bind, cmd in pairs(binds) do
@@ -766,33 +766,33 @@ function BT.CheckBinds()
 
 	if (dirty) then
 		print("BeeTeam: Something is messing with our bindings. Check other addons.");
-		BT.BindKeys();
+		PREC.BindKeys();
 	end
 end
 
-function BT.BindKeys()
+function PREC.BindKeys()
 
 	if (InCombatLockdown()) then
-		if (not BT.waiting_for_bind) then
+		if (not PREC.waiting_for_bind) then
 			print("Waiting until combat ends to bind keys");
 		end
 		return ;
 	end
 
-	BT.waiting_for_bind = false;
+	PREC.waiting_for_bind = false;
 
-	local binds = BT.GetBinds();
+	local binds = PREC.GetBinds();
 
 	local set = GetCurrentBindingSet();
 
 	for bind, cmd in pairs(binds) do
 
-		local ok = SetOverrideBinding(BT.UIFrame, true, bind, cmd);
+		local ok = SetOverrideBinding(PREC.UIFrame, true, bind, cmd);
 		-- TODO: report error if we can't bind...
 	end
 end
 
-function BT.HasViableTarget()
+function PREC.HasViableTarget()
 	local can_attack = UnitCanAttack("player", "target");
 	if (can_attack and UnitIsDeadOrGhost("target")) then
 		can_attack = false;
@@ -800,22 +800,22 @@ function BT.HasViableTarget()
 	return can_attack;
 end
 
-function BT.UpdateFrame()
+function PREC.UpdateFrame()
 
 	--
 	-- are we showing the frame?
 	--
 
-	if (BT.options.hide) then 
+	if (PREC.options.hide) then 
 		return;
 	end
 
 	local inVehicle = UnitInVehicle("player");
 	if (inVehicle) then
-		BT.UIFrame:Hide();
+		PREC.UIFrame:Hide();
 		return;
 	else
-		BT.UIFrame:Show();
+		PREC.UIFrame:Show();
 	end
 
 
@@ -825,10 +825,10 @@ function BT.UpdateFrame()
 
 	local status = nil;
 
-	if (BT.options.demo_mode) then
-		status = BT.GatherDemoStatus();
+	if (PREC.options.demo_mode) then
+		status = PREC.GatherDemoStatus();
 	else
-		status = BT.GatherStatus();
+		status = PREC.GatherStatus();
 	end
 
 
@@ -846,12 +846,12 @@ function BT.UpdateFrame()
 
 		if (info.ok) then
 
-			if (info.t > BT.options.time_limit) then
+			if (info.t > PREC.options.time_limit) then
 				done_at_limit = done_at_limit + 1;
-				BT.rot_btns[key].label:SetText(string.format("%d", info.t));
-				table.insert(btns_at_limit, BT.rot_btns[key]);
+				PREC.rot_btns[key].label:SetText(string.format("%d", info.t));
+				table.insert(btns_at_limit, PREC.rot_btns[key]);
 			else
-				local x = BT.options.runway * info.t / BT.options.time_limit;
+				local x = PREC.options.runway * info.t / PREC.options.time_limit;
 				local y = 0;
 
 				if (x < 40) then
@@ -859,24 +859,24 @@ function BT.UpdateFrame()
 					done_at_rdy = done_at_rdy + 1;
 				end
 
-				BT.rot_btns[key]:SetWidth(40);
-				BT.rot_btns[key]:SetHeight(40);
-				BT.rot_btns[key]:SetPoint("TOPLEFT", x, y);
+				PREC.rot_btns[key]:SetWidth(40);
+				PREC.rot_btns[key]:SetHeight(40);
+				PREC.rot_btns[key]:SetPoint("TOPLEFT", x, y);
 
-				BT.SetFontSize(BT.rot_btns[key].label, BT.options.font_size);
-				BT.rot_btns[key].label:SetText(info.label);
+				PREC.SetFontSize(PREC.rot_btns[key].label, PREC.options.font_size);
+				PREC.rot_btns[key].label:SetText(info.label);
 			end
 		
-			BT.rot_btns[key]:Show();
+			PREC.rot_btns[key]:Show();
 		else
-			BT.rot_btns[key]:Hide();
+			PREC.rot_btns[key]:Hide();
 		end
 
 		if (status.has_viable_target) then
 
-			BT.rot_btns[key]:SetAlpha(1);
+			PREC.rot_btns[key]:SetAlpha(1);
 		else
-			BT.rot_btns[key]:SetAlpha(0.5);
+			PREC.rot_btns[key]:SetAlpha(0.5);
 		end
 	end
 
@@ -889,7 +889,7 @@ function BT.UpdateFrame()
 		if (done_at_limit > 9) then limit_size = 4; end
 
 		local icon_size = 40 / limit_size;
-		local font_size = BT.options.cooldown_size / limit_size;
+		local font_size = PREC.options.cooldown_size / limit_size;
 		local x = 0;
 		local y = 0;
 
@@ -898,10 +898,10 @@ function BT.UpdateFrame()
 			local x_pos = x * icon_size;
 			local y_pos = y * icon_size;
 
-			btn:SetPoint("TOPLEFT", BT.options.runway+40+x_pos, 0-y_pos);
+			btn:SetPoint("TOPLEFT", PREC.options.runway+40+x_pos, 0-y_pos);
 			btn:SetWidth(icon_size)
 			btn:SetHeight(icon_size)
-			BT.SetFontSize(btn.label, font_size);
+			PREC.SetFontSize(btn.label, font_size);
 
 			x = x + 1;
 			if (x == limit_size) then
@@ -940,19 +940,19 @@ function BT.UpdateFrame()
 		label = "No abilities configured - Right click to hide";
 	end
 
-	if (BT.options.demo_mode) then
+	if (PREC.options.demo_mode) then
 		warning = true;
 		label = "Demo Mode Active";
 	end
 
 	if (warning) then
-		BT.Label:SetTextColor(1,0,0,1)
-		BT.SetFontSize(BT.Label, BT.options.warning_font_size);
+		PREC.Label:SetTextColor(1,0,0,1)
+		PREC.SetFontSize(PREC.Label, PREC.options.warning_font_size);
 	else
-		BT.Label:SetTextColor(1,1,1,1)
-		BT.SetFontSize(BT.Label, BT.options.label_font_size);
+		PREC.Label:SetTextColor(1,1,1,1)
+		PREC.SetFontSize(PREC.Label, PREC.options.label_font_size);
 	end
-	BT.Label:SetText(label);
+	PREC.Label:SetText(label);
 
 
 	--
@@ -960,9 +960,9 @@ function BT.UpdateFrame()
 	--
 
 	if (status.has_viable_target) then
-		--BT.UIFrame:SetAlpha(1);
+		--PREC.UIFrame:SetAlpha(1);
 	else
-		--BT.UIFrame:SetAlpha(0.5);
+		--PREC.UIFrame:SetAlpha(0.5);
 	end
 
 
@@ -977,41 +977,41 @@ function BT.UpdateFrame()
 		local key = 'm'..use_idx;
 		use_idx = use_idx + 1;
 
-		local label = BT.FormatTime(mtr.t);
+		local label = PREC.FormatTime(mtr.t);
 		if (mtr.label) then
 			label = label .. " - " .. mtr.label;
 		end
 		if (mtr.special_label) then
-			label = label .. " - " .. BT.state[mtr.special_label];
+			label = label .. " - " .. PREC.state[mtr.special_label];
 		end
 
 		local icon = mtr.icon;
-		if (not icon) then icon = BT.default_icon; end
+		if (not icon) then icon = PREC.default_icon; end
 
-		BT.mtrs[key].btn:SetNormalTexture([[Interface\Icons\]] .. icon);
-		BT.mtrs[key].btn:SetPoint("TOPLEFT", 0, 0 - (40 + ((use_idx-2) * BT.options.mtr_icon_size)));
-		BT.mtrs[key].btn:SetWidth(BT.options.mtr_icon_size);
-		BT.mtrs[key].btn:SetHeight(BT.options.mtr_icon_size);
+		PREC.mtrs[key].btn:SetNormalTexture([[Interface\Icons\]] .. icon);
+		PREC.mtrs[key].btn:SetPoint("TOPLEFT", 0, 0 - (40 + ((use_idx-2) * PREC.options.mtr_icon_size)));
+		PREC.mtrs[key].btn:SetWidth(PREC.options.mtr_icon_size);
+		PREC.mtrs[key].btn:SetHeight(PREC.options.mtr_icon_size);
 
-		BT.mtrs[key].bar.label:SetText(label);
-		BT.mtrs[key].bar:SetMinMaxValues(0, mtr.max);
-		BT.mtrs[key].bar:SetValue(mtr.t);
-		BT.mtrs[key].bar:SetPoint("TOPLEFT", BT.options.mtr_icon_size, 0 - (40 + ((use_idx-2) * BT.options.mtr_icon_size)));
-		BT.mtrs[key].bar:SetWidth(BT.fullW - BT.options.mtr_icon_size);
-		BT.mtrs[key].bar:SetHeight(BT.options.mtr_icon_size);
+		PREC.mtrs[key].bar.label:SetText(label);
+		PREC.mtrs[key].bar:SetMinMaxValues(0, mtr.max);
+		PREC.mtrs[key].bar:SetValue(mtr.t);
+		PREC.mtrs[key].bar:SetPoint("TOPLEFT", PREC.options.mtr_icon_size, 0 - (40 + ((use_idx-2) * PREC.options.mtr_icon_size)));
+		PREC.mtrs[key].bar:SetWidth(PREC.fullW - PREC.options.mtr_icon_size);
+		PREC.mtrs[key].bar:SetHeight(PREC.options.mtr_icon_size);
 
-		BT.mtrs[key].bar:SetStatusBarColor(1, 1, 1);
-		if (mtr.color == "green") then 	BT.mtrs[key].bar:SetStatusBarColor(0, 1, 0); end
-		if (mtr.color == "red") then 	BT.mtrs[key].bar:SetStatusBarColor(1, 0, 0); end
+		PREC.mtrs[key].bar:SetStatusBarColor(1, 1, 1);
+		if (mtr.color == "green") then 	PREC.mtrs[key].bar:SetStatusBarColor(0, 1, 0); end
+		if (mtr.color == "red") then 	PREC.mtrs[key].bar:SetStatusBarColor(1, 0, 0); end
 
-		BT.mtrs[key].bar:Show();
-		BT.mtrs[key].btn:Show();
+		PREC.mtrs[key].bar:Show();
+		PREC.mtrs[key].btn:Show();
 	end
 
-	for i=use_idx,BT.options.max_mtrs do
+	for i=use_idx,PREC.options.max_mtrs do
 		local key = 'm'..i;
-		BT.mtrs[key].bar:Hide();
-		BT.mtrs[key].btn:Hide();
+		PREC.mtrs[key].bar:Hide();
+		PREC.mtrs[key].btn:Hide();
 	end
 
 
@@ -1028,14 +1028,14 @@ function BT.UpdateFrame()
 		use_idx = use_idx + 1;
 
 		local icon = warn.icon;
-		if (not icon) then icon = BT.default_icon_full; end;
+		if (not icon) then icon = PREC.default_icon_full; end;
 
-		BT.warn_btns[key].texture:SetTexture(icon);
+		PREC.warn_btns[key].texture:SetTexture(icon);
 
 		if (warn.tex_coords) then
-			BT.warn_btns[key].texture:SetTexCoord(warn.tex_coords[1], warn.tex_coords[2], warn.tex_coords[3], warn.tex_coords[4]);
+			PREC.warn_btns[key].texture:SetTexCoord(warn.tex_coords[1], warn.tex_coords[2], warn.tex_coords[3], warn.tex_coords[4]);
 		else
-			BT.warn_btns[key].texture:SetTexCoord(0, 1, 0, 1);
+			PREC.warn_btns[key].texture:SetTexCoord(0, 1, 0, 1);
 		end
 
 
@@ -1044,20 +1044,20 @@ function BT.UpdateFrame()
 			size = size * warn.scale;
 		end
 
-		BT.PositionWarning(BT.warn_btns[key], size, px);
-		BT.warn_btns[key]:Show();
+		PREC.PositionWarning(PREC.warn_btns[key], size, px);
+		PREC.warn_btns[key]:Show();
 
 		px = px + size;
 	end
 
-	for i=use_idx,BT.options.max_warns do
+	for i=use_idx,PREC.options.max_warns do
 		local key = 'w'..i;
-		BT.warn_btns[key]:Hide();
+		PREC.warn_btns[key]:Hide();
 	end
 
 end
 
-function BT.PositionWarning(btn, size, x)
+function PREC.PositionWarning(btn, size, x)
 
 	btn:ClearAllPoints();
 	btn:SetPoint("TOPRIGHT", 0-x, size);
@@ -1069,7 +1069,7 @@ function BT.PositionWarning(btn, size, x)
 	btn.border:SetHeight(math.floor(size * 62/36));
 end
 
-function BT.GatherStatus()
+function PREC.GatherStatus()
 
 	local ret = {};
 
@@ -1081,16 +1081,16 @@ function BT.GatherStatus()
 	ret.active_shots = 0;
 	ret.priorities = {};
 
-	for i=1,BT.options.max_prios do
+	for i=1,PREC.options.max_prios do
 		local key = 'p'..i;
-		local prio = BT.options.priorities[key];
-		local ability = BT.abilities[prio.which];
+		local prio = PREC.options.priorities[key];
+		local ability = PREC.abilities[prio.which];
 		local ok, t = false, 0;
 		if (ability) then
-			ok, t = BT.GetStatus(ability, prio);
+			ok, t = PREC.GetStatus(ability, prio);
 		end
 		if (not (prio.who == "any")) then
-			ok = BT.CheckWho(prio.who);
+			ok = PREC.CheckWho(prio.who);
 		end
 
 		if (ok) then
@@ -1120,7 +1120,7 @@ function BT.GatherStatus()
 	local max_mana = UnitPowerMax("player", 0);
 	ret.mana_percent = 100 * cur_mana / max_mana;
 
-	if (ret.mana_percent < BT.options.mana_low_warning) then
+	if (ret.mana_percent < PREC.options.mana_low_warning) then
 
 		ret.low_on_mana = true;
 	end
@@ -1154,13 +1154,13 @@ function BT.GatherStatus()
 
 	ret.meters = {};
 
-	for key, info in pairs(BT.meterinfo) do
+	for key, info in pairs(PREC.meterinfo) do
 
-		if (BT.options.meters[key] and info) then
+		if (PREC.options.meters[key] and info) then
 
 			info.key = key;
 
-			local temp = BT.GetMeter(info);
+			local temp = PREC.GetMeter(info);
 			if (temp.multi) then
 				for _,temp2 in pairs(temp.multi) do
 					if (temp2.max > 2) then
@@ -1184,11 +1184,11 @@ function BT.GatherStatus()
 
 	ret.warnings = {};
 
-	for key, info in pairs(BT.warningdefs) do
+	for key, info in pairs(PREC.warningdefs) do
 
-		if (BT.options.warnings[key] and info) then
+		if (PREC.options.warnings[key] and info) then
 
-			local warn = BT.GetWarning(key, info);
+			local warn = PREC.GetWarning(key, info);
 			if (warn.show) then
 				table.insert(ret.warnings, warn);
 			end
@@ -1200,7 +1200,7 @@ function BT.GatherStatus()
 	return ret;
 end
 
-function BT.GatherDemoStatus()
+function PREC.GatherDemoStatus()
 
 	local ret = {};
 
@@ -1212,10 +1212,10 @@ function BT.GatherDemoStatus()
 	ret.active_shots = 0;
 	ret.priorities = {};
 
-	for i=1,BT.options.max_prios do
+	for i=1,PREC.options.max_prios do
 		local key = 'p'..i;
-		local prio = BT.options.priorities[key];
-		local ability = BT.abilities[prio.which];
+		local prio = PREC.options.priorities[key];
+		local ability = PREC.abilities[prio.which];
 
 		local ok = false;
 		local t = 0;
@@ -1234,7 +1234,7 @@ function BT.GatherDemoStatus()
 				t = 0.5;
 			elseif (ret.active_shots == 4) then
 				ok = true;
-				t = BT.options.time_limit + 1;
+				t = PREC.options.time_limit + 1;
 			elseif (ret.active_shots == 5) then
 				ok = true;
 				t = 99;
@@ -1260,9 +1260,9 @@ function BT.GatherDemoStatus()
 	ret.meters = {};
 	local v = 10;
 
-	for key, info in pairs(BT.meterinfo) do
+	for key, info in pairs(PREC.meterinfo) do
 
-		if (BT.options.meters[key] and info) then
+		if (PREC.options.meters[key] and info) then
 
 			info.t = v;
 			info.max = 10;
@@ -1287,9 +1287,9 @@ function BT.GatherDemoStatus()
 
 	ret.warnings = {};
 
-	for key, info in pairs(BT.warningdefs) do
+	for key, info in pairs(PREC.warningdefs) do
 
-		if (BT.options.warnings[key] and info) then
+		if (PREC.options.warnings[key] and info) then
 
 			info.key = key;
 			info.show = true;
@@ -1304,7 +1304,7 @@ function BT.GatherDemoStatus()
 	return ret;
 end
 
-function BT.GetWarning(key, info)
+function PREC.GetWarning(key, info)
 
 	info.key = key;
 	info.show = false;
@@ -1366,8 +1366,8 @@ function BT.GetWarning(key, info)
 				local max_mana = UnitPowerMax("player", 0);
 				local per_mana = 100 * cur_mana / max_mana;
 
-				if (per_mana > BT.options.viper_mana_bigger) then
-					info.scale = 1 + ((per_mana - BT.options.viper_mana_bigger) / (100 - BT.options.viper_mana_bigger));
+				if (per_mana > PREC.options.viper_mana_bigger) then
+					info.scale = 1 + ((per_mana - PREC.options.viper_mana_bigger) / (100 - PREC.options.viper_mana_bigger));
 				end
 			end
 		else
@@ -1382,9 +1382,9 @@ function BT.GetWarning(key, info)
 
 	if (key == "no_hunters_mark") then
 
-		if (BT.HasViableTarget()) then
+		if (PREC.HasViableTarget()) then
 
-			local temp = BT.CheckBuff(UnitDebuff, "Hunter's Mark", "target", false);
+			local temp = PREC.CheckBuff(UnitDebuff, "Hunter's Mark", "target", false);
 			if (temp.t == 0) then
 				info.show = true;
 			end
@@ -1414,7 +1414,7 @@ function BT.GetWarning(key, info)
 	return info;
 end
 
-function BT.GetStatus(ability, prio)
+function PREC.GetStatus(ability, prio)
 
 	local t = 0;
 
@@ -1480,7 +1480,7 @@ function BT.GetStatus(ability, prio)
 	return true, t;
 end
 
-function BT.GetMeter(info)
+function PREC.GetMeter(info)
 
 	info.t = 0;
 	info.max = 0;
@@ -1491,13 +1491,13 @@ function BT.GetMeter(info)
 
 	if (info.key == "trap_set") then
 
-		if (BT.state.trap_set) then
+		if (PREC.state.trap_set) then
 
-			local duration = GetTime() - BT.state.trap_set_start;
+			local duration = GetTime() - PREC.state.trap_set_start;
 			local max = 30;
 
 			if (duration > max) then
-				BT.state.trap_set = false;
+				PREC.state.trap_set = false;
 			else
 				info.max = max;
 				info.t = max - duration;
@@ -1510,9 +1510,9 @@ function BT.GetMeter(info)
 
 		info.multi = {};
 
-		for guid, details in pairs(BT.state.trapped_mobs) do
+		for guid, details in pairs(PREC.state.trapped_mobs) do
 
-			local info2 = BT.CopyTable(info);
+			local info2 = PREC.CopyTable(info);
 			local duration = GetTime() - details.start;
 			local max = 20;
 
@@ -1536,7 +1536,7 @@ function BT.GetMeter(info)
 	end
 
 	if (info.buff) then
-		local temp = BT.CheckBuff(UnitBuff, info.buff, "player", false);
+		local temp = PREC.CheckBuff(UnitBuff, info.buff, "player", false);
 		if (temp.t > 0) then
 			info.t = temp.t;
 			info.max = temp.max;
@@ -1544,7 +1544,7 @@ function BT.GetMeter(info)
 	end
 
 	if (info.debuff) then
-		local temp = BT.CheckBuff(UnitDebuff, info.debuff, "target", true);
+		local temp = PREC.CheckBuff(UnitDebuff, info.debuff, "target", true);
 		if (temp.t > 0) then
 			info.t = temp.t;
 			info.max = temp.max;
@@ -1552,7 +1552,7 @@ function BT.GetMeter(info)
 	end
 
 	if (info.spell) then
-		local temp = BT.CheckCooldown(info.spell);
+		local temp = PREC.CheckCooldown(info.spell);
 		if (temp.usable and temp.t > 0) then
 			info.t = temp.t;
 			info.max = temp.max;
@@ -1560,7 +1560,7 @@ function BT.GetMeter(info)
 	end
 
 	if (info.petbuff) then
-		local temp = BT.CheckBuff(UnitBuff, info.petbuff, "pet", false);
+		local temp = PREC.CheckBuff(UnitBuff, info.petbuff, "pet", false);
 		if (temp.t > 0) then
 			info.t = temp.t;
 			info.max = temp.max;
@@ -1570,13 +1570,13 @@ function BT.GetMeter(info)
 	return info;
 end
 
-function BT.CopyTable(a)
+function PREC.CopyTable(a)
 	local b = {};
 	for k, v in pairs(a) do b[k] = v end
 	return b;
 end
 
-function BT.CheckCooldown(spell)
+function PREC.CheckCooldown(spell)
 
 	local usable = IsUsableSpell(spell);
 	local t = 0;
@@ -1597,7 +1597,7 @@ function BT.CheckCooldown(spell)
 	};
 end
 
-function BT.CheckBuff(qfunc, buff, target, must_be_ours)
+function PREC.CheckBuff(qfunc, buff, target, must_be_ours)
 
 	local index = 1
 	while qfunc(target, index) do
@@ -1619,7 +1619,7 @@ function BT.CheckBuff(qfunc, buff, target, must_be_ours)
 end
 
 
-function BT.CheckWho(who)
+function PREC.CheckWho(who)
 	local lvl = UnitLevel("target");
 	local isIn, type = IsInInstance();
 
@@ -1637,7 +1637,7 @@ function BT.CheckWho(who)
 	return false;
 end
 
-function BT.FormatTime(s)
+function PREC.FormatTime(s)
 
 	if (s > 59) then
 		local m = math.floor(s / 60)
@@ -1650,30 +1650,30 @@ function BT.FormatTime(s)
 	return string.format("%ds", s);
 end
 
-function BT.PeriodicCheck()
+function PREC.PeriodicCheck()
 	--print('check!');
-	BT.CheckBinds();
+	PREC.CheckBinds();
 end
 
-function BT.OnUpdate()
-	if (not BT.everything_ready) then
+function PREC.OnUpdate()
+	if (not PREC.everything_ready) then
 		return;
 	end
 
-	if (BT.last_check +BT.time_between_checks < GetTime()) then
-		BT.last_check = GetTime();
-		BT.PeriodicCheck();
+	if (PREC.last_check +PREC.time_between_checks < GetTime()) then
+		PREC.last_check = GetTime();
+		PREC.PeriodicCheck();
 	end
 
-	if (BT.options.hide) then 
+	if (PREC.options.hide) then 
 		return;
 	end
 
-	BT.UpdateFrame();
+	PREC.UpdateFrame();
 end
 
 
-function BT.SetFontSize(string, size)
+function PREC.SetFontSize(string, size)
 
 	local Font, Height, Flags = string:GetFont()
 	if (not (Height == size)) then
@@ -1681,48 +1681,48 @@ function BT.SetFontSize(string, size)
 	end
 end
 
-function BT.SetHide(a)
-	BT.options.hide = a;
+function PREC.SetHide(a)
+	PREC.options.hide = a;
 	if (a) then
-		BT.UIFrame:Hide();
-		BTCheck1:SetChecked(false);
+		PREC.UIFrame:Hide();
+		PRECCheck1:SetChecked(false);
 	else
-		BT.UIFrame:Show();
-		BTCheck1:SetChecked(true);
+		PREC.UIFrame:Show();
+		PRECCheck1:SetChecked(true);
 	end
-	BT.RebuildFrame();
-	BT.UpdateFrame();
+	PREC.RebuildFrame();
+	PREC.UpdateFrame();
 end
 
-function BT.SetLocked(a)
-	BT.options.locked = a;
-	BTCheck2:SetChecked(a);
+function PREC.SetLocked(a)
+	PREC.options.locked = a;
+	PRECCheck2:SetChecked(a);
 end
 
-function BT.ResetPos()
-	BT.Show();
-	BT.UIFrame:SetWidth(150);
-	BT.UIFrame:ClearAllPoints();
-	BT.UIFrame:SetPoint("CENTER", 0, 0);
+function PREC.ResetPos()
+	PREC.Show();
+	PREC.UIFrame:SetWidth(150);
+	PREC.UIFrame:ClearAllPoints();
+	PREC.UIFrame:SetPoint("CENTER", 0, 0);
 end
 
-function BT.ToggleLock()
-	if (BT.options.locked) then
-		BT.SetLocked(false);
+function PREC.ToggleLock()
+	if (PREC.options.locked) then
+		PREC.SetLocked(false);
 	else
-		BT.SetLocked(true);
-	end
-end
-
-function BT.ToggleHide()
-	if (BT.options.hide) then
-		BT.SetHide(false);
-	else
-		BT.SetHide(true);
+		PREC.SetLocked(true);
 	end
 end
 
-function BT.SimpleGCD()
+function PREC.ToggleHide()
+	if (PREC.options.hide) then
+		PREC.SetHide(false);
+	else
+		PREC.SetHide(true);
+	end
+end
+
+function PREC.SimpleGCD()
 
 	local start, duration = GetSpellCooldown(1462);
 	if duration > 0 then
@@ -1732,7 +1732,7 @@ function BT.SimpleGCD()
 	return 0
 end
 
-function BT.SpellCooldown(id)
+function PREC.SpellCooldown(id)
 
 	if (not IsUsableSpell(id)) then
 		return 0;
@@ -1746,7 +1746,7 @@ function BT.SpellCooldown(id)
 	return 0
 end
 
-function BT.DebuffElseGCD(aName)
+function PREC.DebuffElseGCD(aName)
 	local index = 1
 	while UnitDebuff("target", index) do
 		local name, _, _, count, _, _, debuffExpires, caster = UnitDebuff("target", index)
@@ -1764,38 +1764,38 @@ function BT.DebuffElseGCD(aName)
 	return 0
 end
 
-function BT.SlashCommand(msg, editbox)
+function PREC.SlashCommand(msg, editbox)
 	if (msg == 'show') then
-		BT.SetHide(false);
+		PREC.SetHide(false);
 	elseif (msg == 'hide') then
-		BT.SetHide(true);
+		PREC.SetHide(true);
 	elseif (msg == 'toggle') then
-		BT.ToggleHide();
+		PREC.ToggleHide();
 	elseif (msg == 'reset') then
-		BT.ResetPos();
+		PREC.ResetPos();
 	else
 		print(L.CMD_HELP);
-		print("   /bt show - "..L.CMD_HELP_SHOW);
-		print("   /bt hide - "..L.CMD_HELP_HIDE);
-		print("   /bt toggle - "..L.CMD_HELP_TOGGLE);
-		print("   /bt reset - "..L.CMD_HELP_RESET);
+		print("   /prec show - "..L.CMD_HELP_SHOW);
+		print("   /prec hide - "..L.CMD_HELP_HIDE);
+		print("   /prec toggle - "..L.CMD_HELP_TOGGLE);
+		print("   /prec reset - "..L.CMD_HELP_RESET);
 	end
 end
 
 
-SLASH_BEETEAM1 = '/beeteam';
-SLASH_BEETEAM2 = '/bt';
+SLASH_PRECEDENCE1 = '/precedence';
+SLASH_PRECEDENCE2 = '/prec';
 
-SlashCmdList["BEETEAM"] = BT.SlashCommand;
+SlashCmdList["PRECEDENCE"] = PREC.SlashCommand;
 
 
-BT.Frame = CreateFrame("Frame")
-BT.Frame:Show()
-BT.Frame:SetScript("OnEvent", BT.OnEvent)
-BT.Frame:SetScript("OnUpdate", BT.OnUpdate)
-BT.Frame:RegisterEvent("ADDON_LOADED")
-BT.Frame:RegisterEvent("PLAYER_LOGOUT")
-BT.Frame:RegisterEvent("PLAYER_LOGIN")
-BT.Frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+PREC.Frame = CreateFrame("Frame")
+PREC.Frame:Show()
+PREC.Frame:SetScript("OnEvent", PREC.OnEvent)
+PREC.Frame:SetScript("OnUpdate", PREC.OnUpdate)
+PREC.Frame:RegisterEvent("ADDON_LOADED")
+PREC.Frame:RegisterEvent("PLAYER_LOGOUT")
+PREC.Frame:RegisterEvent("PLAYER_LOGIN")
+PREC.Frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 
-BT.OnLoad()
+PREC.OnLoad()

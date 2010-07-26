@@ -1,0 +1,9 @@
+## Interface: 30300
+## Title : Precedence
+## Notes: Hunter dashboard: priorities, warnings & timers
+## Author: Cal Henderson (Bees on Hyjal-US)
+## Version: 1.0
+## Dependencies: 
+## SavedVariablesPerCharacter: PrecedenceDB
+
+Precedence.lua
