@@ -218,8 +218,7 @@ function BT.OnReady()
 
 	BT.options = BT.LoadOptions(BT.default_options, _G.BeeTeamDB.opts);
 
-	BTOptionsFrame.name = 'Bee Team';
-	InterfaceOptions_AddCategory(BTOptionsFrame);
+	BT.CreateOptionsFrame()
 
 	BT.fullW = 40 + 40 + BT.options.runway;
 	BT.fullH = 40;
@@ -229,7 +228,7 @@ end
 
 function BT.ShowOptions()
 
-	InterfaceOptionsFrame_OpenToCategory(BTOptionsFrame.name);
+	InterfaceOptionsFrame_OpenToCategory(BT.OptionsFrame.name);
 end
 
 function BT.OptionClick(button, name)
@@ -364,6 +363,33 @@ function BT.OnClick(self, aButton)
 	if (aButton == "RightButton") then
 		BT.ShowMenu();
 	end
+end
+
+function BT.CreateOptionsFrame()
+
+	BT.OptionsFrame = CreateFrame("Frame", nil, UIParent);
+	BT.OptionsFrame:SetFrameStrata("DIALOG");
+	BT.OptionsFrame:SetWidth(300);
+	BT.OptionsFrame:SetHeight(410);
+	BT.OptionsFrame:Hide();
+	BT.OptionsFrame.name = 'Bee Team';
+
+	BT.OptionsFrame.title = BT.OptionsFrame:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge");
+	BT.OptionsFrame.title:SetPoint("TOPLEFT", 16, -16);
+	BT.OptionsFrame.title:SetText("Bee Team Options");
+	BT.OptionsFrame.title:Show();
+
+	local c1 = BT.CreateCheckBox("BTCheck1", 16, 35, false, "Enable");
+	c1:SetScript("OnClick", function(self)
+		BT.OptionClick(self, 'hide');
+	end);
+
+	local c2 = BT.CreateCheckBox("BTCheck2", 16, 55, false, "Lock Frame");
+	c2:SetScript("OnClick", function(self)
+		BT.OptionClick(self, 'lock');
+	end);
+
+	InterfaceOptions_AddCategory(BT.OptionsFrame);
 end
 
 function BT.StartFrame()
@@ -519,7 +545,7 @@ end
 
 function BT.CreateSlider(id, x, y, w, h, text, value, lo, hi, step)
 
-	local slider = CreateFrame("Slider", id, BTOptionsFrame, "OptionsSliderTemplate");
+	local slider = CreateFrame("Slider", id, BT.OptionsFrame, "OptionsSliderTemplate");
 	slider.label = _G[slider:GetName().."Text"];
 	slider.high = _G[slider:GetName().."High"];
 	slider.low = _G[slider:GetName().."Low"];
@@ -589,7 +615,7 @@ end
 
 function BT.CreateHeading(x, y, text)
 
-	local h = BTOptionsFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge");
+	local h = BT.OptionsFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge");
 	h:SetPoint("TOPLEFT", x, 0-y);
 	h:SetText(text);
 	h:Show();
@@ -665,7 +691,7 @@ end
 
 function BT.CreateCheckBox(id, x, y, checked, text)
 
-	local check = CreateFrame("CheckButton", id, BTOptionsFrame, "InterfaceOptionsCheckButtonTemplate");
+	local check = CreateFrame("CheckButton", id, BT.OptionsFrame, "InterfaceOptionsCheckButtonTemplate");
 	check:SetChecked(checked);
 	check.label = _G[check:GetName().."Text"];
 	check.label:SetText(text);
@@ -1659,10 +1685,10 @@ function BT.SetHide(a)
 	BT.options.hide = a;
 	if (a) then
 		BT.UIFrame:Hide();
-		BTOptionsFrameCheck1:SetChecked(false);
+		BTCheck1:SetChecked(false);
 	else
 		BT.UIFrame:Show();
-		BTOptionsFrameCheck1:SetChecked(true);
+		BTCheck1:SetChecked(true);
 	end
 	BT.RebuildFrame();
 	BT.UpdateFrame();
@@ -1670,7 +1696,7 @@ end
 
 function BT.SetLocked(a)
 	BT.options.locked = a;
-	BTOptionsFrameCheck2:SetChecked(a);
+	BTCheck2:SetChecked(a);
 end
 
 function BT.ResetPos()

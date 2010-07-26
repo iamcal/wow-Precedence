@@ -7,4 +7,3 @@
 ## SavedVariablesPerCharacter: BeeTeamDB
 
 BeeTeam.lua
-BeeTeam_Options.xml
