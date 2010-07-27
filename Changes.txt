@@ -2,4 +2,5 @@
  * first release
 
 1.1
- * 
+ * hide growl warnings when mounted
+

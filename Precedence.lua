@@ -1422,6 +1422,7 @@ function PREC.GetWarning(key, info)
 	end
 
 	if (key == "growl_solo") then
+		if (IsMounted()) then return info; end
 		local _, autostate = GetSpellAutocast("Growl", "pet");
 		if (not autostate and not PREC.InGroup()) then
 			info.show = true;
@@ -1429,6 +1430,7 @@ function PREC.GetWarning(key, info)
 	end
 
 	if (key == "growl_party") then
+		if (IsMounted()) then return info; end
 		local _, autostate = GetSpellAutocast("Growl", "pet");
 		if (autostate and PREC.InGroup()) then
 			info.show = true;
