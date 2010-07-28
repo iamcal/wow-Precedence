@@ -89,6 +89,7 @@ PREC.default_options = {
 		low_ammo = true,
 		growl_solo = true,
 		growl_party = true,
+		kirin_tor_ring = false,
 	},
 };
 
@@ -199,6 +200,10 @@ PREC.warningdefs = {
 	growl_party = {
 		title = "Growl Enabled In Party",
 		icon = [[Interface\Icons\ability_physical_taunt]],
+	},
+	kirin_tor_ring = {
+		title = "Kirin Tor Ring Equipped",
+		icon = [[Interface\Icons\inv_jewelry_ring_74]],
 	},
 };
 
@@ -380,7 +385,7 @@ function PREC.CreateOptionsFrame()
 	PREC.OptionsFrame = CreateFrame("Frame", nil, UIParent);
 	PREC.OptionsFrame:SetFrameStrata("DIALOG");
 	PREC.OptionsFrame:SetWidth(300);
-	PREC.OptionsFrame:SetHeight(410);
+	PREC.OptionsFrame:SetHeight(1410);
 	PREC.OptionsFrame:Hide();
 	PREC.OptionsFrame.name = 'Bee Team';
 
@@ -1435,6 +1440,17 @@ function PREC.GetWarning(key, info)
 		if (autostate and PREC.InGroup()) then
 			info.show = true;
 		end
+	end
+
+	if (key == "kirin_tor_ring") then
+
+		local itemId1 = GetInventoryItemID("player", 11);
+		local itemId2 = GetInventoryItemID("player", 12);
+
+		if (itemId1 == 51560 or itemId2 == 51560) then info.show = true; end
+		if (itemId1 == 48954 or itemId2 == 48954) then info.show = true; end
+		if (itemId1 == 45688 or itemId2 == 45688) then info.show = true; end
+		if (itemId1 == 40586 or itemId2 == 40586) then info.show = true; end
 	end
 
 	return info;
