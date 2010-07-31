@@ -5,3 +5,4 @@
  * hide growl warnings when mounted
  * added warning for kirin tor ring
  * hide growl warnings when you don't have a pet
+ * made the options pane scrollable

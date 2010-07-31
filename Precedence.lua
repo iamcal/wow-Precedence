@@ -382,17 +382,19 @@ end
 
 function PREC.CreateOptionsFrame()
 
-	PREC.OptionsFrame = CreateFrame("Frame", nil, UIParent);
-	PREC.OptionsFrame:SetFrameStrata("DIALOG");
-	PREC.OptionsFrame:SetWidth(300);
-	PREC.OptionsFrame:SetHeight(1410);
-	PREC.OptionsFrame:Hide();
+	PREC.OptionsFrame = PREC.CreateScrollTab("PRECOptionsFrame");
 	PREC.OptionsFrame.name = 'Bee Team';
+	PREC.OptionsPane = PREC.OptionsFrame.child;
 
-	PREC.OptionsFrame.title = PREC.OptionsFrame:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge");
-	PREC.OptionsFrame.title:SetPoint("TOPLEFT", 16, -16);
-	PREC.OptionsFrame.title:SetText("Bee Team Options");
-	PREC.OptionsFrame.title:Show();
+	PREC.OptionsPane.title = PREC.OptionsPane:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge");
+	PREC.OptionsPane.title:SetPoint("TOPLEFT", 6, -6);
+	PREC.OptionsPane.title:SetText("Bee Team Options");
+	PREC.OptionsPane.title:Show();
+
+
+	--
+	-- The top 2 checkboxes
+	--
 
 	local c1 = PREC.CreateCheckBox("PRECCheck1", 16, 35, false, "Enable");
 	c1:SetScript("OnClick", function(self)
@@ -404,90 +406,6 @@ function PREC.CreateOptionsFrame()
 		PREC.OptionClick(self, 'lock');
 	end);
 
-	InterfaceOptions_AddCategory(PREC.OptionsFrame);
-end
-
-function PREC.StartFrame()
-
-	PREC.UIFrame = CreateFrame("Frame",nil,UIParent);
-	PREC.UIFrame:SetFrameStrata("BACKGROUND")
-	PREC.UIFrame:SetWidth(PREC.fullW)
-	PREC.UIFrame:SetHeight(PREC.fullH)
-
-	PREC.UIFrame.texture = PREC.UIFrame:CreateTexture()
-	PREC.UIFrame.texture:SetAllPoints(PREC.UIFrame)
-	PREC.UIFrame.texture:SetTexture(0, 0, 0)
-
-	-- position the parent frame
-	local frameRef = "CENTER";
-	local frameX = 0;
-	local frameY = 0;
-	if (PREC.options.frameRef) then
-		frameRef = PREC.options.frameRef;
-		frameX = PREC.options.frameX;
-		frameY = PREC.options.frameY;
-	end
-	PREC.UIFrame:SetPoint(frameRef, frameX, frameY);
-
-	-- make it draggable
-	PREC.UIFrame:SetMovable(true);
-	PREC.UIFrame:EnableMouse(true);
-
-
-	-- buttons!
-	PREC.rot_btns = {};
-	for i=1,PREC.options.max_prios do
-		local key = 'p'..i;
-		PREC.rot_btns[key] = PREC.CreateButton(0, 0, 40, 40, [[Interface\Icons\ability_hunter_pet_dragonhawk]]);
-		PREC.rot_btns[key]:SetFrameLevel(100 + PREC.options.max_prios - i);
-	end
-
-	-- progress meters
-	PREC.mtrs = {};
-	for i=1,PREC.options.max_mtrs do
-		local key = 'm'..i;
-		PREC.mtrs[key] = {
-			btn = PREC.CreateButton(0, 40 + ((i-1) * PREC.options.mtr_icon_size), PREC.options.mtr_icon_size, PREC.options.mtr_icon_size, [[Interface\Icons\ability_hunter_pet_dragonhawk]]),
-			bar = PREC.CreateBar(PREC.options.mtr_icon_size, 40 + ((i-1) * PREC.options.mtr_icon_size), PREC.fullW-PREC.options.mtr_icon_size, PREC.options.mtr_icon_size),
-		};
-	end
-
-	-- warnings
-	PREC.warn_btns = {};
-	for i=1,PREC.options.max_warns do
-		local key = 'w'..i;
-		PREC.warn_btns[key] = PREC.CreateTextureFrame(PREC.fullW-(i * 20), 0-20, 20, 20, [[Interface\Icons\ability_hunter_pet_dragonhawk]]);
-	end
-	
-
-
-	-- create a button that covers the entire addon
-	PREC.Cover = CreateFrame("Button", nil, PREC.UIFrame);
-	PREC.Cover:SetFrameLevel(128)
-	PREC.Cover:SetPoint("TOPLEFT", 0, 0)
-	PREC.Cover:SetWidth(PREC.fullW)
-	PREC.Cover:SetHeight(PREC.fullH)
-	PREC.Cover:EnableMouse(true);
-	PREC.Cover:RegisterForClicks("AnyUp");
-	PREC.Cover:RegisterForDrag("LeftButton");
-	PREC.Cover:SetScript("OnDragStart", PREC.OnDragStart);
-	PREC.Cover:SetScript("OnDragStop", PREC.OnDragStop);
-	PREC.Cover:SetScript("OnClick", PREC.OnClick);
-
-	-- main label - shows help & warnings
-	PREC.Label = PREC.Cover:CreateFontString(nil, "OVERLAY")
-	PREC.Label:SetPoint("CENTER", PREC.UIFrame, "CENTER", 2, 0)
-	PREC.Label:SetJustifyH("LEFT")
-	PREC.Label:SetFont([[Fonts\FRIZQT__.TTF]], 12, "OUTLINE");
-	PREC.Label:SetText(" ");
-	PREC.Label:SetTextColor(1,1,1,1)
-	PREC.SetFontSize(PREC.Label, 10)
-
-
-	--PREC.Cover.texture = PREC.Cover:CreateTexture("ARTWORK")
-	--PREC.Cover.texture:SetAllPoints()
-	--PREC.Cover.texture:SetTexture(1, 0.5, 0)
-	--PREC.Cover.texture:SetAlpha(0.5);
 
 	-- Add options to the dialog
 	local py = 100;
@@ -547,12 +465,126 @@ function PREC.StartFrame()
 	end
 
 
-	local a = PREC.CreateSlider('mySlider', 0, -100, 200, 20, "Meter Size", PREC.options.mtr_icon_size, 5, 40, 1);
+	py = py + 20;
+
+	local a = PREC.CreateSlider('mySlider', 20, py, 200, 20, "Meter Size", PREC.options.mtr_icon_size, 5, 40, 1);
 	a:SetScript("OnValueChanged", function(self)
 		local value = self:GetValue();
 		self.label:SetText(self.default_label.." : "..value);
 		PREC.options.mtr_icon_size = value;
 	end);
+
+
+	InterfaceOptions_AddCategory(PREC.OptionsFrame);
+end
+
+function PREC.CreateScrollTab(id)
+
+	local f = CreateFrame("Frame", id, UIParent);
+	f:SetFrameStrata("DIALOG");
+	f:Hide();
+
+	f.scroller = CreateFrame("ScrollFrame", id..'Scroll', f, "UIPanelScrollFrameTemplate");
+	f.scroller:SetPoint("TOPLEFT", 10, -10);
+	f.scroller:SetPoint("BOTTOMRIGHT", -30, 10);
+	f.scroller:SetHorizontalScroll(0);
+	f.scroller:SetVerticalScroll(0);
+
+	PREC.ColorIn(f.scroller, 0.5, 0.5, 0, 0.5);
+
+	f.child = CreateFrame("Frame", id..'Child', f.scroller);
+	f.child:SetWidth(100);
+	f.child:SetHeight(100);
+	f.scroller:SetScrollChild(f.child)
+
+	PREC.ColorIn(f.child, 0, 0, 1, 0.5);
+
+	return f;
+end
+
+function PREC.ColorIn(frame, r, g, b, a)
+
+	frame.texture = frame:CreateTexture("ARTWORK");
+	frame.texture:SetAllPoints();
+	frame.texture:SetTexture(r, g, b);
+	frame.texture:SetAlpha(a);
+end
+
+function PREC.StartFrame()
+
+	PREC.UIFrame = CreateFrame("Frame",nil,UIParent);
+	PREC.UIFrame:SetFrameStrata("BACKGROUND")
+	PREC.UIFrame:SetWidth(PREC.fullW)
+	PREC.UIFrame:SetHeight(PREC.fullH)
+
+	PREC.UIFrame.texture = PREC.UIFrame:CreateTexture()
+	PREC.UIFrame.texture:SetAllPoints(PREC.UIFrame)
+	PREC.UIFrame.texture:SetTexture(0, 0, 0)
+
+	-- position the parent frame
+	local frameRef = "CENTER";
+	local frameX = 0;
+	local frameY = 0;
+	if (PREC.options.frameRef) then
+		frameRef = PREC.options.frameRef;
+		frameX = PREC.options.frameX;
+		frameY = PREC.options.frameY;
+	end
+	PREC.UIFrame:SetPoint(frameRef, frameX, frameY);
+
+	-- make it draggable
+	PREC.UIFrame:SetMovable(true);
+	PREC.UIFrame:EnableMouse(true);
+
+
+	-- buttons!
+	PREC.rot_btns = {};
+	for i=1,PREC.options.max_prios do
+		local key = 'p'..i;
+		PREC.rot_btns[key] = PREC.CreateButton(0, 0, 40, 40, [[Interface\Icons\ability_hunter_pet_dragonhawk]]);
+		PREC.rot_btns[key]:SetFrameLevel(100 + PREC.options.max_prios - i);
+	end
+
+	-- progress meters
+	PREC.mtrs = {};
+	for i=1,PREC.options.max_mtrs do
+		local key = 'm'..i;
+		PREC.mtrs[key] = {
+			btn = PREC.CreateButton(0, 40 + ((i-1) * PREC.options.mtr_icon_size), PREC.options.mtr_icon_size, PREC.options.mtr_icon_size, [[Interface\Icons\ability_hunter_pet_dragonhawk]]),
+			bar = PREC.CreateBar(PREC.options.mtr_icon_size, 40 + ((i-1) * PREC.options.mtr_icon_size), PREC.fullW-PREC.options.mtr_icon_size, PREC.options.mtr_icon_size),
+		};
+	end
+
+	-- warnings
+	PREC.warn_btns = {};
+	for i=1,PREC.options.max_warns do
+		local key = 'w'..i;
+		PREC.warn_btns[key] = PREC.CreateTextureFrame(PREC.fullW-(i * 20), 0-20, 20, 20, [[Interface\Icons\ability_hunter_pet_dragonhawk]]);
+	end
+	
+
+	-- create a button that covers the entire addon
+	PREC.Cover = CreateFrame("Button", nil, PREC.UIFrame);
+	PREC.Cover:SetFrameLevel(128)
+	PREC.Cover:SetPoint("TOPLEFT", 0, 0)
+	PREC.Cover:SetWidth(PREC.fullW)
+	PREC.Cover:SetHeight(PREC.fullH)
+	PREC.Cover:EnableMouse(true);
+	PREC.Cover:RegisterForClicks("AnyUp");
+	PREC.Cover:RegisterForDrag("LeftButton");
+	PREC.Cover:SetScript("OnDragStart", PREC.OnDragStart);
+	PREC.Cover:SetScript("OnDragStop", PREC.OnDragStop);
+	PREC.Cover:SetScript("OnClick", PREC.OnClick);
+	--PREC.ColorIn(PREC.Cover, 1, 0.5, 0, 0.5);
+
+	-- main label - shows help & warnings
+	PREC.Label = PREC.Cover:CreateFontString(nil, "OVERLAY")
+	PREC.Label:SetPoint("CENTER", PREC.UIFrame, "CENTER", 2, 0)
+	PREC.Label:SetJustifyH("LEFT")
+	PREC.Label:SetFont([[Fonts\FRIZQT__.TTF]], 12, "OUTLINE");
+	PREC.Label:SetText(" ");
+	PREC.Label:SetTextColor(1,1,1,1)
+	PREC.SetFontSize(PREC.Label, 10)
 
 	PREC.SetLocked(PREC.options.locked);
 	PREC.SetHide(PREC.options.hide);
@@ -560,7 +592,7 @@ end
 
 function PREC.CreateSlider(id, x, y, w, h, text, value, lo, hi, step)
 
-	local slider = CreateFrame("Slider", id, PREC.OptionsFrame, "OptionsSliderTemplate");
+	local slider = CreateFrame("Slider", id, PREC.OptionsPane, "OptionsSliderTemplate");
 	slider.label = _G[slider:GetName().."Text"];
 	slider.high = _G[slider:GetName().."High"];
 	slider.low = _G[slider:GetName().."Low"];
@@ -630,7 +662,7 @@ end
 
 function PREC.CreateHeading(x, y, text)
 
-	local h = PREC.OptionsFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge");
+	local h = PREC.OptionsPane:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge");
 	h:SetPoint("TOPLEFT", x, 0-y);
 	h:SetText(text);
 	h:Show();
@@ -706,7 +738,7 @@ end
 
 function PREC.CreateCheckBox(id, x, y, checked, text)
 
-	local check = CreateFrame("CheckButton", id, PREC.OptionsFrame, "InterfaceOptionsCheckButtonTemplate");
+	local check = CreateFrame("CheckButton", id, PREC.OptionsPane, "InterfaceOptionsCheckButtonTemplate");
 	check:SetChecked(checked);
 	check.label = _G[check:GetName().."Text"];
 	check.label:SetText(text);
