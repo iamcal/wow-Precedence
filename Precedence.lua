@@ -383,18 +383,31 @@ end
 function PREC.CreateOptionsFrame()
 
 	PREC.OptionsFrame = PREC.CreateScrollTab("PRECOptionsFrame");
-	PREC.OptionsFrame.name = 'Bee Team';
+	PREC.OptionsFrame.name = 'Precedence';
 	PREC.OptionsPane = PREC.OptionsFrame.child;
 
-	PREC.OptionsPane.title = PREC.OptionsPane:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge");
-	PREC.OptionsPane.title:SetPoint("TOPLEFT", 6, -6);
-	PREC.OptionsPane.title:SetText("Bee Team Options");
-	PREC.OptionsPane.title:Show();
+	PREC.PrioOptionsFrame = PREC.CreateScrollTab("PRECPrioOptionsFrame");
+	PREC.PrioOptionsFrame.name = 'Priorities';
+	PREC.PrioOptionsFrame.parent = PREC.OptionsFrame.name;
+	PREC.PrioOptionsPane = PREC.PrioOptionsFrame.child;
+
+	PREC.WarnOptionsFrame = PREC.CreateScrollTab("PRECWarnOptionsFrame");
+	PREC.WarnOptionsFrame.name = 'Warnings';
+	PREC.WarnOptionsFrame.parent = PREC.OptionsFrame.name;
+	PREC.WarnOptionsPane = PREC.WarnOptionsFrame.child;
+
+	PREC.TimerOptionsFrame = PREC.CreateScrollTab("PRECTimerOptionsFrame");
+	PREC.TimerOptionsFrame.name = 'Timers';
+	PREC.TimerOptionsFrame.parent = PREC.OptionsFrame.name;
+	PREC.TimerOptionsPane = PREC.TimerOptionsFrame.child;
+
 
 
 	--
 	-- The top 2 checkboxes
 	--
+
+	PREC.CreateHeading(PREC.OptionsPane, 6, 6, "Precedence Options", "GameFontNormalLarge");
 
 	local c1 = PREC.CreateCheckBox("PRECCheck1", 16, 35, false, "Enable");
 	c1:SetScript("OnClick", function(self)
@@ -410,7 +423,7 @@ function PREC.CreateOptionsFrame()
 	-- Add options to the dialog
 	local py = 100;
 
-	PREC.CreateHeading(16, py, "Timers");
+	PREC.CreateHeading(PREC.OptionsPane, 16, py, "Timers");
 	py = py + 20;
 
 	for key, info in pairs(PREC.meterinfo) do
@@ -438,7 +451,7 @@ function PREC.CreateOptionsFrame()
 	end
 
 	py = py + 20;
-	PREC.CreateHeading(16, py, "Warnings");
+	PREC.CreateHeading(PREC.OptionsPane, 16, py, "Warnings");
 	py = py + 20;
 
 	for key, info in pairs(PREC.warningdefs) do
@@ -476,6 +489,9 @@ function PREC.CreateOptionsFrame()
 
 
 	InterfaceOptions_AddCategory(PREC.OptionsFrame);
+	InterfaceOptions_AddCategory(PREC.PrioOptionsFrame);
+	InterfaceOptions_AddCategory(PREC.WarnOptionsFrame);
+	InterfaceOptions_AddCategory(PREC.TimerOptionsFrame);
 end
 
 function PREC.CreateScrollTab(id)
@@ -490,14 +506,14 @@ function PREC.CreateScrollTab(id)
 	f.scroller:SetHorizontalScroll(0);
 	f.scroller:SetVerticalScroll(0);
 
-	PREC.ColorIn(f.scroller, 0.5, 0.5, 0, 0.5);
+	--PREC.ColorIn(f.scroller, 0.5, 0.5, 0, 0.5);
 
 	f.child = CreateFrame("Frame", id..'Child', f.scroller);
 	f.child:SetWidth(100);
 	f.child:SetHeight(100);
 	f.scroller:SetScrollChild(f.child)
 
-	PREC.ColorIn(f.child, 0, 0, 1, 0.5);
+	--PREC.ColorIn(f.child, 0, 0, 1, 0.5);
 
 	return f;
 end
@@ -560,8 +576,14 @@ function PREC.StartFrame()
 	for i=1,PREC.options.max_warns do
 		local key = 'w'..i;
 		PREC.warn_btns[key] = PREC.CreateTextureFrame(PREC.fullW-(i * 20), 0-20, 20, 20, [[Interface\Icons\ability_hunter_pet_dragonhawk]]);
+		PREC.warn_btns[key].key = key;
+
+		PREC.warn_btns[key]:EnableMouse(true); 
+		PREC.warn_btns[key]:SetHitRectInsets(0, 0, 0, 0)
+		PREC.warn_btns[key]:SetScript("OnEnter", function(self) PREC.ShowWarningTooltip(self.key); end);
+		PREC.warn_btns[key]:SetScript("OnLeave", function() GameTooltip:Hide(); end);
 	end
-	
+
 
 	-- create a button that covers the entire addon
 	PREC.Cover = CreateFrame("Button", nil, PREC.UIFrame);
@@ -588,6 +610,16 @@ function PREC.StartFrame()
 
 	PREC.SetLocked(PREC.options.locked);
 	PREC.SetHide(PREC.options.hide);
+end
+
+function PREC.ShowWarningTooltip(key)
+
+	GameTooltip:SetOwner(PREC.warn_btns[key], "ANCHOR_TOP", 0, 10);
+
+	GameTooltip:AddLine("Warning tooltip "..key);
+
+	GameTooltip:ClearAllPoints();
+	GameTooltip:Show();
 end
 
 function PREC.CreateSlider(id, x, y, w, h, text, value, lo, hi, step)
@@ -660,9 +692,11 @@ function PREC.ShowMenu()
 
 end
 
-function PREC.CreateHeading(x, y, text)
+function PREC.CreateHeading(parent, x, y, text, font)
 
-	local h = PREC.OptionsPane:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge");
+	font = font or "GameFontNormalLarge";
+
+	local h = parent:CreateFontString(nil, "OVERLAY", font);
 	h:SetPoint("TOPLEFT", x, 0-y);
 	h:SetText(text);
 	h:Show();
