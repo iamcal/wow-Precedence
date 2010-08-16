@@ -6,3 +6,5 @@
  * added warning for kirin tor ring
  * hide growl warnings when you don't have a pet
  * made the options pane scrollable
+ * split config into 4 panes
+ * added config for overall scale and runway length

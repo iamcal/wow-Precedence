@@ -3,17 +3,26 @@ PREC = {}
 PREC.options = {};
 PREC.default_options = {
 
+	-- automatic options
 	frameRef = "CENTER",
 	frameX = 0,
 	frameY = 0,
 
+	-- core options
 	locked = false,
 	hide = false,
+	demo_mode = false,
+
+	-- appearance
+	scale = 1,
+	mtr_icon_size = 20,
+	runway = 200,
+
+
 
 	viper_mana_bigger = 90,
 	mana_low_warning = 10,
 
-	runway = 200,
 	time_limit = 10,
 	font_size = 8,
 	cooldown_size = 20,
@@ -22,8 +31,7 @@ PREC.default_options = {
 	max_prios = 10,
 	max_mtrs = 10,
 	max_warns = 10,
-	mtr_icon_size = 20,
-	demo_mode = false,
+
 	priorities = {
 		p1 = {
 			which = "rapid",
@@ -404,27 +412,64 @@ function PREC.CreateOptionsFrame()
 
 
 	--
-	-- The top 2 checkboxes
+	-- Main options pane
 	--
 
 	PREC.CreateHeading(PREC.OptionsPane, 6, 6, "Precedence Options", "GameFontNormalLarge");
 
-	local c1 = PREC.CreateCheckBox("PRECCheck1", 16, 35, false, "Enable");
+	local c1 = PREC.CreateCheckBox(PREC.OptionsPane, "PRECCheck1", 16, 35, false, "Enable");
 	c1:SetScript("OnClick", function(self)
 		PREC.OptionClick(self, 'hide');
 	end);
 
-	local c2 = PREC.CreateCheckBox("PRECCheck2", 16, 55, false, "Lock Frame");
+	local c2 = PREC.CreateCheckBox(PREC.OptionsPane, "PRECCheck2", 16, 55, false, "Lock Frame");
 	c2:SetScript("OnClick", function(self)
 		PREC.OptionClick(self, 'lock');
 	end);
 
-
-	-- Add options to the dialog
 	local py = 100;
 
-	PREC.CreateHeading(PREC.OptionsPane, 16, py, "Timers");
-	py = py + 20;
+
+	PREC.CreateHeading(PREC.OptionsPane, 16, py, "Appearance");
+
+	py = py + 40;
+
+
+	PREC.CreateSlider('PRECSlider1', 20, py, 200, 20, "Scale", PREC.options.scale, 0.1, 2, 0.1, function(self)
+		local value = self:GetValue();
+		value = math.floor(value * 10) / 10;
+		self.label:SetText(self.default_label.." : "..value);
+		PREC.options.scale = value;
+	end);
+
+	py = py + 50;
+
+
+	PREC.CreateSlider('PRECSlider2', 20, py, 200, 20, "Meter Size", PREC.options.mtr_icon_size, 5, 40, 1, function(self)
+		local value = self:GetValue();
+		self.label:SetText(self.default_label.." : "..value);
+		PREC.options.mtr_icon_size = value;
+	end);
+
+	py = py + 50;
+
+	PREC.CreateSlider('PRECSlider3', 20, py, 200, 20, "Runway Length", PREC.options.runway, 100, 300, 1, function(self)
+		local value = self:GetValue();
+		self.label:SetText(self.default_label.." : "..value);
+		PREC.options.runway = value;
+	end);
+
+
+
+
+
+	--
+	-- Timers pane
+	--
+
+	PREC.CreateHeading(PREC.TimerOptionsPane, 6, 6, "Precedence Options - Timers", "GameFontNormalLarge");
+
+	py = 35;
 
 	for key, info in pairs(PREC.meterinfo) do
 
@@ -435,7 +480,7 @@ function PREC.CreateOptionsFrame()
 		if (info.petbuff) then label = info.petbuff; end
 		if (info.title) then label = info.title; end
 
-		local check = PREC.CreateCheckBox("PRECCheckMeter-"..key, 16, py, PREC.options.meters[key], label);
+		local check = PREC.CreateCheckBox(PREC.TimerOptionsPane, "PRECCheckMeter-"..key, 16, py, PREC.options.meters[key], label);
 		check.key = key;
 		check:SetScript("OnClick", function(self)
 			if (self:GetChecked()) then
@@ -450,16 +495,21 @@ function PREC.CreateOptionsFrame()
 		py = py + 20;
 	end
 
-	py = py + 20;
-	PREC.CreateHeading(PREC.OptionsPane, 16, py, "Warnings");
-	py = py + 20;
+
+	--
+	-- Warnings pane
+	--
+
+	PREC.CreateHeading(PREC.WarnOptionsPane, 6, 6, "Precedence Options - Warnings", "GameFontNormalLarge");
+
+	py = 35;
 
 	for key, info in pairs(PREC.warningdefs) do
 
 		local label = "?";
 		if (info.title) then label = info.title; end
 
-		local check = PREC.CreateCheckBox("PRECCheckWarn-"..key, 16, py, PREC.options.warnings[key], label);
+		local check = PREC.CreateCheckBox(PREC.WarnOptionsPane, "PRECCheckWarn-"..key, 16, py, PREC.options.warnings[key], label);
 		check.key = key;
 		check:SetScript("OnClick", function(self)
 			if (self:GetChecked()) then
@@ -478,14 +528,13 @@ function PREC.CreateOptionsFrame()
 	end
 
 
-	py = py + 20;
+	--
+	-- Prios pane
+	--
 
-	local a = PREC.CreateSlider('mySlider', 20, py, 200, 20, "Meter Size", PREC.options.mtr_icon_size, 5, 40, 1);
-	a:SetScript("OnValueChanged", function(self)
-		local value = self:GetValue();
-		self.label:SetText(self.default_label.." : "..value);
-		PREC.options.mtr_icon_size = value;
-	end);
+	PREC.CreateHeading(PREC.PrioOptionsPane, 6, 6, "Precedence Options - Priorities", "GameFontNormalLarge");
+
+	py = 35;
 
 
 	InterfaceOptions_AddCategory(PREC.OptionsFrame);
@@ -622,7 +671,7 @@ function PREC.ShowWarningTooltip(key)
 	GameTooltip:Show();
 end
 
-function PREC.CreateSlider(id, x, y, w, h, text, value, lo, hi, step)
+function PREC.CreateSlider(id, x, y, w, h, text, value, lo, hi, step, f)
 
 	local slider = CreateFrame("Slider", id, PREC.OptionsPane, "OptionsSliderTemplate");
 	slider.label = _G[slider:GetName().."Text"];
@@ -642,6 +691,7 @@ function PREC.CreateSlider(id, x, y, w, h, text, value, lo, hi, step)
 	slider:SetPoint("TOPLEFT", x, 0-y);
 	slider:SetWidth(w);
 	slider:SetHeight(h);
+	slider:SetScript("OnValueChanged", f);
 
 	return slider;
 end
@@ -770,9 +820,9 @@ function PREC.CreateBar(x, y, w, h)
 	return b;
 end
 
-function PREC.CreateCheckBox(id, x, y, checked, text)
+function PREC.CreateCheckBox(parent, id, x, y, checked, text)
 
-	local check = CreateFrame("CheckButton", id, PREC.OptionsPane, "InterfaceOptionsCheckButtonTemplate");
+	local check = CreateFrame("CheckButton", id, parent, "InterfaceOptionsCheckButtonTemplate");
 	check:SetChecked(checked);
 	check.label = _G[check:GetName().."Text"];
 	check.label:SetText(text);
@@ -911,6 +961,17 @@ function PREC.UpdateFrame()
 	else
 		status = PREC.GatherStatus();
 	end
+
+
+	--
+	-- global sizing
+	--
+
+	PREC.fullW = 40 + 40 + PREC.options.runway;
+	PREC.UIFrame:SetWidth(PREC.fullW)
+	PREC.Cover:SetWidth(PREC.fullW)
+
+	PREC.UIFrame:SetScale(PREC.options.scale);
 
 
 	--
