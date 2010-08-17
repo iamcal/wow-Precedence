@@ -28,7 +28,6 @@ Timers:
 TODO
 -----------------------------------------------------------------------------
 * config for priorities
-* fix scrolling options pane
 * tooltips for warnings
 
 * Time between explosive shots on LnL
