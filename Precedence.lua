@@ -693,7 +693,7 @@ function PREC.ShowWarningTooltip(key)
 
 	GameTooltip:SetOwner(PREC.warn_btns[key], "ANCHOR_TOP", 0, 10);
 
-	GameTooltip:AddLine("Warning tooltip "..key);
+	GameTooltip:AddLine(PREC.warn_btns[key].title);
 
 	GameTooltip:ClearAllPoints();
 	GameTooltip:Show();
@@ -1201,6 +1201,7 @@ function PREC.UpdateFrame()
 		if (not icon) then icon = PREC.default_icon_full; end;
 
 		PREC.warn_btns[key].texture:SetTexture(icon);
+		PREC.warn_btns[key].title = warn.title;
 
 		if (warn.tex_coords) then
 			PREC.warn_btns[key].texture:SetTexCoord(warn.tex_coords[1], warn.tex_coords[2], warn.tex_coords[3], warn.tex_coords[4]);
