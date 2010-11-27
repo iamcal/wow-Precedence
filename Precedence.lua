@@ -50,12 +50,12 @@ PREC.default_options = {
 			who = "any",
 		},
 		p4 = {
-			which = "serpent",
+			which = "explosive",
 			bind = "ALT-3",
 			who = "any",
 		},
 		p5 = {
-			which = "chimera",
+			which = "black",
 			bind = "ALT-4",
 			--label = "Chim",
 			who = "any",
@@ -66,17 +66,21 @@ PREC.default_options = {
 			who = "any",
 		},
 		p7 = {
-			which = "steady",
+			which = "serpent",
 			bind = "ALT-6",
+			who = "any",
+		},
+		p8 = {
+			which = "steady",
+			bind = "ALT-8",
 			who = "any",
 			cmd = "MACRO Steady",
 		},
-		p8 = {
+		p9 = {
 			which = "trap_frost",
-			bind = "ALT-8",
+			bind = "ALT-9",
 			who = "any",
 		},
-		p9 = "-",
 		p10 = "-",
 	},
 	meters = {
@@ -135,6 +139,14 @@ PREC.abilities = {
 	steady = {
 		icon = "ability_hunter_steadyshot",
 		spell = "Steady Shot",
+	},
+	explosive = {
+		icon = "ability_hunter_explosiveshot",
+		spell = "Explosive Shot",
+	},
+	black = {
+		icon = "spell_shadow_painspike",
+		spell = "Black Arrow",
 	},
 }
 
