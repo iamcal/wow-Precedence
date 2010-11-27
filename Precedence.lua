@@ -202,7 +202,7 @@ PREC.warningdefs = {
 	},
 	bad_aspect = {
 		title = "Wrong Aspect",
-		icon = [[Interface\Icons\ability_hunter_pet_dragonhawk]],
+		icon = [[Interface\Icons\spell_nature_ravenform]],
 	},
 	no_hunters_mark = {
 		title = "Missing Hunter's Mark",
@@ -1510,19 +1510,16 @@ function PREC.GetWarning(key, info)
 	if (key == "bad_aspect") then
 
 		local bad_icon = nil;
-		local found_dh = false;
+		local found_hawk = false;
 		local index = 1
 
 		while UnitBuff("player", index) do
 			local name, _, _, count, _, _, buffExpires, caster = UnitBuff("player", index)
-			if (name == "Aspect of the Beast"	) then bad_icon = "ability_mount_pinktiger"; end
 			if (name == "Aspect of the Cheetah"	) then bad_icon = "ability_mount_jungletiger"; end
-			if (name == "Aspect of the Hawk"	) then bad_icon = "spell_nature_ravenform"; end
-			if (name == "Aspect of the Monkey"	) then bad_icon = "ability_hunter_aspectofthemonkey"; end
+			if (name == "Aspect of the Fox"		) then bad_icon = "aspectofthefox"; end
 			if (name == "Aspect of the Pack"	) then bad_icon = "ability_mount_whitetiger"; end
-			if (name == "Aspect of the Viper"	) then bad_icon = "ability_hunter_aspectoftheviper"; end
 			if (name == "Aspect of the Wild"	) then bad_icon = "spell_nature_protectionformnature"; end
-			if (name == "Aspect of the Dragonhawk"	) then found_dh = true; end
+			if (name == "Aspect of the Hawk"	) then found_hawk = true; end
 			index = index + 1
 		end
 
@@ -1530,21 +1527,10 @@ function PREC.GetWarning(key, info)
 			info.show = true;
 			info.icon = [[Interface\Icons\]] .. bad_icon;
 			info.scale = 1;
-
-			if (bad_icon == "ability_hunter_aspectoftheviper") then
-
-				local cur_mana = UnitPower("player", 0);
-				local max_mana = UnitPowerMax("player", 0);
-				local per_mana = 100 * cur_mana / max_mana;
-
-				if (per_mana > PREC.options.viper_mana_bigger) then
-					info.scale = 1 + ((per_mana - PREC.options.viper_mana_bigger) / (100 - PREC.options.viper_mana_bigger));
-				end
-			end
 		else
-			if (not found_dh) then
+			if (not found_hawk) then
 				info.show = true;
-				info.icon = [[Interface\Icons\ability_hunter_pet_dragonhawk]];
+				info.icon = [[Interface\Icons\spell_nature_ravenform]];
 			end
 		end
 		return info;
