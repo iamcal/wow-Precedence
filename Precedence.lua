@@ -39,48 +39,43 @@ PREC.default_options = {
 			who = "boss",
 		},
 		p2 = {
-			which = "readiness",
-			bind = "ALT-7",
-			waitbuff = "Rapid Fire",
-			who = "boss",
-		},
-		p3 = {
 			which = "kill",
 			bind = "ALT-2",
 			who = "any",
 		},
-		p4 = {
+		p3 = {
 			which = "explosive",
 			bind = "ALT-3",
 			who = "any",
 		},
-		p5 = {
+		p4 = {
 			which = "black",
 			bind = "ALT-4",
 			--label = "Chim",
 			who = "any",
 		},
-		p6 = {
-			which = "aimed",
+		p5 = {
+			which = "kill_cmd",
 			bind = "ALT-5",
 			who = "any",
 		},
-		p7 = {
+		p6 = {
 			which = "serpent",
 			bind = "ALT-6",
 			who = "any",
 		},
-		p8 = {
+		p7 = {
 			which = "steady",
+			bind = "ALT-7",
+			who = "any",
+			--cmd = "MACRO Steady",
+		},
+		p8 = {
+			which = "trap_frost",
 			bind = "ALT-8",
 			who = "any",
-			cmd = "MACRO Steady",
 		},
-		p9 = {
-			which = "trap_frost",
-			bind = "ALT-9",
-			who = "any",
-		},
+		p9 = "-",
 		p10 = "-",
 	},
 	meters = {
@@ -148,6 +143,11 @@ PREC.abilities = {
 		icon = "spell_shadow_painspike",
 		spell = "Black Arrow",
 	},
+	kill_cmd = {
+		icon = [[ability_hunter_killcommand]],
+		spell = "Kill Command",
+	},
+
 }
 
 PREC.meterinfo = {
@@ -259,6 +259,12 @@ function PREC.OnReady()
 	PREC.fullH = 40;
 
 	PREC.StartFrame();
+end
+
+function PREC.ResetOptions()
+
+	PREC.options = PREC.default_options;
+	PREC.BindKeys();
 end
 
 function PREC.ShowOptions()
@@ -924,7 +930,7 @@ function PREC.CheckBinds()
 	end
 
 	if (dirty) then
-		print("BeeTeam: Something is messing with our bindings. Check other addons.");
+		print("Precednece: Something is messing with our bindings. Check other addons.");
 		PREC.BindKeys();
 	end
 end
