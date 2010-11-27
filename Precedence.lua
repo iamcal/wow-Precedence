@@ -537,6 +537,22 @@ function PREC.CreateOptionsFrame()
 	py = 35;
 
 
+	for i=1,PREC.options.max_prios do
+		local key = 'p'..i;
+
+		PREC.CreateHeading(PREC.PrioOptionsPane, 6, py, "Priority "..i);
+
+		PREC.CreateCheckBox(PREC.PrioOptionsPane, "PRECCheckPrio-"..key.."1", 16, py+20, 1, key.." Check 1");
+		PREC.CreateCheckBox(PREC.PrioOptionsPane, "PRECCheckPrio-"..key.."2", 16, py+50, 1, key.." Check 2");
+
+		py = py + 80;
+	end
+
+	
+
+
+
+
 	InterfaceOptions_AddCategory(PREC.OptionsFrame);
 	InterfaceOptions_AddCategory(PREC.PrioOptionsFrame);
 	InterfaceOptions_AddCategory(PREC.WarnOptionsFrame);
