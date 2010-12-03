@@ -233,10 +233,6 @@ PREC.state = {
 	trap_set = false,
 	trap_set_start = 0,
 	trapped_mobs = {},
-	last_focus_time = 0,
-	last_focus_value = 0,
-	last_focus_persec = 0,
-	shot_focus_regen = 0,
 };
 
 PREC.everything_ready = false;
@@ -359,19 +355,6 @@ function PREC.OnEvent(frame, event, ...)
 			return;
 		end
 
-		if ((arg2 == "SPELL_ENERGIZE") or (arg2 == "SPELL_PERIODIC_ENERGIZE")) then
-			if (arg6 == ourGuid) then
-				if (arg13 == 2) then
-					PREC.state.shot_focus_regen = PREC.state.shot_focus_regen + arg12;
-					print("energize "..arg12);
-				end
-			end
-		end
-
-		if (arg2 == "SPELL_DRAIN") then
-			print("drain");
-		end
-
 		if (false) then
 			local dest = arg7;
 			if (not dest) then dest = "?"; end
@@ -384,46 +367,6 @@ function PREC.OnEvent(frame, event, ...)
 		end
 
 		return;
-	end
-
-	if (event == "UNIT_POWER") then
-		local unit, type = ...;
-
-		if (not (unit == "player")) then return; end
-		if (not (type == "FOCUS")) then return; end
-
-		local val = UnitPower("player", SPELL_POWER_FOCUS);
-		local now = GetTime();
-
-		if (val == 100) then
-			PREC.state.last_focus_time = 0;
-			PREC.state.last_focus_value = 0;
-			return;
-		end
-
-		if (not (PREC.state.last_focus_time == 0)) then
-
-			local diff_time = now - PREC.state.last_focus_time;
-			local diff_val = val - PREC.state.last_focus_value;
-
-			diff_val = diff_val - PREC.state.shot_focus_regen;
-
-			--if (diff_val > 0) then
-				-- only update our focus regen prediction if it just went up...
-				PREC.state.last_focus_persec = diff_val / diff_time;
-
-				local myregen = 4 * ((100 + GetCombatRatingBonus(CR_HASTE_RANGED))/100)
-
-				print("focus/sec = "..PREC.state.last_focus_persec.." / "..GetPowerRegen().." / "..myregen);
-			--else
-			--	PREC.state.last_focus_time = 0;
-			--	PREC.state.last_focus_value = 0;
-			--end
-		end
-
-		PREC.state.last_focus_time = now;
-		PREC.state.last_focus_value = val;
-		PREC.state.shot_focus_regen = 0;
 	end
 
 	if (event == 'ADDON_LOADED') then
@@ -2188,6 +2131,5 @@ PREC.Frame:RegisterEvent("ADDON_LOADED")
 PREC.Frame:RegisterEvent("PLAYER_LOGOUT")
 PREC.Frame:RegisterEvent("PLAYER_LOGIN")
 PREC.Frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
---PREC.Frame:RegisterEvent("UNIT_POWER");
 
 PREC.OnLoad()
