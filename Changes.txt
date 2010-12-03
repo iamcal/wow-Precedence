@@ -8,3 +8,12 @@
  * made the options pane scrollable
  * split config into 4 panes
  * added config for overall scale and runway length
+
+1.2
+ * updated for 4.x
+ * set priority config from config screen
+ * focus regen support
+ * more shots
+ * disable kill command when no pet is out
+ * don't put up explosive shot when the debuff is on the target
+ * warning tooltips

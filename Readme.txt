@@ -28,9 +28,8 @@ Timers:
 TODO
 -----------------------------------------------------------------------------
 * config for priorities
-* tooltips for warnings
 
-* Time between explosive shots on LnL
+* Time between explosive shots on LnL (use fixed time rather than waiting for debuff)
 * No readiness during rapid fire - make configable
 * confiurable percentages for aspect switching
 * Extra wait times for high priority shots
@@ -39,7 +38,6 @@ TODO
 * Pet attacking?
 * Not enough mana for certain shots
 * deactivate when dead!
-* low ammo warning
 * warn when wearing pvp gear
 * Other trap timers
 * Other stings
