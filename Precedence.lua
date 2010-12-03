@@ -1332,9 +1332,13 @@ function PREC.GatherStatus()
 		local key = 'p'..i;
 		local prio = PREC.options.priorities[key];
 		local ability = PREC.abilities[prio.which];
-		local ok, t = false, 0;
+
+		local ok = false;
+		local t = 0;
+		local waitmana = false;
+
 		if (ability) then
-			ok, t = PREC.GetStatus(ability, prio);
+			ok, t, waitmana = PREC.GetStatus(ability, prio);
 		end
 		if (not (prio.who == "any")) then
 			ok = PREC.CheckWho(prio.who);
@@ -1351,6 +1355,7 @@ function PREC.GatherStatus()
 		table.insert(ret.priorities, {
 			key = key,
 			ok = ok,
+			waitmana = waitmana,
 			t = t,
 			label = label,
 		});
@@ -1703,6 +1708,7 @@ end
 function PREC.GetStatus(ability, prio)
 
 	local t = 0;
+	local waitmana = false;
 
 	if (ability.spell) then
 
@@ -1710,18 +1716,26 @@ function PREC.GetStatus(ability, prio)
 		-- when you have no pet out. yeah, dumb
 		if (ability.spell == "Kill Command") then
 			if (not PREC.HasPet()) then
-				return false, 0;
+				return false, 0, false;
 			end
 		end
 
-		local usable = IsUsableSpell(ability.spell);
+		local usable, nomana = IsUsableSpell(ability.spell);
 		if (not usable) then
-			return false, 0;
+			if (nomana) then
+				t = PREC.GetFocusTimeout(ability.spell);
+				waitmana = true;
+			else
+				return false, 0, false;
+			end
 		end
 
 		local start, duration = GetSpellCooldown(ability.spell);
 		if duration > 0 then
-			t = start + duration - GetTime()
+			local t2 = start + duration - GetTime();
+			if (t2 > t) then
+				t = t2;
+			end
 		end
 	end
 
@@ -1771,7 +1785,21 @@ function PREC.GetStatus(ability, prio)
 
 	end
 
-	return true, t;
+	return true, t, waitmana;
+end
+
+function PREC.GetFocusTimeout(spell)
+
+	local _, _, _, cost = GetSpellInfo(spell);
+	local current = UnitPower("player", SPELL_POWER_FOCUS);
+
+	if (current >= cost) then
+		return 0;
+	end
+
+	local needed = cost - current;
+
+	return needed / 4;
 end
 
 function PREC.GetMeter(info)
