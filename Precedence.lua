@@ -75,8 +75,8 @@ PREC.default_options = {
 			bind = "ALT-8",
 			who = "any",
 		},
-		p9 = "-",
-		p10 = "-",
+		p9 = {},
+		p10 = {},
 	},
 	meters = {
 		md_applied = true,
@@ -138,6 +138,7 @@ PREC.abilities = {
 	explosive = {
 		icon = "ability_hunter_explosiveshot",
 		spell = "Explosive Shot",
+		debuff = "Explosive Shot",
 	},
 	black = {
 		icon = "spell_shadow_painspike",
@@ -555,18 +556,42 @@ function PREC.CreateOptionsFrame()
 	py = 35;
 
 
+	local abil_opts = {none = "None"};
+	for k, v in pairs(PREC.abilities) do
+		abil_opts[k] = v.spell;
+	end;
+
+	local who_opts = {any = "All targets", boss = "Bosses only"};
+
 	for i=1,PREC.options.max_prios do
 		local key = 'p'..i;
 
+		local data = PREC.options.priorities[key];
+		local ability = data.which or 'none';
+		local who = data.who or 'any';
+		local bind = data.bind or nil;
+
 		PREC.CreateHeading(PREC.PrioOptionsPane, 6, py, "Priority "..i);
 
-		PREC.CreateCheckBox(PREC.PrioOptionsPane, "PRECCheckPrio-"..key.."1", 16, py+20, 1, key.." Check 1");
-		PREC.CreateCheckBox(PREC.PrioOptionsPane, "PRECCheckPrio-"..key.."2", 16, py+50, 1, key.." Check 2");
+		local abilitydd = PREC.CreateDropDown(PREC.PrioOptionsPane, "PRECCheckPrio-"..key.."-which", 16, py+20, 150, abil_opts, ability);
+		abilitydd.OnUpdate = function(value)
+			PREC.options.priorities[key].which = value;
+			PREC.RebuildFrame();
+		end;
+
+		local whodd = PREC.CreateDropDown(PREC.PrioOptionsPane, "PRECCheckPrio-"..key.."-who", 200, py+20, 90, who_opts, who);
+		whodd.OnUpdate = function(value)
+			PREC.options.priorities[key].who = value;
+		end;
+
+		PREC.CreateBindButton(PREC.PrioOptionsPane, 16, py+50, bind);
+
+		--PREC.CreateCheckBox(PREC.PrioOptionsPane, "PRECCheckPrio-"..key.."1", 16, py+20, 1, key.." Check 1");
+		--PREC.CreateCheckBox(PREC.PrioOptionsPane, "PRECCheckPrio-"..key.."2", 16, py+50, 1, key.." Check 2");
 
 		py = py + 80;
 	end
 
-	
 
 
 
@@ -864,6 +889,51 @@ function PREC.CreateCheckBox(parent, id, x, y, checked, text)
 	check:SetPoint("TOPLEFT", x, 0-y);
 
 	return check;
+end
+
+function PREC.CreateDropDown(parent, id, x, y, w, options, selected)
+
+	local menu = CreateFrame("Frame", id, parent, "UIDropDownMenuTemplate");
+	menu.type = CONTROLTYPE_DROPDOWN;
+	menu:SetPoint("TOPLEFT", x, 0-y);
+	menu:Show();
+
+	--menu.label = menu:CreateFontString(nil, "BACKGROUND", "GameFontHighlight");
+	--menu.label:Show();
+	--menu.label:ClearAllPoints();
+	--menu.label:SetPoint("LEFT", menu, "LEFT", -80, 0);
+	--menu.label:SetText("Hello World");
+
+	menu.OnUpdate = function(value)
+		-- callers will override this
+	end;
+	menu.OnChange = function(value)
+		menu.OnUpdate(value);
+		UIDropDownMenu_SetSelectedValue(menu, value);
+	end;
+
+	UIDropDownMenu_SetWidth(menu, w);
+	UIDropDownMenu_Initialize(menu, function()
+		for k,v in pairs(options) do
+			UIDropDownMenu_AddButton({
+				text = v,
+				value = k,
+				func = function()
+					menu.OnChange(k);
+				end,
+			});
+		end
+	end);
+	UIDropDownMenu_SetSelectedValue(menu, selected);
+	UIDropDownMenu_EnableDropDown(menu);
+
+	return menu;
+end
+
+function PREC.CreateBindButton(parent, x, y, value)
+
+	
+
 end
 
 function PREC.RebuildFrame()
