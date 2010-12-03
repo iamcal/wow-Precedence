@@ -1691,11 +1691,28 @@ function PREC.InGroup()
 	return false;
 end
 
+function PREC.HasPet()
+
+	if (IsMounted()) then return false; end
+	if (not UnitGUID("pet")) then return false; end
+	if (UnitHealth("pet") == 0) then return false; end
+
+	return true;		
+end
+
 function PREC.GetStatus(ability, prio)
 
 	local t = 0;
 
 	if (ability.spell) then
+
+		-- for some reason kill command will be enabled even 
+		-- when you have no pet out. yeah, dumb
+		if (ability.spell == "Kill Command") then
+			if (not PREC.HasPet()) then
+				return false, 0;
+			end
+		end
 
 		local usable = IsUsableSpell(ability.spell);
 		if (not usable) then
