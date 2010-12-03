@@ -584,13 +584,13 @@ function PREC.CreateOptionsFrame()
 			PREC.RebuildFrame();
 		end;
 
-		local whodd = PREC.CreateDropDown(PREC.PrioOptionsPane, "PRECCheckPrio-"..key.."-who", 200, py+20, 90, who_opts, who);
+		local whodd = PREC.CreateDropDown(PREC.PrioOptionsPane, "PRECCheckPrio-"..key.."-who", 180, py+20, 120, who_opts, who);
 		whodd.OnUpdate = function(value)
 			PREC.options.priorities[key].who = value;
 		end;
 
 		--TODO: bind
-		PREC.CreateBindButton(PREC.PrioOptionsPane, "PRECCheckPrio-"..key.."-bind", 16, py+50, bind);
+		PREC.CreateBindButton(PREC.PrioOptionsPane, "PRECCheckPrio-"..key.."-bind", 16, py+50, 150, bind);
 
 		--TODO: label
 		--TODO: cmd
@@ -672,7 +672,7 @@ function PREC.StartFrame()
 	PREC.rot_btns = {};
 	for i=1,PREC.options.max_prios do
 		local key = 'p'..i;
-		PREC.rot_btns[key] = PREC.CreateButton(0, 0, 40, 40, [[Interface\Icons\ability_hunter_pet_dragonhawk]]);
+		PREC.rot_btns[key] = PREC.CreateButton(PREC.UIFrame, 0, 0, 40, 40, [[Interface\Icons\ability_hunter_pet_dragonhawk]]);
 		PREC.rot_btns[key]:SetFrameLevel(100 + PREC.options.max_prios - i);
 	end
 
@@ -681,7 +681,7 @@ function PREC.StartFrame()
 	for i=1,PREC.options.max_mtrs do
 		local key = 'm'..i;
 		PREC.mtrs[key] = {
-			btn = PREC.CreateButton(0, 40 + ((i-1) * PREC.options.mtr_icon_size), PREC.options.mtr_icon_size, PREC.options.mtr_icon_size, [[Interface\Icons\ability_hunter_pet_dragonhawk]]),
+			btn = PREC.CreateButton(PREC.UIFrame, 0, 40 + ((i-1) * PREC.options.mtr_icon_size), PREC.options.mtr_icon_size, PREC.options.mtr_icon_size, [[Interface\Icons\ability_hunter_pet_dragonhawk]]),
 			bar = PREC.CreateBar(PREC.options.mtr_icon_size, 40 + ((i-1) * PREC.options.mtr_icon_size), PREC.fullW-PREC.options.mtr_icon_size, PREC.options.mtr_icon_size),
 		};
 	end
@@ -690,7 +690,7 @@ function PREC.StartFrame()
 	PREC.warn_btns = {};
 	for i=1,PREC.options.max_warns do
 		local key = 'w'..i;
-		PREC.warn_btns[key] = PREC.CreateTextureFrame(PREC.fullW-(i * 20), 0-20, 20, 20, [[Interface\Icons\ability_hunter_pet_dragonhawk]]);
+		PREC.warn_btns[key] = PREC.CreateTextureFrame(PREC.UIFrame, PREC.fullW-(i * 20), 0-20, 20, 20, [[Interface\Icons\ability_hunter_pet_dragonhawk]]);
 		PREC.warn_btns[key].key = key;
 
 		PREC.warn_btns[key]:EnableMouse(true); 
@@ -822,9 +822,9 @@ function PREC.CreateHeading(parent, x, y, text, font)
 	return h;
 end
 
-function PREC.CreateButton(x, y, w, h, texture)
+function PREC.CreateButton(parent, x, y, w, h, texture)
 
-	local b = CreateFrame("Button", nil, PREC.UIFrame);
+	local b = CreateFrame("Button", nil, parent);
 	b:SetPoint("TOPLEFT", x, 0-y)
 	b:SetWidth(w)
 	b:SetHeight(h)
@@ -841,9 +841,9 @@ function PREC.CreateButton(x, y, w, h, texture)
 	return b;
 end
 
-function PREC.CreateTextureFrame(x, y, w, h, texture)
+function PREC.CreateTextureFrame(parent, x, y, w, h, texture)
 
-	local b = CreateFrame("Frame", nil, PREC.UIFrame);
+	local b = CreateFrame("Frame", nil, parent);
 	b:SetPoint("TOPLEFT", x, 0-y)
 	b:SetWidth(w)
 	b:SetHeight(h)
@@ -902,14 +902,6 @@ function PREC.CreateDropDown(parent, id, x, y, w, options, selected)
 
 	local menu = CreateFrame("Frame", id, parent, "UIDropDownMenuTemplate");
 	menu.type = CONTROLTYPE_DROPDOWN;
-	menu:SetPoint("TOPLEFT", x, 0-y);
-	menu:Show();
-
-	--menu.label = menu:CreateFontString(nil, "BACKGROUND", "GameFontHighlight");
-	--menu.label:Show();
-	--menu.label:ClearAllPoints();
-	--menu.label:SetPoint("LEFT", menu, "LEFT", -80, 0);
-	--menu.label:SetText("Hello World");
 
 	menu.OnUpdate = function(value)
 		-- callers will override this
@@ -919,7 +911,8 @@ function PREC.CreateDropDown(parent, id, x, y, w, options, selected)
 		UIDropDownMenu_SetSelectedValue(menu, value);
 	end;
 
-	UIDropDownMenu_SetWidth(menu, w);
+	UIDropDownMenu_SetWidth(menu, w-17, 0); -- the frame will be ~17 wider for the button on the right
+	UIDropDownMenu_SetButtonWidth(menu, w); -- the width of the clickable region on the right
 	UIDropDownMenu_Initialize(menu, function()
 		for k,v in pairs(options) do
 			UIDropDownMenu_AddButton({
@@ -932,7 +925,11 @@ function PREC.CreateDropDown(parent, id, x, y, w, options, selected)
 		end
 	end);
 	UIDropDownMenu_SetSelectedValue(menu, selected);
+	UIDropDownMenu_JustifyText(menu, "LEFT");
 	UIDropDownMenu_EnableDropDown(menu);
+
+	menu:SetPoint("TOPLEFT", x-17, 0-y); -- there's 17 padding on the left of the dropdown
+	menu:Show();
 
 	return menu;
 end
@@ -995,13 +992,13 @@ function PREC.BindButtonKeyDown(self, key)
 end
 
 
-function PREC.CreateBindButton(parent, id, x, y, value)
+function PREC.CreateBindButton(parent, id, x, y, w, value)
 
 	-- see Watcher\Libs\AceGUI-3.0\widgets\AceGUIWidget-Keybinding.lua
 
 	local b = CreateFrame("Button", id, parent, "UIPanelButtonTemplate2");
 	b:SetPoint("TOPLEFT", x, 0-y)
-	b:SetWidth(200)
+	b:SetWidth(w)
 	b:SetHeight(24)
 	b:SetNormalTexture(texture);
 
