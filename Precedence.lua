@@ -589,10 +589,12 @@ function PREC.CreateOptionsFrame()
 			PREC.options.priorities[key].who = value;
 		end;
 
-		PREC.CreateBindButton(PREC.PrioOptionsPane, 16, py+50, bind);
+		--TODO: bind
+		PREC.CreateBindButton(PREC.PrioOptionsPane, "PRECCheckPrio-"..key.."-bind", 16, py+50, bind);
 
-		--PREC.CreateCheckBox(PREC.PrioOptionsPane, "PRECCheckPrio-"..key.."1", 16, py+20, 1, key.." Check 1");
-		--PREC.CreateCheckBox(PREC.PrioOptionsPane, "PRECCheckPrio-"..key.."2", 16, py+50, 1, key.." Check 2");
+		--TODO: label
+		--TODO: cmd
+
 
 		py = py + 80;
 	end
@@ -935,11 +937,99 @@ function PREC.CreateDropDown(parent, id, x, y, w, options, selected)
 	return menu;
 end
 
-function PREC.CreateBindButton(parent, x, y, value)
 
-	
+function PREC.BindButtonClick(self, button)
 
+	if button == "LeftButton" or button == "RightButton" then
+		if (self.waitingForKey) then
+			self:EnableKeyboard(false);
+			self:UnlockHighlight();
+			self.waitingForKey = nil;
+print("2nd click - stop waiting");
+		else
+			self:EnableKeyboard(true);
+			self:LockHighlight();
+			self.waitingForKey = true;
+print("waiting...");
+		end
+	end
 end
+
+function PREC.BindButtonKeyDown(self, key)
+
+	if (not self.waitingForKey) then print("key down while not waiting"); return; end
+
+	if (key == "BUTTON1") then return; end
+	if (key == "BUTTON2") then return; end
+	if (key == "UNKNOWN") then return; end
+	if (key == "LSHIFT") then return; end
+	if (key == "RSHIFT") then return; end
+	if (key == "LCTRL") then return; end
+	if (key == "RCTRL") then return; end
+	if (key == "LALT") then return; end
+	if (key == "RALT") then return; end
+
+	local keyPressed = key;
+	if (keyPressed == "ESCAPE") then
+		keyPressed = ""
+	else
+		if IsShiftKeyDown() then
+			keyPressed = "SHIFT-"..keyPressed
+		end
+		if IsControlKeyDown() then
+			keyPressed = "CTRL-"..keyPressed
+		end
+		if IsAltKeyDown() then
+			keyPressed = "ALT-"..keyPressed
+		end
+	end
+	
+	self:EnableKeyboard(false);
+	self:UnlockHighlight();
+	self.waitingForKey = nil;
+
+	print("no more waiting");
+
+	self:SetKey(keyPressed);
+	--self:Fire("OnKeyChanged",keyPressed)
+end
+
+
+function PREC.CreateBindButton(parent, id, x, y, value)
+
+	-- see Watcher\Libs\AceGUI-3.0\widgets\AceGUIWidget-Keybinding.lua
+
+	local b = CreateFrame("Button", id, parent, "UIPanelButtonTemplate2");
+	b:SetPoint("TOPLEFT", x, 0-y)
+	b:SetWidth(200)
+	b:SetHeight(24)
+	b:SetNormalTexture(texture);
+
+	b.text = b:GetFontString();
+	b.text:SetPoint("LEFT", b, "LEFT", 7, 0);
+	b.text:SetPoint("RIGHT", b, "RIGHT", -7, 0);
+
+	b.waitingForKey = false;
+
+	b:SetScript("OnClick", PREC.BindButtonClick);
+	b:SetScript("OnKeyDown", PREC.BindButtonKeyDown);
+	--b:SetScript("OnMouseDown",Keybinding_OnMouseDown)
+	b:RegisterForClicks("AnyDown");
+
+	b.SetKey = function(self, value)
+		if (value or "") == "" then
+			self:SetText("Not Bound")
+			self:SetNormalFontObject("GameFontNormal")
+		else
+			self:SetText(value)
+			self:SetNormalFontObject("GameFontHighlight")
+		end
+	end
+
+	b:SetKey(value);
+	b:EnableMouse();
+end
+
 
 function PREC.RebuildFrame()
 
