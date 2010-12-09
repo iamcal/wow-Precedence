@@ -148,6 +148,10 @@ PREC.abilities = {
 		icon = [[ability_hunter_killcommand]],
 		spell = "Kill Command",
 	},
+	cobra = {
+		icon = "ability_hunter_cobrashot",
+		spell = "Cobra Shot",
+	},
 
 }
 
