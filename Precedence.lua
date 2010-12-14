@@ -1141,13 +1141,7 @@ function PREC.UpdateFrame()
 		return;
 	end
 
-	local inVehicle = UnitInVehicle("player");
-	if (inVehicle) then
-		PREC.UIFrame:Hide();
-		return;
-	else
-		PREC.UIFrame:Show();
-	end
+	PREC.UIFrame:Show();
 
 
 	--
@@ -1278,6 +1272,13 @@ function PREC.UpdateFrame()
 	end
 
 	if (status.active_shots == 0) then
+
+		local inVehicle = UnitInVehicle("player");
+		if (inVehicle) then
+			PREC.UIFrame:Hide();
+			return;
+		end
+
 		warning = false;
 		label = "No abilities configured - Right click to hide";
 	end
