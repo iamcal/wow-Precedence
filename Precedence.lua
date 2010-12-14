@@ -570,7 +570,11 @@ function PREC.CreateOptionsFrame()
 		abil_opts[k] = v.spell;
 	end;
 
-	local who_opts = {any = "All targets", boss = "Bosses only"};
+	local who_opts = {
+		any = "All targets",
+		boss = "Bosses only",
+		raidboss = "Raid bosses only"
+	};
 
 	for i=1,PREC.options.max_prios do
 		local key = 'p'..i;
@@ -2052,12 +2056,12 @@ function PREC.CheckWho(who)
 	local isIn, type = IsInInstance();
 
 	if (who == 'boss') then
-		if (lvl == -1) then
+		if ((lvl == -1) or (lvl == 86) or (lvl == 87)) then
 			return true;
 		end
 	end
 	if (who == 'raidboss') then
-		if ((lvl == -1) and ((type == 'raid') or (type == 'none'))) then
+		if (((lvl == -1) or (lvl == 88)) and ((type == 'raid') or (type == 'none'))) then
 			return true;
 		end
 	end
