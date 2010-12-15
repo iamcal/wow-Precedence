@@ -2,7 +2,7 @@
 ## Title : Precedence
 ## Notes: Hunter dashboard: priorities, warnings & timers
 ## Author: Cal Henderson (Bees on Hyjal-US)
-## Version: 1.2
+## Version: 1.3
 ## Dependencies: 
 ## SavedVariablesPerCharacter: PrecedenceDB
 
