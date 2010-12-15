@@ -2058,7 +2058,7 @@ function PREC.CheckWho(who)
 	local isIn, type = IsInInstance();
 
 	if (who == 'boss') then
-		if ((lvl == -1) or (lvl == 86) or (lvl == 87)) then
+		if ((lvl == -1) or (lvl == 87)) then
 			return true;
 		end
 	end
