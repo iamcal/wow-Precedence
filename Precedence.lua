@@ -1738,7 +1738,9 @@ function PREC.GetWarning(key, info)
 
 		local _, _, _, level, _, type, subtype = GetItemInfo(itemId);
 
-		if (level < 200) then info.show = true; end
+		if (level) then
+			if (level < 200) then info.show = true; end
+		end
 
 		if (type == "Weapon" and subtype == "Daggers"		) then return info; end
 		if (type == "Weapon" and subtype == "Fist Weapons"	) then return info; end
