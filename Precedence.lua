@@ -152,6 +152,10 @@ PREC.abilities = {
 		icon = "ability_hunter_cobrashot",
 		spell = "Cobra Shot",
 	},
+	arcane = {
+		icon = "ability_impalingbolt",
+		spell = "Arcane Shot",
+	},
 
 }
 
