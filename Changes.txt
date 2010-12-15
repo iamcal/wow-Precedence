@@ -17,3 +17,10 @@
  * disable kill command when no pet is out
  * don't put up explosive shot when the debuff is on the target
  * warning tooltips
+
+1.3
+ * show bar correctly when mounted on a camel
+ * show bad weapon wanring for any weapons under ilvl 200
+ * fixed boss & raid boss detection (hopefully)
+ * more shots
+
