@@ -242,6 +242,7 @@ PREC.state = {
 	trap_set_start = 0,
 	trapped_mobs = {},
 	no_shots_until = 0,
+	no_explosive_until = 0
 };
 
 PREC.everything_ready = false;
@@ -334,20 +335,6 @@ function PREC.OnEvent(frame, event, ...)
 			PREC.state.md_target = arg7;
 		end
 
-		if (srcUs and arg2 == "SPELL_CAST_START" and arg10 == "Cobra Shot") then
-			local _, _, _, _, _, _, castTime = GetSpellInfo("Cobra Shot")
-			--print("start cast for "..castTime.." ms");
-			PREC.state.no_shots_until = GetTime() + (castTime / 1000);
-			return;
-		end
-
-		if (srcUs and arg2 == "SPELL_CAST_START" and arg10 == "Steady Shot") then
-			local _, _, _, _, _, _, castTime = GetSpellInfo("Steady Shot")
-			--print("start cast for "..castTime.." ms");
-			PREC.state.no_shots_until = GetTime() + (castTime / 1000);
-			return;
-		end
-
 		if ((arg2 == "SPELL_CREATE") and (srcUs) and ((arg10 == "Freezing Arrow") or (arg10 == "Freezing Trap"))) then
 			PREC.state.trap_set = true;
 			PREC.state.trap_set_start = GetTime();
@@ -390,6 +377,28 @@ function PREC.OnEvent(frame, event, ...)
 		end
 
 		return;
+	end
+
+	if (event == 'UNIT_SPELLCAST_SENT') then
+		
+		local unit, spell, rank, target = ...;
+
+		if (unit == "player" and spell == "Cobra Shot") then
+			local _, _, _, _, _, _, castTime = GetSpellInfo("Cobra Shot")
+			PREC.state.no_shots_until = GetTime() + (castTime / 1000);
+			return;
+		end
+
+		if (unit == "player" and spell == "Steady Shot") then
+			local _, _, _, _, _, _, castTime = GetSpellInfo("Steady Shot")
+			PREC.state.no_shots_until = GetTime() + (castTime / 1000);
+			return;
+		end
+
+		if (unit == "player" and spell == "Explosive Shot") then
+			PREC.state.no_explosive_until = GetTime() + 2;
+			return;
+		end
 	end
 
 	if (event == 'ADDON_LOADED') then
@@ -1456,18 +1465,9 @@ function PREC.GatherStatus()
 		local ok = false;
 		local t = 0;
 		local waitmana = false;
-		local now = GetTime();
-		local min = 0;
-
-		if (PREC.state.no_shots_until > now) then
-			min = PREC.state.no_shots_until - now;
-		end
 
 		if (ability) then
 			ok, t, waitmana = PREC.GetStatus(ability, prio);
-		end
-		if (t < min) then
-			t = min;
 		end
 		if (not (prio.who == "any")) then
 			ok = PREC.CheckWho(prio.who);
@@ -1842,6 +1842,7 @@ function PREC.GetStatus(ability, prio)
 
 	local t = 0;
 	local waitmana = false;
+	local now = GetTime();
 
 	if (ability.spell) then
 
@@ -1865,9 +1866,19 @@ function PREC.GetStatus(ability, prio)
 
 		local start, duration = GetSpellCooldown(ability.spell);
 		if duration > 0 then
-			local t2 = start + duration - GetTime();
+			local t2 = start + duration - now;
 			if (t2 > t) then
 				t = t2;
+			end
+		end
+
+		-- delay explosive during L&L procs
+		if (ability.spell == "Explosive Shot") then
+			if (PREC.state.no_explosive_until > now) then
+				local ex_min = PREC.state.no_explosive_until - now;
+				if (t < ex_min) then
+					t = ex_min;
+				end		
 			end
 		end
 	end
@@ -1916,6 +1927,14 @@ function PREC.GetStatus(ability, prio)
 			index = index + 1
 		end
 
+	end
+
+	-- delay everything during a channeled cast
+	if (PREC.state.no_shots_until > now) then
+		local no_min = PREC.state.no_shots_until - now;
+		if (t < no_min) then
+			t = no_min;
+		end
 	end
 
 	return true, t, waitmana;
@@ -2259,5 +2278,6 @@ PREC.Frame:RegisterEvent("ADDON_LOADED")
 PREC.Frame:RegisterEvent("PLAYER_LOGOUT")
 PREC.Frame:RegisterEvent("PLAYER_LOGIN")
 PREC.Frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+PREC.Frame:RegisterEvent("UNIT_SPELLCAST_SENT")
 
 PREC.OnLoad()

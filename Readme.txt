@@ -7,6 +7,8 @@ Shot priorities:
 * Use macros to trigger shots
 * Time shots to buffs and debuffs
 * Long cooldowns displayed in a useful way
+* Delay all abilities while channeling Steady Shot or Cobra Shot
+* Leave 2s between Explosive Shot casts during Lock & Load
 
 Warnings:
 * Missing or unhappy pet
@@ -29,7 +31,6 @@ TODO
 -----------------------------------------------------------------------------
 * config for priorities
 
-* Time between explosive shots on LnL (use fixed time rather than waiting for debuff)
 * No readiness during rapid fire - make configable
 * Extra wait times for high priority shots
 * Rules for serpent sting (don't use near end)
