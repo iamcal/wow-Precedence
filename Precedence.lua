@@ -241,6 +241,7 @@ PREC.state = {
 	trap_set = false,
 	trap_set_start = 0,
 	trapped_mobs = {},
+	no_shots_until = 0,
 };
 
 PREC.everything_ready = false;
@@ -331,6 +332,20 @@ function PREC.OnEvent(frame, event, ...)
 
 		if (srcUs and arg2 == "SPELL_CAST_SUCCESS" and arg10 == "Misdirection") then
 			PREC.state.md_target = arg7;
+		end
+
+		if (srcUs and arg2 == "SPELL_CAST_START" and arg10 == "Cobra Shot") then
+			local _, _, _, _, _, _, castTime = GetSpellInfo("Cobra Shot")
+			--print("start cast for "..castTime.." ms");
+			PREC.state.no_shots_until = GetTime() + (castTime / 1000);
+			return;
+		end
+
+		if (srcUs and arg2 == "SPELL_CAST_START" and arg10 == "Steady Shot") then
+			local _, _, _, _, _, _, castTime = GetSpellInfo("Steady Shot")
+			--print("start cast for "..castTime.." ms");
+			PREC.state.no_shots_until = GetTime() + (castTime / 1000);
+			return;
 		end
 
 		if ((arg2 == "SPELL_CREATE") and (srcUs) and ((arg10 == "Freezing Arrow") or (arg10 == "Freezing Trap"))) then
@@ -1441,9 +1456,18 @@ function PREC.GatherStatus()
 		local ok = false;
 		local t = 0;
 		local waitmana = false;
+		local now = GetTime();
+		local min = 0;
+
+		if (PREC.state.no_shots_until > now) then
+			min = PREC.state.no_shots_until - now;
+		end
 
 		if (ability) then
 			ok, t, waitmana = PREC.GetStatus(ability, prio);
+		end
+		if (t < min) then
+			t = min;
 		end
 		if (not (prio.who == "any")) then
 			ok = PREC.CheckWho(prio.who);

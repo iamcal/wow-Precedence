@@ -31,10 +31,8 @@ TODO
 
 * Time between explosive shots on LnL (use fixed time rather than waiting for debuff)
 * No readiness during rapid fire - make configable
-* confiurable percentages for aspect switching
 * Extra wait times for high priority shots
 * Rules for serpent sting (don't use near end)
-* Different shots for raid bosses & dungeon bosses
 * Pet attacking?
 * Not enough mana for certain shots
 * deactivate when dead!
