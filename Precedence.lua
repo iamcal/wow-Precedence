@@ -138,7 +138,7 @@ PREC.abilities = {
 	explosive = {
 		icon = "ability_hunter_explosiveshot",
 		spell = "Explosive Shot",
-		debuff = "Explosive Shot",
+		--debuff = "Explosive Shot",
 	},
 	black = {
 		icon = "spell_shadow_painspike",

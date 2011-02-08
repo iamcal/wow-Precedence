@@ -23,4 +23,5 @@
  * show bad weapon warning for any weapons under ilvl 200
  * fixed boss & raid boss detection (hopefully)
  * more shots
- * correctly delay all shots while channeling stady & cobra shots
+ * correctly delay all shots while channeling steady & cobra shots
+ * fixed wait time on explosive shot during L&L
