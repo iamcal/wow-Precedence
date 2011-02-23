@@ -25,3 +25,4 @@
  * more shots
  * correctly delay all shots while channeling steady & cobra shots
  * fixed wait time on explosive shot during L&L
+ * added a bunch of MM specific abilities with built-in rules

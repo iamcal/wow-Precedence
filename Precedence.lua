@@ -18,7 +18,7 @@ PREC.default_options = {
 	mtr_icon_size = 20,
 	runway = 200,
 
-
+	chimera_refresh_window = 2.5,
 
 	viper_mana_bigger = 90,
 	mana_low_warning = 10,
@@ -28,7 +28,7 @@ PREC.default_options = {
 	cooldown_size = 20,
 	label_font_size = 10,
 	warning_font_size = 20,
-	max_prios = 10,
+	max_prios = 11,
 	max_mtrs = 10,
 	max_warns = 10,
 
@@ -77,6 +77,7 @@ PREC.default_options = {
 		},
 		p9 = {},
 		p10 = {},
+		p11 = {},
 	},
 	meters = {
 		md_applied = true,
@@ -100,6 +101,57 @@ PREC.default_options = {
 	},
 };
 
+PREC.rotations = {
+	mm406 = {
+		p1 = {
+			which = "serpent",
+			bind = "ALT-1",
+			who = "any",
+		},
+		p2 = {
+			which = "chimerarefresh",
+			bind = "ALT-2",
+			who = "any",
+		},
+		p3 = {
+			which = "aimedmmm",
+			bind = "ALT-3",
+			who = "any",
+		},
+		p4 = {
+			which = "steadynoiss",
+			bind = "ALT-4",
+			who = "any",
+		},
+		p5 = {
+			which = "aimed",
+			who = "any",
+			label = "ALT-3",
+		},
+		p6 = {
+			which = "kill",
+			who = "any",
+			bind = "ALT-5",
+		},
+		p7 = {
+			which = "rapid",
+			who = "boss",
+			bind = "ALT-6",
+		},
+		p8 = {
+			which = "readiness",
+			who = "boss",
+			bind = "ALT-7",
+		},
+		p9 = {
+			which = "steady",
+			label = "ALT-4",
+			who = "any",
+		},
+		p10 = {},
+	},
+};
+
 PREC.abilities = {
 	rapid = {
 		icon = [[ability_hunter_runningshot]],
@@ -119,11 +171,22 @@ PREC.abilities = {
 		icon = [[ability_hunter_chimerashot2]],
 		spell = "Chimera Shot",
 	},
+	chimerarefresh = {
+		icon = [[ability_hunter_chimerashot2]],
+		spell = "Chimera Shot",
+		chimerarefresh = true,
+	},
+	aimedmmm = {
+		icon = [[inv_spear_07]],
+		spell = "Aimed Shot",
+		havebuff = "Fire!",
+		label = "Aimed Shot (MMM Proc)",
+	},
 	aimed = {
 		icon = [[inv_spear_07]],
 		spell = "Aimed Shot",
 	},
-	trap_frost = {
+	trapfrost = {
 		icon = [[spell_frost_freezingbreath.jpg]],
 		spell = "Frost Trap",
 	},
@@ -135,6 +198,12 @@ PREC.abilities = {
 		icon = "ability_hunter_steadyshot",
 		spell = "Steady Shot",
 	},
+	steadynoiss = {
+		icon = "ability_hunter_steadyshot",
+		spell = "Steady Shot",
+		buff = "Improved Steady Shot", -- this means wait until buff falls off
+		label = "Steady Shot (No ISS)",
+	},
 	explosive = {
 		icon = "ability_hunter_explosiveshot",
 		spell = "Explosive Shot",
@@ -144,7 +213,7 @@ PREC.abilities = {
 		icon = "spell_shadow_painspike",
 		spell = "Black Arrow",
 	},
-	kill_cmd = {
+	killcmd = {
 		icon = [[ability_hunter_killcommand]],
 		spell = "Kill Command",
 	},
@@ -156,8 +225,7 @@ PREC.abilities = {
 		icon = "ability_impalingbolt",
 		spell = "Arcane Shot",
 	},
-
-}
+};
 
 PREC.meterinfo = {
 	md_applied = {
@@ -395,6 +463,13 @@ function PREC.OnEvent(frame, event, ...)
 			return;
 		end
 
+		if (unit == "player" and spell == "Aimed Shot") then
+			-- TODO: unless we have MMM up!
+			--local _, _, _, _, _, _, castTime = GetSpellInfo("Aimed Shot")
+			--PREC.state.no_shots_until = GetTime() + (castTime / 1000);
+			return;
+		end
+
 		if (unit == "player" and spell == "Explosive Shot") then
 			PREC.state.no_explosive_until = GetTime() + 2;
 			return;
@@ -595,7 +670,7 @@ function PREC.CreateOptionsFrame()
 
 	local abil_opts = {none = "None"};
 	for k, v in pairs(PREC.abilities) do
-		abil_opts[k] = v.spell;
+		abil_opts[k] = v.label or v.spell;
 	end;
 
 	local who_opts = {
@@ -1913,6 +1988,22 @@ function PREC.GetStatus(ability, prio)
 		end
 	end
 
+	if (ability.havebuff) then
+
+		local index = 1;
+		local found_buff = false;
+		while UnitBuff("player", index) do
+			local name, _, _, count, _, _, buffExpires, caster = UnitBuff("player", index)
+			if (name == ability.buff) then
+				found_buff = true;
+			end
+			index = index + 1
+		end
+		if (not found_buff) then
+			return false, 0, false;
+		end
+	end
+
 	if (prio.waitbuff) then
 
 		local index = 1
@@ -1929,6 +2020,47 @@ function PREC.GetStatus(ability, prio)
 
 	end
 
+	if (ability.chimerarefresh) then
+
+		local serpent_off = PREC.TimeToTargetBuffExpires("Serpent Sting", false);
+		local hunters_mark_off = PREC.TimeToTargetBuffExpires("Hunter's Mark", false);
+		local marked_death_off = PREC.TimeToTargetBuffExpires("Marked for Death", false);
+
+		if (serpent_off >= 0) then
+			serpent_off = serpent_off - PREC.options.chimera_refresh_window;
+			if (serpent_off < 0) then
+				serpent_off = 0;
+			end
+		end
+
+		local lowest_need = 1000;
+		if (serpent_off >= 0 and serpent_off < lowest_need) then
+			lowest_need = serpent_off;
+		end
+		if (hunters_mark_off >= 0 and hunters_mark_off < lowest_need) then
+			lowest_need = hunters_mark_off;
+		end
+		if (marked_death_off >= 0 and marked_death_off < lowest_need) then
+			lowest_need = marked_death_off;
+		end
+		if ((hunters_mark_off == -1) and (marked_death_off == -1)) then
+			lowest_need = 0;
+		end
+
+		if (lowest_need == 1000) then
+			return false, 0, false;
+		end
+
+
+		--
+		-- we need it, in {lowest_need} seconds. wait that long if we're off cooldown
+		--
+
+		if (lowest_need > t) then
+			t = lowest_need;
+		end
+	end
+
 	-- delay everything during a channeled cast
 	if (PREC.state.no_shots_until > now) then
 		local no_min = PREC.state.no_shots_until - now;
@@ -1939,6 +2071,46 @@ function PREC.GetStatus(ability, prio)
 
 	return true, t, waitmana;
 end
+
+function PREC.TimeToPlayerBuffExpires(match_buff, player_cast)
+
+	--
+	-- returns the time until the specified buff falls off
+	-- the player, or -1 if we don't have it
+	--
+
+	local index = 1
+	while UnitBuff("player", index) do
+		local name, _, _, count, _, _, buffExpires, caster = UnitBuff("player", index)
+		if (name == match_buff) then
+			if ((not player_cast) or (caster == "player")) then
+				local t2 = buffExpires - GetTime()
+				return t2;
+			end
+		end
+		index = index + 1
+	end
+
+	return -1;
+end
+
+function PREC.TimeToTargetBuffExpires(match_buff, player_cast)
+
+	local index = 1
+	while UnitDebuff("target", index) do
+		local name, _, _, count, _, _, debuffExpires, caster = UnitDebuff("target", index)
+		if (name == match_buff) then
+			if ((not player_cast) or (caster == "player")) then
+				local t2 = debuffExpires - GetTime()
+				return t2;
+			end
+		end
+		index = index + 1
+	end
+
+	return -1;
+end
+
 
 function PREC.GetFocusTimeout(spell)
 
@@ -2254,6 +2426,9 @@ function PREC.SlashCommand(msg, editbox)
 		PREC.ToggleHide();
 	elseif (msg == 'reset') then
 		PREC.ResetPos();
+	elseif (msg == 'test') then
+		PREC.options.chimera_refresh_window = PREC.default_options.chimera_refresh_window;
+		PREC.options.priorities = PREC.rotations.mm406;
 	else
 		print(L.CMD_HELP);
 		print("   /prec show - "..L.CMD_HELP_SHOW);
