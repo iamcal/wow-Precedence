@@ -18,7 +18,7 @@ PREC.default_options = {
 	mtr_icon_size = 20,
 	runway = 200,
 
-	chimera_refresh_window = 2.5,
+	chimera_refresh_window = 4,
 
 	viper_mana_bigger = 90,
 	mana_low_warning = 10,
@@ -102,6 +102,44 @@ PREC.default_options = {
 };
 
 PREC.rotations = {
+	sv406 = {
+		p1 = {
+			which = "rapid",
+			bind = "ALT-1",
+			who = "boss",
+		},
+		p2 = {
+			which = "kill",
+			bind = "ALT-2",
+			who = "any",
+		},
+		p3 = {
+			which = "explosive",
+			bind = "ALT-3",
+			who = "any",
+		},
+		p4 = {
+			which = "black",
+			bind = "ALT-4",
+			--label = "Chim",
+			who = "any",
+		},
+		p5 = {
+			which = "serpent",
+			bind = "ALT-5",
+			who = "any",
+		},
+		p6 = {
+			which = "cobra",
+			bind = "ALT-6",
+			who = "any",
+			--cmd = "MACRO Steady",
+		},
+		p7 = {},
+		p8 = {},
+		p9 = {},
+		p10 = {},
+	},
 	mm406 = {
 		p1 = {
 			which = "serpent",
@@ -201,7 +239,7 @@ PREC.abilities = {
 	steadynoiss = {
 		icon = "ability_hunter_steadyshot",
 		spell = "Steady Shot",
-		buff = "Improved Steady Shot", -- this means wait until buff falls off
+		gainiss = true,
 		label = "Steady Shot (No ISS)",
 	},
 	explosive = {
@@ -310,7 +348,10 @@ PREC.state = {
 	trap_set_start = 0,
 	trapped_mobs = {},
 	no_shots_until = 0,
-	no_explosive_until = 0
+	no_explosive_until = 0,
+	simulate_focus_loss = 0,
+	simulate_focus_loss_until = 0,
+	steady_shots_accum = 0,
 };
 
 PREC.everything_ready = false;
@@ -451,6 +492,14 @@ function PREC.OnEvent(frame, event, ...)
 		
 		local unit, spell, rank, target = ...;
 
+		if (unit == "player") then
+			if (spell == "Steady Shot") then
+				PREC.state.steady_shots_accum = PREC.state.steady_shots_accum + 1;
+			else
+				PREC.state.steady_shots_accum = 0;
+			end
+		end
+
 		if (unit == "player" and spell == "Cobra Shot") then
 			local _, _, _, _, _, _, castTime = GetSpellInfo("Cobra Shot")
 			PREC.state.no_shots_until = GetTime() + (castTime / 1000);
@@ -464,9 +513,16 @@ function PREC.OnEvent(frame, event, ...)
 		end
 
 		if (unit == "player" and spell == "Aimed Shot") then
-			-- TODO: unless we have MMM up!
-			--local _, _, _, _, _, _, castTime = GetSpellInfo("Aimed Shot")
-			--PREC.state.no_shots_until = GetTime() + (castTime / 1000);
+			local test = PREC.TimeToPlayerBuffExpires("Fire!", false);
+			if (test == -1) then
+				local _, _, _, cost, _, _, castTime = GetSpellInfo("Aimed Shot")
+
+				local cast_ends = GetTime() + (castTime / 1000);
+
+				PREC.state.no_shots_until = cast_ends;
+				PREC.state.simulate_focus_loss_until = cast_ends;
+				PREC.state.simulate_focus_loss = cost;
+			end
 			return;
 		end
 
@@ -896,6 +952,28 @@ function PREC.ShowMenu()
 		func = function() PREC.options.demo_mode = not PREC.options.demo_mode end,
 		isTitle = false,
 		checked = PREC.options.demo_mode,
+		disabled = false,
+	});
+
+	table.insert(menuList, {
+		text = "Preset: SV 4.0.6",
+		func = function()
+			PREC.options.priorities = PREC.rotations.sv406;
+			PREC.RebuildFrame();
+		end,
+		isTitle = false,
+		checked = false,
+		disabled = false,
+	});
+
+	table.insert(menuList, {
+		text = "Preset: MM 4.0.6",
+		func = function()
+			PREC.options.priorities = PREC.rotations.mm406;
+			PREC.RebuildFrame();
+		end,
+		isTitle = false,
+		checked = false,
 		disabled = false,
 	});
 
@@ -1936,7 +2014,7 @@ function PREC.GetStatus(ability, prio)
 				waitmana = true;
 			else
 				return false, 0, false;
-			end
+			end			
 		end
 
 		local start, duration = GetSpellCooldown(ability.spell);
@@ -1946,6 +2024,20 @@ function PREC.GetStatus(ability, prio)
 				t = t2;
 			end
 		end
+
+
+		-- check we'll have enough focus once we're done with the cast that's
+		-- currently happening
+
+		if (PREC.state.simulate_focus_loss_until > now) then
+
+			local focus_test = PREC.GetFocusTimeout(ability.spell);
+
+			if (focus_test > t) then
+				t = focus_test;
+			end
+		end
+
 
 		-- delay explosive during L&L procs
 		if (ability.spell == "Explosive Shot") then
@@ -2018,6 +2110,25 @@ function PREC.GetStatus(ability, prio)
 			index = index + 1
 		end
 
+	end
+
+	if (ability.gainiss) then
+
+		local temp = PREC.TimeToPlayerBuffExpires("Improved Steady Shot", false);
+
+		if (temp >= 0) then
+			if (temp > t) then
+				t = temp;
+			end
+		else
+			if (PREC.state.steady_shots_accum >= 2) then
+
+				-- about to go into ISS, so take this out of rotation. once the
+				-- ISS buff actuall appears, it'll come back in at the point the
+				-- buff will fall off
+				return false, 0, false;
+			end
+		end
 	end
 
 	if (ability.chimerarefresh) then
@@ -2116,6 +2227,11 @@ function PREC.GetFocusTimeout(spell)
 
 	local _, _, _, cost = GetSpellInfo(spell);
 	local current = UnitPower("player", SPELL_POWER_FOCUS);
+
+	if (PREC.state.simulate_focus_loss_until > GetTime()) then
+
+		current = current - PREC.state.simulate_focus_loss;
+	end
 
 	if (current >= cost) then
 		return 0;
@@ -2427,8 +2543,7 @@ function PREC.SlashCommand(msg, editbox)
 	elseif (msg == 'reset') then
 		PREC.ResetPos();
 	elseif (msg == 'test') then
-		PREC.options.chimera_refresh_window = PREC.default_options.chimera_refresh_window;
-		PREC.options.priorities = PREC.rotations.mm406;
+		-- put stuff here
 	else
 		print(L.CMD_HELP);
 		print("   /prec show - "..L.CMD_HELP_SHOW);
