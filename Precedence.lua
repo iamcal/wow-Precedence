@@ -1857,17 +1857,19 @@ function PREC.GetWarning(key, info)
 	end
 
 	if (key == "sad_pet") then
-		local happiness, damagePercentage, loyaltyRate = GetPetHappiness()
-		if (not happiness) then return info; end -- no pet
-		if (happiness == 3) then return info; end -- happy
+		return info; -- no more pet happiness
 
-		info.icon = [[Interface\PetPaperDollFrame\UI-PetHappiness]];
-		info.show = true;
+	--	local happiness, damagePercentage, loyaltyRate = GetPetHappiness()
+	--	if (not happiness) then return info; end -- no pet
+	--	if (happiness == 3) then return info; end -- happy
 
-		if (happiness == 1) then info.tex_coords = {0.375, 0.5625, 0, 0.359375}; end
-		if (happiness == 2) then info.tex_coords = {0.1875, 0.375, 0, 0.359375}; end
+	--	info.icon = [[Interface\PetPaperDollFrame\UI-PetHappiness]];
+	--	info.show = true;
 
-		return info;
+	--	if (happiness == 1) then info.tex_coords = {0.375, 0.5625, 0, 0.359375}; end
+	--	if (happiness == 2) then info.tex_coords = {0.1875, 0.375, 0, 0.359375}; end
+
+	--	return info;
 	end
 
 	if (key == "bad_aspect") then

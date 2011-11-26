@@ -26,3 +26,7 @@
  * correctly delay all shots while channeling steady & cobra shots
  * fixed wait time on explosive shot during L&L
  * added a bunch of MM specific abilities with built-in rules
+
+1.4
+ * updated for 4.2
+ * no more pet happiness warning (option is still there, needs removing)
