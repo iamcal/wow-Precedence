@@ -1,8 +1,8 @@
-## Interface: 40200
+## Interface: 40300
 ## Title : Precedence
 ## Notes: Hunter dashboard: priorities, warnings & timers
 ## Author: Cal Henderson (Bees on Hyjal-US)
-## Version: 1.4
+## Version: 1.5
 ## Dependencies: 
 ## SavedVariablesPerCharacter: PrecedenceDB
 
