@@ -373,6 +373,12 @@ function PREC.OnReady()
 
 	PREC.options = PREC.LoadOptions(PREC.default_options, _G.PrecedenceDB.opts);
 
+	-- auto-hide if we're not a hunter
+	local _, class = UnitClass("player");
+	if (not (class == "HUNTER")) then
+		PREC.options.hide = true;
+	end
+
 	PREC.CreateOptionsFrame()
 
 	PREC.fullW = 40 + 40 + PREC.options.runway;

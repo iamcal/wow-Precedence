@@ -33,3 +33,5 @@
 
 1.5
  * updated for 4.3
+ * auto-hide for non hunters
+
