@@ -1887,7 +1887,7 @@ function PREC.GetWarning(key, info)
 		while UnitBuff("player", index) do
 			local name, _, _, count, _, _, buffExpires, caster = UnitBuff("player", index)
 			if (name == "Aspect of the Cheetah"	) then bad_icon = "ability_mount_jungletiger"; end
-			if (name == "Aspect of the Fox"		) then bad_icon = "aspectofthefox"; end
+			if (name == "Aspect of the Fox"		) then bad_icon = "ability_hunter_aspectofthefox"; end
 			if (name == "Aspect of the Pack"	) then bad_icon = "ability_mount_whitetiger"; end
 			if (name == "Aspect of the Wild"	) then bad_icon = "spell_nature_protectionformnature"; end
 			if (name == "Aspect of the Hawk"	) then found_hawk = true; end
