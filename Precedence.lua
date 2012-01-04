@@ -1337,6 +1337,16 @@ function PREC.UpdateFrame()
 		return;
 	end
 
+
+	--
+	-- on taxi?
+	--
+
+	if (UnitOnTaxi("player")) then
+		PREC.UIFrame:Hide();
+		return;
+	end
+
 	PREC.UIFrame:Show();
 
 
