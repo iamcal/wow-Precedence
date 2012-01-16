@@ -445,55 +445,56 @@ function PREC.OnEvent(frame, event, ...)
 
 	if (event == 'COMBAT_LOG_EVENT_UNFILTERED') then
 
-		local arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13 = ...;
+		local ts, event, hideCaster, sourceGuid, sourceName, sourceFlags, sourceFlags2, destGuid, destName, destFlags, destFlasg2, spellId, spellName, spellSchool = ...;
 
 		local srcUs = false;
 		local ourGuid = UnitGUID("player");
-		if (arg3 == ourGuid) then srcUs = true; end
+		if (sourceGuid == ourGuid) then srcUs = true; end
 
-		if (srcUs and arg2 == "SPELL_CAST_SUCCESS" and arg10 == "Misdirection") then
-			PREC.state.md_target = arg7;
+
+		if (srcUs and event == "SPELL_CAST_SUCCESS" and spellName == "Misdirection") then
+			PREC.state.md_target = destName;
 		end
 
-		if ((arg2 == "SPELL_CREATE") and (srcUs) and ((arg10 == "Freezing Arrow") or (arg10 == "Freezing Trap"))) then
+		if ((event == "SPELL_CREATE") and (srcUs) and ((spellName == "Freezing Arrow") or (spellName == "Freezing Trap"))) then
 			PREC.state.trap_set = true;
 			PREC.state.trap_set_start = GetTime();
-			if (arg10 == "Freezing Trap") then PREC.meterinfo.trap_set.icon = "spell_frost_chainsofice"; end
-			if (arg10 == "Freezing Arrow") then PREC.meterinfo.trap_set.icon = "spell_frost_chillingbolt"; end
+			if (spellName == "Freezing Trap") then PREC.meterinfo.trap_set.icon = "spell_frost_chainsofice"; end
+			if (spellName == "Freezing Arrow") then PREC.meterinfo.trap_set.icon = "spell_frost_chillingbolt"; end
 			return;
 		end
 
-		if ((arg2 == "SPELL_MISSED") and srcUs and ((arg10 == "Freezing Arrow Effect") or (arg10 == "Freezing Trap Effect"))) then
+		if ((event == "SPELL_MISSED") and srcUs and ((spellName == "Freezing Arrow Effect") or (spellName == "Freezing Trap Effect"))) then
 			PREC.state.trap_set = false;
 		end
 
-		if ((arg2 == "SPELL_AURA_APPLIED") and srcUs and ((arg10 == "Freezing Arrow Effect") or (arg10 == "Freezing Trap Effect"))) then
+		if ((event == "SPELL_AURA_APPLIED") and srcUs and ((spellName == "Freezing Arrow Effect") or (spellName == "Freezing Trap Effect"))) then
 
 			PREC.state.trap_set = false;
-			PREC.state.trapped_mobs[arg6] = {
+			PREC.state.trapped_mobs[destGuid] = {
 				start = GetTime(),
-				aura = arg10,
-				guid = arg6,
-				name = arg7,
+				aura = spellName,
+				guid = destGuid,
+				name = destName,
 			};
 			return;
 		end
 
-		if ((arg2 == "SPELL_AURA_REMOVED") and srcUs and ((arg10 == "Freezing Arrow Effect") or (arg10 == "Freezing Trap Effect"))) then
+		if ((event == "SPELL_AURA_REMOVED") and srcUs and ((spellName == "Freezing Arrow Effect") or (spellName == "Freezing Trap Effect"))) then
 
-			PREC.state.trapped_mobs[arg6] = nil;
+			PREC.state.trapped_mobs[destGuid] = nil;
 			return;
 		end
 
 		if (false) then
-			local dest = arg7;
+			local dest = destName;
 			if (not dest) then dest = "?"; end
-			local src = arg4;
+			local src = sourceName;
 			if (not src) then src = "?"; end
-			local spell = arg10;
+			local spell = spellName;
 			if (not spell) then spell = "?"; end
 
-			print(string.format("%s (%s -> %s) %s", arg2, src, dest, spell));
+			print(string.format("%s (%s -> %s) %s", event, src, dest, spell));
 		end
 
 		return;
