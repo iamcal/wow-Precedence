@@ -264,6 +264,12 @@ PREC.abilities = {
 		icon = "ability_impalingbolt",
 		spell = "Arcane Shot",
 	},
+	arcane_es = {
+		icon = "ability_impalingbolt",
+		spell = "Arcane Shot",
+		label = "Arcane between Explosive",
+		between_es = true,
+	},
 };
 
 PREC.meterinfo = {
@@ -365,6 +371,7 @@ PREC.last_check = 0;
 PREC.time_between_checks = 5;
 PREC.default_icon = "INV_Misc_QuestionMark";
 PREC.default_icon_full = [[Interface\Icons\INV_Misc_QuestionMark]];
+PREC.debug_data = false;
 
 
 function PREC.OnLoad()
@@ -1495,6 +1502,11 @@ function PREC.UpdateFrame()
 		label = "Demo Mode Active";
 	end
 
+	if (PREC.debug_data) then
+		warning = true;
+		label = PREC.debug_data;
+	end
+
 	if (warning) then
 		PREC.Label:SetTextColor(1,0,0,1)
 		PREC.SetFontSize(PREC.Label, PREC.options.warning_font_size);
@@ -2160,10 +2172,54 @@ function PREC.GetStatus(ability, prio)
 			if (PREC.state.steady_shots_accum >= 2) then
 
 				-- about to go into ISS, so take this out of rotation. once the
-				-- ISS buff actuall appears, it'll come back in at the point the
+				-- ISS buff actually appears, it'll come back in at the point the
 				-- buff will fall off
 				return false, 0, false;
 			end
+		end
+	end
+
+	if (ability.between_es) then
+
+		-- ok if:
+		-- 	current focus
+		-- 	+ cost of shot to weave
+		-- 	+ regen until explosive off cooldown
+		-- is more than:
+		-- 	explosive cost
+
+		local _, _, _, shot_cost = GetSpellInfo(ability.spell);
+		local _, _, _, es_cost = GetSpellInfo("Explosive Shot");
+		local shot_start, shot_dur = GetSpellCooldown(ability.spell);
+		local es_start, es_dur = GetSpellCooldown("Explosive Shot");
+		local regen_base, regen_cast = GetPowerRegen();
+
+		local now = GetTime();
+
+		local shot_cooldown = 0;
+		if (shot_start > 0 and shot_dur > 0) then
+			shot_cooldown = shot_start + shot_dur - now;
+		end
+
+		local es_cooldown = 0;
+		if (es_start > 0 and es_dur > 0) then
+			es_cooldown = es_start + es_dur - now;
+		end
+
+		-- if ES is going to happen within the next GCD, 
+		-- or within GCD after this shot, ignore this shot
+		if (es_cooldown - shot_cooldown <= 1.5) then
+
+			return false, 0, false;
+		end
+
+		local total_focus = UnitPower("player") + (es_cooldown * regen_cast) - shot_cost;
+
+		--PREC.debug_data = string.format("%f, %f", regen_cast, total_focus);
+
+		if (total_focus < es_cost) then
+
+			return false, 0, false;
 		end
 	end
 
