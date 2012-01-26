@@ -267,7 +267,7 @@ PREC.abilities = {
 	arcane_es = {
 		icon = "ability_impalingbolt",
 		spell = "Arcane Shot",
-		label = "Arcane between Explosive",
+		label = "Arcane Shot (reserve Explosive)",
 		between_es = true,
 	},
 };

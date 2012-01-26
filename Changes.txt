@@ -35,3 +35,4 @@
  * updated for 4.3
  * auto-hide for non hunters
  * hide during taxi rides
+ * added arcane shot with reserved explosive
