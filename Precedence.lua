@@ -1420,9 +1420,41 @@ function PREC.GetWarning(key, info)
 
 	info.key = key;
 	info.show = false;
+	local def = PREC.warningdefs[key];
 
-	if (PREC.warningdefs[key].func) then
-		PREC.warningdefs[key].func(info);
+	if (def.scale) then
+		info.scale = def.scale;
+	end
+
+
+	--
+	-- check for a buff
+	--
+
+	if (def.has_buff) then
+
+		local index = 1;
+		local found_buff = false;
+		while UnitBuff("player", index) do
+			local name, _, _, count, _, _, buffExpires, caster = UnitBuff("player", index)
+			if (name == def.has_buff) then
+				found_buff = true;
+			end
+			index = index + 1
+		end
+		if (not found_buff) then
+			info.show = true;
+		end
+		return info;
+	end
+
+
+	--
+	-- custom warning functions
+	--
+
+	if (def.func) then
+		def.func(info);
 	end
 
 	return info;

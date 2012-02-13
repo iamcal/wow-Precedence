@@ -115,23 +115,24 @@ PREC.meterinfo = {
 PREC.warningdefs = {
 	fort = {
 		title = "Buffed: Fortitude",
-		icon = "spell_holy_wordfortitude",
+		icon = [[Interface\Icons\spell_holy_wordfortitude]],
 		has_buff = "Power Word: Fortitude",
 	},
 	inner_fire = {
 		title = "Buffed: Inner Fire",
-		icon = "spell_holy_innerfire",
+		icon = [[Interface\Icons\spell_holy_innerfire]],
 		has_buff = "Inner Fire",
 	},
 	vampiric_embrace = {
 		title = "Buffed: Vampiric Embrace",
-		icon = "spell_shadow_unsummonbuilding",
+		icon = [[Interface\Icons\spell_shadow_unsummonbuilding]],
 		has_buff = "Vampiric Embrace",
 	},
 	shadowform = {
 		title = "Shadowform",
-		icon = "spell_shadow_shadowform",
+		icon = [[Interface\Icons\spell_shadow_shadowform]],
 		has_buff = "Shadowform",
+		scale = 2,
 	},
 };
 
