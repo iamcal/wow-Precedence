@@ -6,54 +6,6 @@ PREC.default_options.chimera_refresh_window = 4;
 PREC.default_options.viper_mana_bigger = 90;
 PREC.default_options.mana_low_warning = 10;
 
-PREC.default_options.priorities = {
-	p1 = {
-		which = "rapid",
-		bind = "ALT-1",
-		who = "boss",
-	},
-	p2 = {
-		which = "kill",
-		bind = "ALT-2",
-		who = "any",
-	},
-	p3 = {
-		which = "explosive",
-		bind = "ALT-3",
-		who = "any",
-	},
-	p4 = {
-		which = "black",
-		bind = "ALT-4",
-		--label = "Chim",
-		who = "any",
-	},
-	p5 = {
-		which = "kill_cmd",
-		bind = "ALT-5",
-		who = "any",
-	},
-	p6 = {
-		which = "serpent",
-		bind = "ALT-6",
-		who = "any",
-	},
-	p7 = {
-		which = "steady",
-		bind = "ALT-7",
-		who = "any",
-		--cmd = "MACRO Steady",
-	},
-	p8 = {
-		which = "trap_frost",
-		bind = "ALT-8",
-		who = "any",
-	},
-	p9 = {},
-	p10 = {},
-	p11 = {},
-};
-
 PREC.default_options.meters = {
 	md_applied = true,
 	md_cooldown = true,
@@ -79,6 +31,7 @@ PREC.default_options.warnings = {
 
 PREC.rotations = {
 	sv406 = {
+		name = "SV 4.0.6",
 		p1 = {
 			which = "rapid",
 			bind = "ALT-1",
@@ -117,6 +70,7 @@ PREC.rotations = {
 		p10 = {},
 	},
 	mm406 = {
+		name = "MM 4.0.6",
 		p1 = {
 			which = "serpent",
 			bind = "ALT-1",
@@ -165,6 +119,8 @@ PREC.rotations = {
 		p10 = {},
 	},
 };
+
+PREC.default_options.priorities = PREC.rotations.sv406;
 
 PREC.abilities = {
 	rapid = {

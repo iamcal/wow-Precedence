@@ -2,36 +2,6 @@ if select(2, UnitClass('player')) ~= "PRIEST" then return end
 
 PREC.enable_for_class = true;
 
-PREC.default_options.priorities = {
-	p1 = {
-		which = "sw_pain",
-		bind = "ALT-1",
-		who = "any",
-	},
-	p2 = {
-		which = "vampiric_touch",
-		bind = "ALT-2",
-		who = "any",
-	},
-	p3 = {
-		which = "devouring_plague",
-		bind = "ALT-3",
-		who = "any",
-	},
-	p4 = {
-		which = "mind_blast",
-		bind = "ALT-4",
-		who = "any",
-	},
-	p5 = {},
-	p6 = {},
-	p7 = {},
-	p8 = {},
-	p9 = {},
-	p10 = {},
-	p11 = {},
-};
-
 PREC.default_options.meters = {
 
 	sw_pain = true,
@@ -48,7 +18,40 @@ PREC.default_options.warnings = {
 };
 
 PREC.rotations = {
+	sp432 = {
+		name = "Shadow Priest (4.3.2)",
+		p1 = {
+			which = "sw_pain",
+			bind = "ALT-1",
+			who = "any",
+		},
+		p2 = {},
+		p3 = {
+			which = "vampiric_touch",
+			bind = "ALT-3",
+			who = "any",
+		},
+		p4 = {
+			which = "devouring_plague",
+			bind = "ALT-4",
+			who = "any",
+		},
+		p5 = {
+			which = "mind_blast",
+			bind = "ALT-2",
+			who = "any",
+		},
+		p5 = {},
+		p6 = {},
+		p7 = {},
+		p8 = {},
+		p9 = {},
+		p10 = {},
+		p11 = {},
+	},
 };
+
+PREC.default_options.priorities = PREC.rotations.sp432;
 
 PREC.abilities = {
 	sw_pain = {
@@ -69,6 +72,25 @@ PREC.abilities = {
 		icon = "spell_shadow_devouringplague",
 		spell = "Devouring Plague",
 		debuff = "Devouring Plague",
+	},
+	sw_death = {
+		icon = "spell_shadow_demonicfortitude",
+		spell = "Shadow Word: Death",
+		-- only above certain health?
+	},
+	archangel = {
+		icon = "ability_priest_archangel",
+		spell = "Archangel",
+		-- only with stack of something
+	},
+	shadowfiend = {
+		icon = "spell_shadow_shadowfiend",
+		spell = "Shadowfiend",
+		-- only at 80% mana
+	},
+	mind_flay = {
+		icon = "spell_shadow_siphonmana",
+		spell = "Mind Flay",
 	},
 };
 
@@ -94,18 +116,22 @@ PREC.warningdefs = {
 	fort = {
 		title = "Buffed: Fortitude",
 		icon = "spell_holy_wordfortitude",
+		has_buff = "Power Word: Fortitude",
 	},
 	inner_fire = {
 		title = "Buffed: Inner Fire",
 		icon = "spell_holy_innerfire",
+		has_buff = "Inner Fire",
 	},
 	vampiric_embrace = {
 		title = "Buffed: Vampiric Embrace",
 		icon = "spell_shadow_unsummonbuilding",
+		has_buff = "Vampiric Embrace",
 	},
 	shadowform = {
 		title = "Shadowform",
 		icon = "spell_shadow_shadowform",
+		has_buff = "Shadowform",
 	},
 };
 

@@ -569,27 +569,19 @@ function PREC.ShowMenu()
 
 	-- TODO - use config for this
 
-	table.insert(menuList, {
-		text = "Preset: SV 4.0.6",
-		func = function()
-			PREC.options.priorities = PREC.rotations.sv406;
-			PREC.RebuildFrame();
-		end,
-		isTitle = false,
-		checked = false,
-		disabled = false,
-	});
+	for key, info in pairs(PREC.rotations) do
 
-	table.insert(menuList, {
-		text = "Preset: MM 4.0.6",
-		func = function()
-			PREC.options.priorities = PREC.rotations.mm406;
-			PREC.RebuildFrame();
-		end,
-		isTitle = false,
-		checked = false,
-		disabled = false,
-	});
+		table.insert(menuList, {
+			text = "Preset: "..info.name,
+			func = function()
+				PREC.options.priorities = PREC.rotations[key];
+				PREC.RebuildFrame();
+			end,
+			isTitle = false,
+			checked = false,
+			disabled = false,
+		});
+	end
 
 	table.insert(menuList, {
 		text = "Lock Frame",
