@@ -9,5 +9,6 @@
 Precedence.lua
 
 class_hunter.lua
+class_priest.lua
 
 class_all.lua
