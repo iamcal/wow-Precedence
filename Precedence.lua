@@ -567,6 +567,8 @@ function PREC.ShowMenu()
 		disabled = false,
 	});
 
+	-- TODO - use config for this
+
 	table.insert(menuList, {
 		text = "Preset: SV 4.0.6",
 		func = function()
@@ -743,12 +745,12 @@ function PREC.BindButtonClick(self, button)
 			self:EnableKeyboard(false);
 			self:UnlockHighlight();
 			self.waitingForKey = nil;
-print("2nd click - stop waiting");
+			print("2nd click - stop waiting");
 		else
 			self:EnableKeyboard(true);
 			self:LockHighlight();
 			self.waitingForKey = true;
-print("waiting...");
+			print("waiting...");
 		end
 	end
 end
@@ -1062,20 +1064,10 @@ function PREC.UpdateFrame()
 	local label = " ";
 	local warning = false;
 
-	if (status.low_on_mana) then
+	if (status.show_warning) then
 
 		warning = true;
-		label = string.format("Mana Low (%d%%)", status.mana_percent);
-	end
-
-	if (status.too_close) then
-		label = "Too Close";
-		warning = true;
-	end
-
-	if (status.too_far) then
-		label = "Too Far";
-		warning = true;
+		label = status.warning;
 	end
 
 	if (status.active_shots == 0) then
@@ -1272,41 +1264,10 @@ function PREC.GatherStatus()
 
 
 	--
-	-- mana level
+	-- misc warning text
 	--
 
-	ret.low_on_mana = false;
-
-	local cur_mana = UnitPower("player", 0);
-	local max_mana = UnitPowerMax("player", 0);
-	ret.mana_percent = 100 * cur_mana / max_mana;
-
-	if (ret.mana_percent < PREC.options.mana_low_warning) then
-
-		ret.low_on_mana = true;
-	end
-
-
-	--
-	-- range
-	--
-
-	ret.too_close = false;
-	ret.too_far = false;
-
-	local inShotRange = IsSpellInRange("Auto Shot");
-	local inMeleeRange = IsSpellInRange("Wing Clip");
-
-	if ((ret.active_shots > 0) and ret.has_viable_target) then
-
-		if (not (inShotRange == 1)) then
-			if (inMeleeRange == 1) then
-				ret.too_close = true;
-			else
-				ret.too_far = true;
-			end
-		end
-	end
+	PREC.GetWarningLabel(ret);
 
 
 	--
@@ -1366,9 +1327,7 @@ function PREC.GatherDemoStatus()
 	local ret = {};
 
 	ret.has_viable_target = true;
-	ret.low_on_mana = false;
-	ret.too_close = false;
-	ret.too_far = false;
+	ret.show_warning = false;
 
 	ret.active_shots = 0;
 	ret.priorities = {};
@@ -1470,143 +1429,8 @@ function PREC.GetWarning(key, info)
 	info.key = key;
 	info.show = false;
 
-	if (key == "no_pet") then
-		if (IsMounted()) then return info; end
-		if (UnitGUID("pet")) then
-			if (UnitHealth("pet") == 0) then
-				info.show = true;
-				return info;
-			end
-			return info;
-		end
-		info.show = true;
-		return info;
-	end
-
-	if (key == "sad_pet") then
-		return info; -- no more pet happiness
-
-	--	local happiness, damagePercentage, loyaltyRate = GetPetHappiness()
-	--	if (not happiness) then return info; end -- no pet
-	--	if (happiness == 3) then return info; end -- happy
-
-	--	info.icon = [[Interface\PetPaperDollFrame\UI-PetHappiness]];
-	--	info.show = true;
-
-	--	if (happiness == 1) then info.tex_coords = {0.375, 0.5625, 0, 0.359375}; end
-	--	if (happiness == 2) then info.tex_coords = {0.1875, 0.375, 0, 0.359375}; end
-
-	--	return info;
-	end
-
-	if (key == "bad_aspect") then
-
-		local bad_icon = nil;
-		local found_hawk = false;
-		local index = 1
-
-		while UnitBuff("player", index) do
-			local name, _, _, count, _, _, buffExpires, caster = UnitBuff("player", index)
-			if (name == "Aspect of the Cheetah"	) then bad_icon = "ability_mount_jungletiger"; end
-			if (name == "Aspect of the Fox"		) then bad_icon = "ability_hunter_aspectofthefox"; end
-			if (name == "Aspect of the Pack"	) then bad_icon = "ability_mount_whitetiger"; end
-			if (name == "Aspect of the Wild"	) then bad_icon = "spell_nature_protectionformnature"; end
-			if (name == "Aspect of the Hawk"	) then found_hawk = true; end
-			index = index + 1
-		end
-
-		if (bad_icon) then
-			info.show = true;
-			info.icon = [[Interface\Icons\]] .. bad_icon;
-			info.scale = 1;
-		else
-			if (not found_hawk) then
-				info.show = true;
-				info.icon = [[Interface\Icons\spell_nature_ravenform]];
-			end
-		end
-		return info;
-	end
-
-
-	if (key == "no_hunters_mark") then
-
-		if (PREC.HasViableTarget()) then
-
-			local temp = PREC.CheckBuff(UnitDebuff, "Hunter's Mark", "target", false);
-			if (temp.t == 0) then
-				info.show = true;
-			end
-		end
-	end
-
-	if (key == "bad_weapon") then
-
-		local itemId = GetInventoryItemID("player", 16);
-
-		if (not itemId) then return info; end
-
-		local _, _, _, level, _, type, subtype = GetItemInfo(itemId);
-
-		if (level) then
-			if (level < 200) then info.show = true; end
-		end
-
-		if (type == "Weapon" and subtype == "Daggers"		) then return info; end
-		if (type == "Weapon" and subtype == "Fist Weapons"	) then return info; end
-		if (type == "Weapon" and subtype == "One-Handed Axes"	) then return info; end
-		if (type == "Weapon" and subtype == "One-Handed Swords"	) then return info; end
-		if (type == "Weapon" and subtype == "Polearms"		) then return info; end
-		if (type == "Weapon" and subtype == "Staves"		) then return info; end
-		if (type == "Weapon" and subtype == "Two-Handed Axes"	) then return info; end
-		if (type == "Weapon" and subtype == "Two-Handed Swords"	) then return info; end
-
-		info.show = true;
-	end
-
-	if (key == "growl_solo") then
-		if (IsMounted()) then return info; end
-		if (not UnitGUID("pet")) then return info; end
-		if (UnitHealth("pet") == 0) then return info; end
-
-		local _, autostate = GetSpellAutocast("Growl", "pet");
-		if (not autostate and not PREC.InGroup()) then
-			info.show = true;
-		end
-	end
-
-	if (key == "growl_party") then
-		if (IsMounted()) then return info; end
-		if (not UnitGUID("pet")) then return info; end
-		if (UnitHealth("pet") == 0) then return info; end
-
-		local _, autostate = GetSpellAutocast("Growl", "pet");
-		if (autostate and PREC.InGroup()) then
-			info.show = true;
-		end
-	end
-
-	if (key == "kirin_tor_ring") then
-
-		local itemId1 = GetInventoryItemID("player", 11);
-		local itemId2 = GetInventoryItemID("player", 12);
-
-		if (itemId1 == 51560 or itemId2 == 51560) then info.show = true; end
-		if (itemId1 == 48954 or itemId2 == 48954) then info.show = true; end
-		if (itemId1 == 45688 or itemId2 == 45688) then info.show = true; end
-		if (itemId1 == 40586 or itemId2 == 40586) then info.show = true; end
-	end
-
-	if (key == "guild_cloak") then
-
-		local itemId = GetInventoryItemID("player", 15);
-
-		if (itemId == 63352) then info.show = true; end -- alliance 8hr
-		if (itemId == 63353) then info.show = true; end -- horde 8hr
-		if (itemId == 63206) then info.show = true; end -- alliance 4hr
-		if (itemId == 63207) then info.show = true; end -- horde 4hr
-		if (itemId == 65360) then info.show = true; end -- alliance 2hr
-		if (itemId == 65274) then info.show = true; end -- horde 2hr
+	if (PREC.warningdefs[key].func) then
+		PREC.warningdefs[key].func(info);
 	end
 
 	return info;
@@ -1629,7 +1453,7 @@ function PREC.HasPet()
 	if (not UnitGUID("pet")) then return false; end
 	if (UnitHealth("pet") == 0) then return false; end
 
-	return true;		
+	return true;
 end
 
 function PREC.GetStatus(ability, prio)
@@ -1943,49 +1767,9 @@ function PREC.GetMeter(info)
 		return info;
 	end
 
-	if (info.key == "trap_set") then
-
-		if (PREC.state.trap_set) then
-
-			local duration = GetTime() - PREC.state.trap_set_start;
-			local max = 30;
-
-			if (duration > max) then
-				PREC.state.trap_set = false;
-			else
-				info.max = max;
-				info.t = max - duration;
-			end
-		end
-		return info;
-	end
-
-	if (info.key == "trap_triggered") then
-
-		info.multi = {};
-
-		for guid, details in pairs(PREC.state.trapped_mobs) do
-
-			local info2 = PREC.CopyTable(info);
-			local duration = GetTime() - details.start;
-			local max = 20;
-
-			if (duration > max) then
-				info2.t = 0.1;
-				info2.max = max;
-			else
-				info2.max = max;
-				info2.t = max - duration;
-			end		
-
-			info2.label = details.name;
-
-			if (details.aura == "Freezing Trap Effect") then info2.icon = "spell_frost_chainsofice"; end
-			if (details.aura == "Freezing Arrow Effect") then info2.icon = "spell_frost_chillingbolt"; end
-
-			info.multi[guid] = info2;
-		end
-
+	-- custom handlers
+	if (PREC.meterinfo[info.key].func) then
+		PREC.meterinfo[info.key].func(info);
 		return info;
 	end
 

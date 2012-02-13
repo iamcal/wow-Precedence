@@ -424,3 +424,200 @@ function PREC.OnSpellCastSent(...)
 		return;
 	end
 end
+
+function PREC.GetWarningLabel(ret)
+
+	ret.show_warning = false;
+
+
+	--
+	-- focus warning
+	--
+
+	local cur_focus = UnitPower("player", 2);
+	local max_focus = UnitPowerMax("player", 2);
+	focus_percent = 100 * cur_focus / max_focus;
+
+	if (focus_percent < 10) then
+
+		ret.show_warning = true;
+		ret.warning = string.format('Low Focus (%d%%)', focus_percent);
+		return;
+	end
+
+	if (focus_percent > 80 and focus_percent < 100) then
+
+		ret.show_warning = true;
+		ret.warning = 'High Focus';
+		return;
+	end
+
+
+	--
+	-- range warning
+	--
+
+	local inShotRange = IsSpellInRange("Auto Shot");
+	local inMeleeRange = IsSpellInRange("Wing Clip");
+
+	if ((ret.active_shots > 0) and ret.has_viable_target) then
+
+		if (not (inShotRange == 1)) then
+			if (inMeleeRange == 1) then
+
+				ret.show_warning = true;
+				ret.warning = 'Too Close';
+				return;
+			else
+				ret.show_warning = true;
+				ret.warning = 'Too Far';
+				return;
+			end
+		end
+	end
+end
+
+--
+-- ################################################## Warnings ##################################################
+--
+
+function PREC.warningdefs.no_pet.func(info)
+
+	if (IsMounted()) then return info; end
+	if (UnitGUID("pet")) then
+		if (UnitHealth("pet") == 0) then
+			info.show = true;
+			return info;
+		end
+		return info;
+	end
+	info.show = true;
+	return info;
+end
+
+function PREC.warningdefs.sad_pet.func(info)
+	return info; -- no more pet happiness
+
+	--local happiness, damagePercentage, loyaltyRate = GetPetHappiness()
+	--if (not happiness) then return info; end -- no pet
+	--if (happiness == 3) then return info; end -- happy
+
+	--info.icon = [[Interface\PetPaperDollFrame\UI-PetHappiness]];
+	--info.show = true;
+
+	--if (happiness == 1) then info.tex_coords = {0.375, 0.5625, 0, 0.359375}; end
+	--if (happiness == 2) then info.tex_coords = {0.1875, 0.375, 0, 0.359375}; end
+
+	--return info;
+end
+
+function PREC.warningdefs.bad_aspect.func(info)
+
+	local bad_icon = nil;
+	local found_hawk = false;
+	local index = 1
+
+	while UnitBuff("player", index) do
+		local name, _, _, count, _, _, buffExpires, caster = UnitBuff("player", index)
+		if (name == "Aspect of the Cheetah"	) then bad_icon = "ability_mount_jungletiger"; end
+		if (name == "Aspect of the Fox"		) then bad_icon = "ability_hunter_aspectofthefox"; end
+		if (name == "Aspect of the Pack"	) then bad_icon = "ability_mount_whitetiger"; end
+		if (name == "Aspect of the Wild"	) then bad_icon = "spell_nature_protectionformnature"; end
+		if (name == "Aspect of the Hawk"	) then found_hawk = true; end
+		index = index + 1
+	end
+
+	if (bad_icon) then
+		info.show = true;
+		info.icon = [[Interface\Icons\]] .. bad_icon;
+		info.scale = 1;
+	else
+		if (not found_hawk) then
+			info.show = true;
+			info.icon = [[Interface\Icons\spell_nature_ravenform]];
+		end
+	end
+	return info;
+end
+
+function PREC.warningdefs.no_hunters_mark.func(info)
+
+	if (PREC.HasViableTarget()) then
+
+		local temp = PREC.CheckBuff(UnitDebuff, "Hunter's Mark", "target", false);
+		if (temp.t == 0) then
+			info.show = true;
+		end
+	end
+end
+
+function PREC.warningdefs.growl_solo.func(info)
+
+	if (IsMounted()) then return info; end
+	if (not UnitGUID("pet")) then return info; end
+	if (UnitHealth("pet") == 0) then return info; end
+
+	local _, autostate = GetSpellAutocast("Growl", "pet");
+	if (not autostate and not PREC.InGroup()) then
+		info.show = true;
+	end
+end
+
+function PREC.warningdefs.growl_party.func(info)
+
+	if (IsMounted()) then return info; end
+	if (not UnitGUID("pet")) then return info; end
+	if (UnitHealth("pet") == 0) then return info; end
+
+	local _, autostate = GetSpellAutocast("Growl", "pet");
+	if (autostate and PREC.InGroup()) then
+		info.show = true;
+	end
+end
+
+--
+-- ################################################## Meters ##################################################
+--
+
+function PREC.meterinfo.trap_set.func(info)
+
+	if (PREC.state.trap_set) then
+
+		local duration = GetTime() - PREC.state.trap_set_start;
+		local max = 30;
+
+		if (duration > max) then
+			PREC.state.trap_set = false;
+		else
+			info.max = max;
+			info.t = max - duration;
+		end
+	end
+end
+
+function PREC.meterinfo.trap_triggered.func(info)
+
+	info.multi = {};
+
+	for guid, details in pairs(PREC.state.trapped_mobs) do
+
+		local info2 = PREC.CopyTable(info);
+		local duration = GetTime() - details.start;
+		local max = 20;
+
+		if (duration > max) then
+			info2.t = 0.1;
+			info2.max = max;
+		else
+			info2.max = max;
+			info2.t = max - duration;
+		end		
+
+		info2.label = details.name;
+
+		if (details.aura == "Freezing Trap Effect") then info2.icon = "spell_frost_chainsofice"; end
+		if (details.aura == "Freezing Arrow Effect") then info2.icon = "spell_frost_chillingbolt"; end
+
+		info.multi[guid] = info2;
+	end
+end
