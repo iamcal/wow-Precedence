@@ -1,5 +1,6 @@
 PREC = {}
 
+PREC.enable_for_class = false;
 PREC.options = {};
 PREC.default_options = {
 
@@ -18,11 +19,6 @@ PREC.default_options = {
 	mtr_icon_size = 20,
 	runway = 200,
 
-	chimera_refresh_window = 4,
-
-	viper_mana_bigger = 90,
-	mana_low_warning = 10,
-
 	time_limit = 10,
 	font_size = 8,
 	cooldown_size = 20,
@@ -33,337 +29,27 @@ PREC.default_options = {
 	max_warns = 10,
 
 	priorities = {
-		p1 = {
-			which = "rapid",
-			bind = "ALT-1",
-			who = "boss",
-		},
-		p2 = {
-			which = "kill",
-			bind = "ALT-2",
-			who = "any",
-		},
-		p3 = {
-			which = "explosive",
-			bind = "ALT-3",
-			who = "any",
-		},
-		p4 = {
-			which = "black",
-			bind = "ALT-4",
-			--label = "Chim",
-			who = "any",
-		},
-		p5 = {
-			which = "kill_cmd",
-			bind = "ALT-5",
-			who = "any",
-		},
-		p6 = {
-			which = "serpent",
-			bind = "ALT-6",
-			who = "any",
-		},
-		p7 = {
-			which = "steady",
-			bind = "ALT-7",
-			who = "any",
-			--cmd = "MACRO Steady",
-		},
-		p8 = {
-			which = "trap_frost",
-			bind = "ALT-8",
-			who = "any",
-		},
-		p9 = {},
-		p10 = {},
-		p11 = {},
-	},
-	meters = {
-		md_applied = true,
-		md_cooldown = true,
-		hunters_mark = true,
-		serpent_sting = false,
-		mend_pet = true,
-		trap_set = true,
-		trap_triggered = true,
-	},
-	warnings = {
-		no_pet = true,
-		sad_pet = true,
-		bad_aspect = true,
-		no_hunters_mark = true,
-		bad_weapon = true, -- fishing pole, lance
-		low_ammo = true,
-		growl_solo = true,
-		growl_party = true,
-		kirin_tor_ring = false,
-		guild_cloak = false,
-	},
-};
-
-PREC.rotations = {
-	sv406 = {
-		p1 = {
-			which = "rapid",
-			bind = "ALT-1",
-			who = "boss",
-		},
-		p2 = {
-			which = "kill",
-			bind = "ALT-2",
-			who = "any",
-		},
-		p3 = {
-			which = "explosive",
-			bind = "ALT-3",
-			who = "any",
-		},
-		p4 = {
-			which = "black",
-			bind = "ALT-4",
-			--label = "Chim",
-			who = "any",
-		},
-		p5 = {
-			which = "serpent",
-			bind = "ALT-5",
-			who = "any",
-		},
-		p6 = {
-			which = "cobra",
-			bind = "ALT-6",
-			who = "any",
-			--cmd = "MACRO Steady",
-		},
+		p1 = {},
+		p2 = {},
+		p3 = {},
+		p4 = {},
+		p5 = {},
+		p6 = {},
 		p7 = {},
 		p8 = {},
 		p9 = {},
 		p10 = {},
+		p11 = {},
 	},
-	mm406 = {
-		p1 = {
-			which = "serpent",
-			bind = "ALT-1",
-			who = "any",
-		},
-		p2 = {
-			which = "chimerarefresh",
-			bind = "ALT-2",
-			who = "any",
-		},
-		p3 = {
-			which = "aimedmmm",
-			bind = "ALT-3",
-			who = "any",
-		},
-		p4 = {
-			which = "steadynoiss",
-			bind = "ALT-4",
-			who = "any",
-		},
-		p5 = {
-			which = "aimed",
-			who = "any",
-			label = "ALT-3",
-		},
-		p6 = {
-			which = "kill",
-			who = "any",
-			bind = "ALT-5",
-		},
-		p7 = {
-			which = "rapid",
-			who = "boss",
-			bind = "ALT-6",
-		},
-		p8 = {
-			which = "readiness",
-			who = "boss",
-			bind = "ALT-7",
-		},
-		p9 = {
-			which = "steady",
-			label = "ALT-4",
-			who = "any",
-		},
-		p10 = {},
-	},
+	meters = {},
+	warnings = {},
 };
 
-PREC.abilities = {
-	rapid = {
-		icon = [[ability_hunter_runningshot]],
-		spell = "Rapid Fire",
-		buff = "Rapid Fire",
-	},
-	kill = {
-		icon = [[ability_hunter_assassinate2]],
-		spell = "Kill Shot",
-	},
-	serpent = {
-		icon = [[ability_hunter_quickshot]],
-		spell = "Serpent Sting",
-		debuff = "Serpent Sting",
-	},
-	chimera = {
-		icon = [[ability_hunter_chimerashot2]],
-		spell = "Chimera Shot",
-	},
-	chimerarefresh = {
-		icon = [[ability_hunter_chimerashot2]],
-		spell = "Chimera Shot",
-		chimerarefresh = true,
-	},
-	aimedmmm = {
-		icon = [[inv_spear_07]],
-		spell = "Aimed Shot",
-		havebuff = "Fire!",
-		label = "Aimed Shot (MMM Proc)",
-	},
-	aimed = {
-		icon = [[inv_spear_07]],
-		spell = "Aimed Shot",
-	},
-	trapfrost = {
-		icon = [[spell_frost_freezingbreath.jpg]],
-		spell = "Frost Trap",
-	},
-	readiness = {
-		icon = "ability_hunter_readiness",
-		spell = "Readiness",
-	},
-	steady = {
-		icon = "ability_hunter_steadyshot",
-		spell = "Steady Shot",
-	},
-	steadynoiss = {
-		icon = "ability_hunter_steadyshot",
-		spell = "Steady Shot",
-		gainiss = true,
-		label = "Steady Shot (No ISS)",
-	},
-	explosive = {
-		icon = "ability_hunter_explosiveshot",
-		spell = "Explosive Shot",
-		--debuff = "Explosive Shot",
-	},
-	black = {
-		icon = "spell_shadow_painspike",
-		spell = "Black Arrow",
-	},
-	killcmd = {
-		icon = [[ability_hunter_killcommand]],
-		spell = "Kill Command",
-	},
-	cobra = {
-		icon = "ability_hunter_cobrashot",
-		spell = "Cobra Shot",
-	},
-	arcane = {
-		icon = "ability_impalingbolt",
-		spell = "Arcane Shot",
-	},
-	arcane_es = {
-		icon = "ability_impalingbolt",
-		spell = "Arcane Shot",
-		label = "Arcane Shot (reserve Explosive)",
-		between_es = true,
-	},
-};
-
-PREC.meterinfo = {
-	md_applied = {
-		title = "Misdirect Active",
-		icon = "ability_hunter_misdirection",
-		buff = "Misdirection",
-		color = "green",
-		special_label = "md_target",
-	},
-	md_cooldown = {
-		title = "Misdirect Cooldown",
-		icon = "ability_hunter_misdirection",
-		spell = "Misdirection",
-		color = "red",
-		label = "Cooldown",
-	},
-	hunters_mark = {
-		icon = "ability_hunter_snipershot",
-		debuff = "Hunter's Mark",
-		color = "green",
-	},
-	serpent_sting = {
-		icon = "ability_hunter_quickshot",
-		debuff = "Serpent Sting",
-		color = "green",
-	},
-	mend_pet = {
-		icon = "ability_hunter_mendpet",
-		petbuff = "Mend Pet",
-		color = "green",
-	},
-	trap_set = {
-		title = "Freeze Trap Set",
-		color = "green",
-	},
-	trap_triggered = {
-		title = "Freeze Trap Triggered",
-		color = "green",
-	},
-}
-
-PREC.warningdefs = {
-	no_pet = {
-		title = "Missing Pet",
-		icon = [[Interface\Icons\inv_box_petcarrier_01]],
-	},
-	sad_pet = {
-		title = "Sad Pet",
-		icon = [[Interface\PetPaperDollFrame\UI-PetHappiness]],
-		tex_coords = {0.375, 0.5625, 0, 0.359375},
-	},
-	bad_aspect = {
-		title = "Wrong Aspect",
-		icon = [[Interface\Icons\spell_nature_ravenform]],
-	},
-	no_hunters_mark = {
-		title = "Missing Hunter's Mark",
-		icon = [[Interface\Icons\ability_hunter_snipershot]],
-	},
-	bad_weapon = {
-		title = "Bad Weapon Equipped",
-		icon = [[Interface\Icons\inv_weapon_shortblade_05]],
-		--not_implemented = true,
-	},
-	growl_solo = {
-		title = "Growl Disabled When Solo",
-		icon = [[Interface\Icons\ability_physical_taunt]],
-	},
-	growl_party = {
-		title = "Growl Enabled In Party",
-		icon = [[Interface\Icons\ability_physical_taunt]],
-	},
-	kirin_tor_ring = {
-		title = "Kirin Tor Ring Equipped",
-		icon = [[Interface\Icons\inv_jewelry_ring_74]],
-	},
-	guild_cloak = {
-		title = "Guild Cloak Equipped",
-		icon = [[Interface\Icons\inv_guild_cloak_alliance_a]],
-	},
-};
-
-PREC.state = {
-	md_target = "?",
-	trap_set = false,
-	trap_set_start = 0,
-	trapped_mobs = {},
-	no_shots_until = 0,
-	no_explosive_until = 0,
-	simulate_focus_loss = 0,
-	simulate_focus_loss_until = 0,
-	steady_shots_accum = 0,
-};
+PREC.rotations = {};
+PREC.abilities = {};
+PREC.meterinfo = {};
+PREC.warningdefs = {};
+PREC.state = {};
 
 PREC.everything_ready = false;
 PREC.waiting_for_bind = false;
@@ -385,9 +71,8 @@ function PREC.OnReady()
 
 	PREC.options = PREC.LoadOptions(PREC.default_options, _G.PrecedenceDB.opts);
 
-	-- auto-hide if we're not a hunter
-	local _, class = UnitClass("player");
-	if (not (class == "HUNTER")) then
+	-- auto-hide if we're not a supported class
+	if (not PREC.enable_for_class) then
 		PREC.options.hide = true;
 	end
 
@@ -452,103 +137,14 @@ function PREC.OnEvent(frame, event, ...)
 
 	if (event == 'COMBAT_LOG_EVENT_UNFILTERED') then
 
-		local ts, event, hideCaster, sourceGuid, sourceName, sourceFlags, sourceFlags2, destGuid, destName, destFlags, destFlasg2, spellId, spellName, spellSchool = ...;
-
-		local srcUs = false;
-		local ourGuid = UnitGUID("player");
-		if (sourceGuid == ourGuid) then srcUs = true; end
-
-
-		if (srcUs and event == "SPELL_CAST_SUCCESS" and spellName == "Misdirection") then
-			PREC.state.md_target = destName;
-		end
-
-		if ((event == "SPELL_CREATE") and (srcUs) and ((spellName == "Freezing Arrow") or (spellName == "Freezing Trap"))) then
-			PREC.state.trap_set = true;
-			PREC.state.trap_set_start = GetTime();
-			if (spellName == "Freezing Trap") then PREC.meterinfo.trap_set.icon = "spell_frost_chainsofice"; end
-			if (spellName == "Freezing Arrow") then PREC.meterinfo.trap_set.icon = "spell_frost_chillingbolt"; end
-			return;
-		end
-
-		if ((event == "SPELL_MISSED") and srcUs and ((spellName == "Freezing Arrow Effect") or (spellName == "Freezing Trap Effect"))) then
-			PREC.state.trap_set = false;
-		end
-
-		if ((event == "SPELL_AURA_APPLIED") and srcUs and ((spellName == "Freezing Arrow Effect") or (spellName == "Freezing Trap Effect"))) then
-
-			PREC.state.trap_set = false;
-			PREC.state.trapped_mobs[destGuid] = {
-				start = GetTime(),
-				aura = spellName,
-				guid = destGuid,
-				name = destName,
-			};
-			return;
-		end
-
-		if ((event == "SPELL_AURA_REMOVED") and srcUs and ((spellName == "Freezing Arrow Effect") or (spellName == "Freezing Trap Effect"))) then
-
-			PREC.state.trapped_mobs[destGuid] = nil;
-			return;
-		end
-
-		if (false) then
-			local dest = destName;
-			if (not dest) then dest = "?"; end
-			local src = sourceName;
-			if (not src) then src = "?"; end
-			local spell = spellName;
-			if (not spell) then spell = "?"; end
-
-			print(string.format("%s (%s -> %s) %s", event, src, dest, spell));
-		end
-
+		PREC.OnCombatLog(...);
 		return;
 	end
 
 	if (event == 'UNIT_SPELLCAST_SENT') then
-		
-		local unit, spell, rank, target = ...;
 
-		if (unit == "player") then
-			if (spell == "Steady Shot") then
-				PREC.state.steady_shots_accum = PREC.state.steady_shots_accum + 1;
-			else
-				PREC.state.steady_shots_accum = 0;
-			end
-		end
-
-		if (unit == "player" and spell == "Cobra Shot") then
-			local _, _, _, _, _, _, castTime = GetSpellInfo("Cobra Shot")
-			PREC.state.no_shots_until = GetTime() + (castTime / 1000);
-			return;
-		end
-
-		if (unit == "player" and spell == "Steady Shot") then
-			local _, _, _, _, _, _, castTime = GetSpellInfo("Steady Shot")
-			PREC.state.no_shots_until = GetTime() + (castTime / 1000);
-			return;
-		end
-
-		if (unit == "player" and spell == "Aimed Shot") then
-			local test = PREC.TimeToPlayerBuffExpires("Fire!", false);
-			if (test == -1) then
-				local _, _, _, cost, _, _, castTime = GetSpellInfo("Aimed Shot")
-
-				local cast_ends = GetTime() + (castTime / 1000);
-
-				PREC.state.no_shots_until = cast_ends;
-				PREC.state.simulate_focus_loss_until = cast_ends;
-				PREC.state.simulate_focus_loss = cost;
-			end
-			return;
-		end
-
-		if (unit == "player" and spell == "Explosive Shot") then
-			PREC.state.no_explosive_until = GetTime() + 2;
-			return;
-		end
+		PREC.OnSpellCastSent(...);
+		return;
 	end
 
 	if (event == 'ADDON_LOADED') then
@@ -784,9 +380,6 @@ function PREC.CreateOptionsFrame()
 
 		py = py + 80;
 	end
-
-
-
 
 
 	InterfaceOptions_AddCategory(PREC.OptionsFrame);

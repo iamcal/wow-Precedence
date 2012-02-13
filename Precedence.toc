@@ -7,3 +7,7 @@
 ## SavedVariablesPerCharacter: PrecedenceDB
 
 Precedence.lua
+
+class_hunter.lua
+
+class_all.lua
