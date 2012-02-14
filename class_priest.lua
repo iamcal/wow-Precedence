@@ -167,12 +167,74 @@ PREC.warningdefs = {
 
 PREC.state.simulate_focus_loss_until = 0;
 PREC.state.no_shots_until = 0;
+PREC.state.delay_spell_until = {};
 
 function PREC.OnCombatLog(...)
+
+	local ts, event, hideCaster, sourceGuid, sourceName, sourceFlags, sourceFlags2, destGuid, destName, destFlags, destFlasg2, spellId, spellName, spellSchool = ...;
+
+	local srcUs = false;
+	local ourGuid = UnitGUID("player");
+	local tarGuid = UnitGUID("target");
+	if (sourceGuid == ourGuid) then srcUs = true; end
+
+	if (false and (srcUs or sourceGuid == tarGuid)) then
+		local dest = destName;
+		if (not dest) then dest = "?"; end
+		local src = sourceName;
+		if (not src) then src = "?"; end
+		local spell = spellName;
+		if (not spell) then spell = "?"; end
+
+		print(string.format("%s (%s -> %s) %s", event, src, dest, spell));
+	end
 end
 
 function PREC.OnSpellCastSent(...)
+
+	local unit, spell, rank, target = ...;
+
+
+	--
+	-- spells with cast time need to delay all others
+	--
+
+	if (unit == "player") then
+		local _, _, _, _, _, _, castTime = GetSpellInfo(spell);
+
+		PREC.state.no_shots_until = GetTime() + (castTime / 1000);
+
+
+		-- supress this spell for cast time + cooldown, since
+		-- we know it has a cooldown and we're casting it now.
+		-- we do the cooldown calc in the update function since
+		-- we can't get cooldown until cast has succeeded
+		PREC.state.delay_spell_until[spell] = PREC.state.no_shots_until;
+	end
 end
+
+
+--
+-- special event handlers for updating channeled spell status
+--
+
+function PREC.event_handlers.UNIT_SPELLCAST_CHANNEL_START(unit, spellName, spellRank, lineID, spellID)
+
+	local _,_,_,_,_,endTime = UnitChannelInfo("player");
+	PREC.state.no_shots_until = endTime / 1000;
+end
+
+function PREC.event_handlers.UNIT_SPELLCAST_CHANNEL_UPDATE(unit, spellName, spellRank, lineID, spellID)
+
+	local _,_,_,_,_,endTime = UnitChannelInfo("player");
+	PREC.state.no_shots_until = endTime / 1000;
+end
+
+function PREC.event_handlers.UNIT_SPELLCAST_CHANNEL_STOP(unit, spellName, spellRank, lineID, spellID)
+
+	PREC.state.no_shots_until = 0;
+end
+
 
 function PREC.GetWarningLabel(ret)
 
@@ -226,3 +288,66 @@ end
 
 --function PREC.meterinfo.trap_set.func(info)
 --end
+
+
+--
+-- ################################################## Shots ##################################################
+--
+
+function PREC.abilities.mind_blast.func(t, now, waitmana)
+
+	local _, _, _, _, _, _, castTime = GetSpellInfo('Mind Blast');
+	local _,duration,_ = GetSpellCooldown('Mind Blast');
+
+	if (duration <= castTime) then
+		duration = 6.5
+	end
+
+	local delay_until = PREC.state.delay_spell_until['Mind Blast'];
+	if (delay_until and delay_until + 1 > now) then
+		t = (delay_until + duration) - now;
+	end
+
+	return {
+		t = t,
+		waitmana = waitmana,
+	};
+end
+
+function PREC.abilities.vampiric_touch.func(t, now, waitmana)
+
+	-- if we're within cast time + 1s of casting, just hide this.
+	-- we'll assume it will apply to target and so does not
+	-- need casting for a while.
+
+	local delay_until = PREC.state.delay_spell_until['Vampiric Touch'];
+	if (delay_until and delay_until + 1 > now) then
+		return {
+			hide_now = true,
+		};
+	end
+
+	return {
+		t = t,
+		waitmana = waitmana,
+	};
+end
+
+function PREC.abilities.sw_pain.func(t, now, waitmana)
+
+	-- if we're within 1s of casting, just hide this.
+	-- we'll assume it will apply to target and so does not
+	-- need casting for a while.
+
+	local delay_until = PREC.state.delay_spell_until['Shadow Word: Pain'];
+	if (delay_until and delay_until + 1 > now) then
+		return {
+			hide_now = true,
+		};
+	end
+
+	return {
+		t = t,
+		waitmana = waitmana,
+	};
+end

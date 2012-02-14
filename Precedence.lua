@@ -50,6 +50,7 @@ PREC.abilities = {};
 PREC.meterinfo = {};
 PREC.warningdefs = {};
 PREC.state = {};
+PREC.event_handlers = {};
 
 PREC.everything_ready = false;
 PREC.waiting_for_bind = false;
@@ -74,6 +75,11 @@ function PREC.OnReady()
 	-- auto-hide if we're not a supported class
 	if (not PREC.enable_for_class) then
 		PREC.options.hide = true;
+	end
+
+	-- register extra events
+	for k,v in pairs(PREC.event_handlers) do
+		PREC.Frame:RegisterEvent(k);
 	end
 
 	PREC.CreateOptionsFrame()
@@ -134,6 +140,11 @@ end
 
 
 function PREC.OnEvent(frame, event, ...)
+
+	if (PREC.event_handlers[event]) then
+		PREC.event_handlers[event](...);
+		return;
+	end
 
 	if (event == 'COMBAT_LOG_EVENT_UNFILTERED') then
 
@@ -1603,6 +1614,28 @@ function PREC.GetStatus(ability, prio)
 
 	end
 
+
+	--
+	-- custom handlers
+	--
+
+	if (ability.func) then
+
+		local ret = ability.func(t, now, waitmana);
+
+		if (ret.hide_now) then
+			return false, 0, false;
+		end
+
+		if (ret.show_now) then
+			return true, ret.t, ret.waitmana;
+		end
+
+		t = ret.t;
+		waitmana = ret.waitmana;
+	end
+
+
 	if (ability.gainiss) then
 
 		local temp = PREC.TimeToPlayerBuffExpires("Improved Steady Shot", false);
@@ -1710,6 +1743,9 @@ function PREC.GetStatus(ability, prio)
 	-- delay everything during a channeled cast
 	if (PREC.state.no_shots_until > now) then
 		local no_min = PREC.state.no_shots_until - now;
+
+		--PREC.debug_data = string.format("delaying %f", no_min);
+
 		if (t < no_min) then
 			t = no_min;
 		end
