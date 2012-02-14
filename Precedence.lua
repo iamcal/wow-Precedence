@@ -571,10 +571,12 @@ function PREC.ShowMenu()
 
 	for key, info in pairs(PREC.rotations) do
 
+		local l_info = info;
+
 		table.insert(menuList, {
-			text = "Preset: "..info.name,
+			text = "Preset: "..l_info.name,
 			func = function()
-				PREC.options.priorities = PREC.rotations[key];
+				PREC.options.priorities = l_info;
 				PREC.RebuildFrame();
 			end,
 			isTitle = false,
