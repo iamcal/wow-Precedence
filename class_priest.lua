@@ -14,7 +14,8 @@ PREC.default_options.warnings = {
 	fort = true,
 	inner_fire = true,
 	shadowform = true,
-	vampiric_embrace = true;
+	vampiric_embrace = true,
+	shadow_protection = true,
 };
 
 PREC.rotations = {
@@ -146,6 +147,11 @@ PREC.warningdefs = {
 		title = "Buffed: Fortitude",
 		icon = [[Interface\Icons\spell_holy_wordfortitude]],
 		has_buff = "Power Word: Fortitude",
+	},
+	shadow_protection = {
+		title = "Buffed: Shadow Protection",
+		icon = [[Interface\Icons\spell_holy_prayerofshadowprotection]],
+		has_buff = "Shadow Protection",
 	},
 	inner_fire = {
 		title = "Buffed: Inner Fire",
