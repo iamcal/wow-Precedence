@@ -202,14 +202,16 @@ function PREC.OnSpellCastSent(...)
 	if (unit == "player") then
 		local _, _, _, _, _, _, castTime = GetSpellInfo(spell);
 
-		PREC.state.no_shots_until = GetTime() + (castTime / 1000);
+		if (castTime) then
 
+			PREC.state.no_shots_until = GetTime() + (castTime / 1000);
 
-		-- supress this spell for cast time + cooldown, since
-		-- we know it has a cooldown and we're casting it now.
-		-- we do the cooldown calc in the update function since
-		-- we can't get cooldown until cast has succeeded
-		PREC.state.delay_spell_until[spell] = PREC.state.no_shots_until;
+			-- supress this spell for cast time + cooldown, since
+			-- we know it has a cooldown and we're casting it now.
+			-- we do the cooldown calc in the update function since
+			-- we can't get cooldown until cast has succeeded
+			PREC.state.delay_spell_until[spell] = PREC.state.no_shots_until;
+		end
 	end
 end
 
@@ -221,13 +223,21 @@ end
 function PREC.event_handlers.UNIT_SPELLCAST_CHANNEL_START(unit, spellName, spellRank, lineID, spellID)
 
 	local _,_,_,_,_,endTime = UnitChannelInfo("player");
-	PREC.state.no_shots_until = endTime / 1000;
+	if (endTime) then
+		PREC.state.no_shots_until = endTime / 1000;
+	else
+		PREC.state.no_shots_until = 0;
+	end
 end
 
 function PREC.event_handlers.UNIT_SPELLCAST_CHANNEL_UPDATE(unit, spellName, spellRank, lineID, spellID)
 
 	local _,_,_,_,_,endTime = UnitChannelInfo("player");
-	PREC.state.no_shots_until = endTime / 1000;
+	if (endTime) then
+		PREC.state.no_shots_until = endTime / 1000;
+	else
+		PREC.state.no_shots_until = 0;
+	end
 end
 
 function PREC.event_handlers.UNIT_SPELLCAST_CHANNEL_STOP(unit, spellName, spellRank, lineID, spellID)
