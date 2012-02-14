@@ -33,6 +33,7 @@
 
 1.5
  * updated for 4.3
- * auto-hide for non hunters
+ * shadow priest support!
+ * auto-hide for unsupported classes
  * hide during taxi rides
  * added arcane shot with reserved explosive

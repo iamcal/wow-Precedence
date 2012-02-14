@@ -1,17 +1,21 @@
-Precedence is a raiding hunter's dashboard. It shows shot priority countdowns, warnings and timers
-that are useful to a hunter who wants to maximize their DPS.
+Precedence is a raider's dashboard. It shows shot priority countdowns, warnings and timers
+that are useful to a hunter or shadow priest who wants to maximize their DPS.
 
-Shot priorities:
+Supported classes:
+* Hunters
+* Shadow Priests
+
+Shot/spell priorities:
 * Configurable priorities
 * Key bindings
 * Use macros to trigger shots
 * Time shots to buffs and debuffs
 * Long cooldowns displayed in a useful way
-* Delay all abilities while channeling Steady Shot or Cobra Shot
+* Delay all abilities during long casts & casting
 * Leave 2s between Explosive Shot casts during Lock & Load
 
 Warnings:
-* Missing or unhappy pet
+* Missing pet
 * Incorrect aspects
 * Missing hunter's mark
 * Wrong weapon equipped
