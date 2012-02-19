@@ -387,29 +387,6 @@ function PREC.GetWarningLabel(ret)
 
 
 	--
-	-- focus warning
-	--
-
-	local cur_focus = UnitPower("player", 2);
-	local max_focus = UnitPowerMax("player", 2);
-	focus_percent = 100 * cur_focus / max_focus;
-
-	if (focus_percent < 10) then
-
-		ret.show_warning = true;
-		ret.warning = string.format('Low Focus (%d%%)', focus_percent);
-		return;
-	end
-
-	if (focus_percent > 80 and focus_percent < 100) then
-
-		ret.show_warning = true;
-		ret.warning = 'High Focus';
-		return;
-	end
-
-
-	--
 	-- range warning
 	--
 
@@ -430,6 +407,29 @@ function PREC.GetWarningLabel(ret)
 				return;
 			end
 		end
+	end
+
+
+	--
+	-- focus warning
+	--
+
+	local cur_focus = UnitPower("player", 2);
+	local max_focus = UnitPowerMax("player", 2);
+	focus_percent = 100 * cur_focus / max_focus;
+
+	if (focus_percent < 10) then
+
+		ret.show_warning = true;
+		ret.warning = string.format('Low Focus (%d%%)', focus_percent);
+		return;
+	end
+
+	if (focus_percent > 80 and focus_percent < 100) then
+
+		ret.show_warning = true;
+		ret.warning = 'High Focus';
+		return;
 	end
 end
 
