@@ -22,40 +22,42 @@ PREC.rotations = {
 	sp432 = {
 		name = "Shadow Priest (4.3.2)",
 		p1 = {
-			which = "sw_pain",
-			bind = "ALT-1",
-			who = "any",
-		},
-		p2 = {},
-		p3 = {
-			which = "vampiric_touch",
-			bind = "ALT-3",
-			who = "any",
-		},
-		p4 = {
-			which = "devouring_plague",
-			bind = "ALT-4",
-			who = "any",
-		},
-		p5 = {
-			which = "mind_blast",
-			bind = "ALT-2",
-			who = "any",
-		},
-		p6 = {
 			which = "sw_death",
 			bind = "ALT-5",
 			who = "any",
 		},
-		p7 = {
+		p2 = {
 			which = "archangel",
 			bind = "ALT-6",
+			who = "any",
+		},
+		p3 = {
+			which = "sw_pain",
+			bind = "ALT-1",
+			who = "any",
+		},
+		p4 = {
+			-- mind blast orbs
+		},
+		p5 = {
+			which = "vampiric_touch",
+			bind = "ALT-3",
+			who = "any",
+		},
+		p6 = {
+			which = "devouring_plague",
+			bind = "ALT-4",
+			who = "any",
+		},
+		p7 = {
+			which = "mind_blast",
+			bind = "ALT-2",
 			who = "any",
 		},
 		p8 = {
 			which = "shadowfiend",
 			bind = "ALT-7",
-			who = "any",
+			who = "boss",
 		},
 		p9 = {
 			which = "mind_flay",
@@ -106,7 +108,7 @@ PREC.abilities = {
 	sw_death = {
 		icon = "spell_shadow_demonicfortitude",
 		spell = "Shadow Word: Death",
-		-- only above certain health?
+		label = "Shadow Word: Death (under 25%)",
 	},
 	archangel = {
 		icon = "ability_priest_archangel",
@@ -366,6 +368,31 @@ function PREC.abilities.sw_pain.func(t, now, waitmana)
 
 	local delay_until = PREC.state.delay_spell_until['Shadow Word: Pain'];
 	if (delay_until and delay_until + 1 > now) then
+		return {
+			hide_now = true,
+		};
+	end
+
+	return {
+		t = t,
+		waitmana = waitmana,
+	};
+end
+
+function PREC.abilities.sw_death.func(t, now, waitmana)
+
+	local current = UnitHealth("target");
+	local max = UnitHealthMax("target");
+
+	-- no target?
+	if (max == 0) then
+		return {
+			hide_now = true,
+		};
+	end
+
+	-- over 25%?
+	if (current / max > 0.25) then
 		return {
 			hide_now = true,
 		};
