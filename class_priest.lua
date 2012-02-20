@@ -111,7 +111,14 @@ PREC.abilities = {
 	archangel = {
 		icon = "ability_priest_archangel",
 		spell = "Archangel",
-		-- only with stack of something
+		havebuff = "Dark Evangelism",
+		buff_stacks = 5,
+		label = "Archangel (5 stacks)",
+	},
+	archangel_any = {
+		icon = "ability_priest_archangel",
+		spell = "Archangel",
+		label = "Archangel (1 stack)",
 	},
 	shadowfiend = {
 		icon = "spell_shadow_shadowfiend",

@@ -1571,6 +1571,7 @@ function PREC.GetStatus(ability, prio)
 		end
 	end
 
+	-- wait until a buff falls off?
 	if (ability.buff) then
 
 		local index = 1
@@ -1586,14 +1587,21 @@ function PREC.GetStatus(ability, prio)
 		end
 	end
 
+	-- wait until we have a buff?
 	if (ability.havebuff) then
 
 		local index = 1;
 		local found_buff = false;
 		while UnitBuff("player", index) do
 			local name, _, _, count, _, _, buffExpires, caster = UnitBuff("player", index)
-			if (name == ability.buff) then
-				found_buff = true;
+			if (name == ability.havebuff) then
+				if (ability.buff_stacks) then
+					if (ability.buff_stacks <= count) then
+						found_buff = true;
+					end
+				else
+					found_buff = true;
+				end
 			end
 			index = index + 1
 		end
@@ -1602,6 +1610,7 @@ function PREC.GetStatus(ability, prio)
 		end
 	end
 
+	-- not currently used...
 	if (prio.waitbuff) then
 
 		local index = 1
