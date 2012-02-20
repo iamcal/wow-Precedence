@@ -1611,7 +1611,7 @@ function PREC.GetStatus(ability, prio)
 	end
 
 	-- not currently used...
-	if (prio.waitbuff) then
+	if (prio.waitbuff and false) then
 
 		local index = 1
 		while UnitBuff("player", index) do
