@@ -37,7 +37,10 @@ PREC.rotations = {
 			who = "any",
 		},
 		p4 = {
-			-- mind blast orbs
+			which = "mind_blast_orbs",
+			bind = "",
+			who = "any",
+			label = "ALT-2",
 		},
 		p5 = {
 			which = "vampiric_touch",
@@ -94,6 +97,12 @@ PREC.abilities = {
 	mind_blast = {
 		icon = "spell_shadow_unholyfrenzy",
 		spell = "Mind Blast",
+	},
+	mind_blast_orbs = {
+		icon = "spell_shadow_unholyfrenzy",
+		spell = "Mind Blast",
+		havebuff = "Shadow Orb",
+		label = "Mind Blast (w/ Orbs)",
 	},
 	vampiric_touch = {
 		icon = "spell_holy_stoicism",
@@ -340,6 +349,8 @@ function PREC.abilities.mind_blast.func(t, now, waitmana)
 		waitmana = waitmana,
 	};
 end
+
+PREC.abilities.mind_blast_orbs.func = PREC.abilities.mind_blast.func;
 
 function PREC.abilities.vampiric_touch.func(t, now, waitmana)
 
