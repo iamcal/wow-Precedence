@@ -1067,12 +1067,12 @@ function PREC.UpdateFrame()
 	--
 
 	local label = " ";
-	local warning = false;
+	local label_mode = 'normal';
 
-	if (status.show_warning) then
+	if (status.show_label) then
 
-		warning = true;
-		label = status.warning;
+		label = status.label;
+		label_mode = status.label_mode;
 	end
 
 	if (status.active_shots == 0) then
@@ -1083,22 +1083,26 @@ function PREC.UpdateFrame()
 			return;
 		end
 
-		warning = false;
+		label_mode = 'normal';
 		label = "No abilities configured - Right click to hide";
 	end
 
 	if (PREC.options.demo_mode) then
-		warning = true;
+		label_mode = 'warning';
 		label = "Demo Mode Active";
 	end
 
 	if (PREC.debug_data) then
-		warning = true;
+		label_mode = 'warning';
 		label = PREC.debug_data;
 	end
 
-	if (warning) then
+
+	if (label_mode == 'warning') then
 		PREC.Label:SetTextColor(1,0,0,1)
+		PREC.SetFontSize(PREC.Label, PREC.options.warning_font_size);
+	elseif (label_mode == 'mana') then
+		PREC.Label:SetTextColor(0,0,1,1)
 		PREC.SetFontSize(PREC.Label, PREC.options.warning_font_size);
 	else
 		PREC.Label:SetTextColor(1,1,1,1)

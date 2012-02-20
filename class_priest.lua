@@ -254,7 +254,7 @@ end
 
 function PREC.GetWarningLabel(ret)
 
-	ret.show_warning = false;
+	ret.show_label = false;
 
 	--
 	-- range warning
@@ -266,8 +266,9 @@ function PREC.GetWarningLabel(ret)
 
 		if (not (inShotRange == 1)) then
 
-			ret.show_warning = true;
-			ret.warning = 'Too Far';
+			ret.show_label = true;
+			ret.label = 'Too Far';
+			ret.label_mode = 'warning';
 			return;
 		end
 	end
@@ -283,8 +284,9 @@ function PREC.GetWarningLabel(ret)
 
 	if (mana_percent < 10) then
 
-		ret.show_warning = true;
-		ret.warning = string.format('Mana Low (%d%%)', mana_percent);
+		ret.show_label = true;
+		ret.label = string.format('Mana Low (%d%%)', mana_percent);
+		ret.label_mode = 'mana';
 		return;
 	end
 

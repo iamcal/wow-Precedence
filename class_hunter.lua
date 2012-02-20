@@ -383,7 +383,7 @@ end
 
 function PREC.GetWarningLabel(ret)
 
-	ret.show_warning = false;
+	ret.show_label = false;
 
 
 	--
@@ -398,12 +398,14 @@ function PREC.GetWarningLabel(ret)
 		if (not (inShotRange == 1)) then
 			if (inMeleeRange == 1) then
 
-				ret.show_warning = true;
-				ret.warning = 'Too Close';
+				ret.show_label = true;
+				ret.label = 'Too Close';
+				ret.label_mode = 'warning';
 				return;
 			else
-				ret.show_warning = true;
-				ret.warning = 'Too Far';
+				ret.show_label = true;
+				ret.label = 'Too Far';
+				ret.label_mode = 'warning';
 				return;
 			end
 		end
@@ -420,15 +422,17 @@ function PREC.GetWarningLabel(ret)
 
 	if (focus_percent < 10) then
 
-		ret.show_warning = true;
-		ret.warning = string.format('Low Focus (%d%%)', focus_percent);
+		ret.show_label = true;
+		ret.label = string.format('Low Focus (%d%%)', focus_percent);
+		ret.label_mode = 'mana';
 		return;
 	end
 
 	if (focus_percent > 80 and focus_percent < 100) then
 
-		ret.show_warning = true;
-		ret.warning = 'High Focus';
+		ret.show_label = true;
+		ret.label = 'High Focus';
+		ret.label_mode = 'mana';
 		return;
 	end
 end
