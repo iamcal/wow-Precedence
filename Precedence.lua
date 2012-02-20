@@ -148,13 +148,17 @@ function PREC.OnEvent(frame, event, ...)
 
 	if (event == 'COMBAT_LOG_EVENT_UNFILTERED') then
 
-		PREC.OnCombatLog(...);
+		if (PREC.OnCombatLog) then
+			PREC.OnCombatLog(...);
+		end
 		return;
 	end
 
 	if (event == 'UNIT_SPELLCAST_SENT') then
 
-		PREC.OnSpellCastSent(...);
+		if (PREC.OnSpellCastSent) then
+			PREC.OnSpellCastSent(...);
+		end
 		return;
 	end
 
@@ -892,10 +896,13 @@ function PREC.CheckBinds()
 
 	for bind, cmd in pairs(binds) do
 
-		local test = GetBindingAction(bind, true);
-		if (not (test == cmd)) then
-			--print(string.format("bad binding on %s (expecting %s, got %s)", bind,cmd,test));
-			dirty = true;
+		if (bind and not bind == "") then
+
+			local test = GetBindingAction(bind, true);
+			if (not (test == cmd)) then
+				--print(string.format("bad binding on %s (expecting %s, got %s)", bind,cmd,test));
+				dirty = true;
+			end
 		end
 	end
 
