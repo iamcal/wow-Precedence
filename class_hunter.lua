@@ -418,7 +418,7 @@ function PREC.GetWarningLabel(ret)
 
 	local cur_focus = UnitPower("player", 2);
 	local max_focus = UnitPowerMax("player", 2);
-	focus_percent = 100 * cur_focus / max_focus;
+	local focus_percent = 100 * cur_focus / max_focus;
 
 	if (focus_percent < 10) then
 
@@ -475,8 +475,8 @@ function PREC.warningdefs.bad_aspect.func(info)
 
 	local bad_icon = nil;
 	local found_hawk = false;
-	local index = 1
 
+	local index = 1
 	while UnitBuff("player", index) do
 		local name, _, _, count, _, _, buffExpires, caster = UnitBuff("player", index)
 		if (name == "Aspect of the Cheetah"	) then bad_icon = "ability_mount_jungletiger"; end
@@ -559,6 +559,7 @@ function PREC.meterinfo.trap_triggered.func(info)
 
 	info.multi = {};
 
+	local guid, details;
 	for guid, details in pairs(PREC.state.trapped_mobs) do
 
 		local info2 = PREC.CopyTable(info);
