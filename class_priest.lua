@@ -298,7 +298,7 @@ function PREC.GetWarningLabel(ret)
 
 	local cur_mana = UnitPower("player", 0);
 	local max_mana = UnitPowerMax("player", 0);
-	mana_percent = 100 * cur_mana / max_mana;
+	local mana_percent = 100 * cur_mana / max_mana;
 
 	if (mana_percent < 10) then
 
