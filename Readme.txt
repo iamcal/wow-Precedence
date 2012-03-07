@@ -44,4 +44,4 @@ TODO
 * warn when wearing pvp gear
 * Other trap timers
 * Other stings
-
+* Fade out when dead
