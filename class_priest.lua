@@ -278,7 +278,7 @@ function PREC.GetWarningLabel(ret)
 	-- range warning
 	--
 
-	local inShotRange = IsSpellInRange("Mind Blast");
+	local inShotRange = IsSpellInRange("Mind Sear");
 
 	if ((ret.active_shots > 0) and ret.has_viable_target) then
 
