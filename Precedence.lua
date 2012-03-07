@@ -78,7 +78,8 @@ function PREC.OnReady()
 	end
 
 	-- register extra events
-	for k,v in pairs(PREC.event_handlers) do
+	local k, v;
+	for k, v in pairs(PREC.event_handlers) do
 		PREC.Frame:RegisterEvent(k);
 	end
 
@@ -117,7 +118,8 @@ function PREC.LoadOptions(defaults, current)
 
 	local out = {};
 
-	for k,v in pairs(defaults) do
+	local k, v;
+	for k, v in pairs(defaults) do
 		if (current[k]) then
 			out[k] = current[k];
 		else
@@ -288,6 +290,7 @@ function PREC.CreateOptionsFrame()
 
 	py = 35;
 
+	local key, info;
 	for key, info in pairs(PREC.meterinfo) do
 
 		local label = "?";
@@ -321,6 +324,7 @@ function PREC.CreateOptionsFrame()
 
 	py = 35;
 
+	local key, info;
 	for key, info in pairs(PREC.warningdefs) do
 
 		local label = "?";
@@ -355,6 +359,7 @@ function PREC.CreateOptionsFrame()
 
 
 	local abil_opts = {none = "None"};
+	local k, v;
 	for k, v in pairs(PREC.abilities) do
 		abil_opts[k] = v.label or v.spell;
 	end;
@@ -365,6 +370,7 @@ function PREC.CreateOptionsFrame()
 		raidboss = "Raid bosses only"
 	};
 
+	local i;
 	for i=1,PREC.options.max_prios do
 		local key = 'p'..i;
 
@@ -464,6 +470,7 @@ function PREC.StartFrame()
 
 	-- buttons!
 	PREC.rot_btns = {};
+	local i;
 	for i=1,PREC.options.max_prios do
 		local key = 'p'..i;
 		PREC.rot_btns[key] = PREC.CreateButton(PREC.UIFrame, 0, 0, 40, 40, [[Interface\Icons\ability_hunter_pet_dragonhawk]]);
@@ -472,6 +479,7 @@ function PREC.StartFrame()
 
 	-- progress meters
 	PREC.mtrs = {};
+	local i;
 	for i=1,PREC.options.max_mtrs do
 		local key = 'm'..i;
 		PREC.mtrs[key] = {
@@ -482,6 +490,7 @@ function PREC.StartFrame()
 
 	-- warnings
 	PREC.warn_btns = {};
+	local i;
 	for i=1,PREC.options.max_warns do
 		local key = 'w'..i;
 		PREC.warn_btns[key] = PREC.CreateTextureFrame(PREC.UIFrame, PREC.fullW-(i * 20), 0-20, 20, 20, [[Interface\Icons\ability_hunter_pet_dragonhawk]]);
@@ -584,6 +593,7 @@ function PREC.ShowMenu()
 
 	-- TODO - use config for this
 
+	local key, info;
 	for key, info in pairs(PREC.rotations) do
 
 		local l_info = info;
@@ -726,7 +736,8 @@ function PREC.CreateDropDown(parent, id, x, y, w, options, selected)
 	UIDropDownMenu_SetWidth(menu, w-17, 0); -- the frame will be ~17 wider for the button on the right
 	UIDropDownMenu_SetButtonWidth(menu, w); -- the width of the clickable region on the right
 	UIDropDownMenu_Initialize(menu, function()
-		for k,v in pairs(options) do
+		local k, v;
+		for k, v in pairs(options) do
 			UIDropDownMenu_AddButton({
 				text = v,
 				value = k,
@@ -842,6 +853,7 @@ end
 
 function PREC.RebuildFrame()
 
+	local i;
 	for i=1,PREC.options.max_prios do
 		local key = 'p'..i;
 		local ability = PREC.abilities[PREC.options.priorities[key].which];
@@ -857,6 +869,7 @@ function PREC.GetBinds()
 
 	local map = {};
 
+	local i;
 	for i=1,PREC.options.max_prios do
 		local key = 'p'..i;
 		local prio = PREC.options.priorities[key];
@@ -894,6 +907,7 @@ function PREC.CheckBinds()
 	local binds = PREC.GetBinds();
 	local dirty = false;
 
+	local bind, cmd;
 	for bind, cmd in pairs(binds) do
 
 		if (bind and not bind == "") then
@@ -924,9 +938,9 @@ function PREC.BindKeys()
 	PREC.waiting_for_bind = false;
 
 	local binds = PREC.GetBinds();
-
 	local set = GetCurrentBindingSet();
 
+	local bind, cmd;
 	for bind, cmd in pairs(binds) do
 
 		local ok = SetOverrideBinding(PREC.UIFrame, true, bind, cmd);
@@ -997,7 +1011,8 @@ function PREC.UpdateFrame()
 	local done_at_rdy = 0;
 	local btns_at_limit = {};
 
-	for _,info in pairs(status.priorities) do
+	local info;
+	for _, info in pairs(status.priorities) do
 
 		local key = info.key;
 
@@ -1050,6 +1065,7 @@ function PREC.UpdateFrame()
 		local x = 0;
 		local y = 0;
 
+		local btn;
 		for _, btn in pairs(btns_at_limit) do
 
 			local x_pos = x * icon_size;
@@ -1135,7 +1151,8 @@ function PREC.UpdateFrame()
 
 	local use_idx = 1;
 
-	for _,mtr in pairs(status.meters) do
+	local mtr;
+	for _, mtr in pairs(status.meters) do
 
 		local key = 'm'..use_idx;
 		use_idx = use_idx + 1;
@@ -1171,6 +1188,7 @@ function PREC.UpdateFrame()
 		PREC.mtrs[key].btn:Show();
 	end
 
+	local i;
 	for i=use_idx,PREC.options.max_mtrs do
 		local key = 'm'..i;
 		PREC.mtrs[key].bar:Hide();
@@ -1185,7 +1203,8 @@ function PREC.UpdateFrame()
 	local use_idx = 1;
 	local px = 0;
 
-	for _,warn in pairs(status.warnings) do
+	local warn;
+	for _, warn in pairs(status.warnings) do
 
 		local key = 'w'..use_idx;
 		use_idx = use_idx + 1;
@@ -1214,6 +1233,7 @@ function PREC.UpdateFrame()
 		px = px + size;
 	end
 
+	local i;
 	for i=use_idx,PREC.options.max_warns do
 		local key = 'w'..i;
 		PREC.warn_btns[key]:Hide();
@@ -1245,6 +1265,7 @@ function PREC.GatherStatus()
 	ret.active_shots = 0;
 	ret.priorities = {};
 
+	local i;
 	for i=1,PREC.options.max_prios do
 		local key = 'p'..i;
 		local prio = PREC.options.priorities[key];
@@ -1292,6 +1313,7 @@ function PREC.GatherStatus()
 
 	ret.meters = {};
 
+	local key, info;
 	for key, info in pairs(PREC.meterinfo) do
 
 		if (PREC.options.meters[key] and info) then
@@ -1300,6 +1322,7 @@ function PREC.GatherStatus()
 
 			local temp = PREC.GetMeter(info);
 			if (temp.multi) then
+				local temp2;
 				for _,temp2 in pairs(temp.multi) do
 					if (temp2.max > 2) then
 						table.insert(ret.meters, temp2);
@@ -1322,6 +1345,7 @@ function PREC.GatherStatus()
 
 	ret.warnings = {};
 
+	local key, info;
 	for key, info in pairs(PREC.warningdefs) do
 
 		if (PREC.options.warnings[key] and info) then
@@ -1348,6 +1372,7 @@ function PREC.GatherDemoStatus()
 	ret.active_shots = 0;
 	ret.priorities = {};
 
+	local i;
 	for i=1,PREC.options.max_prios do
 		local key = 'p'..i;
 		local prio = PREC.options.priorities[key];
@@ -1396,6 +1421,7 @@ function PREC.GatherDemoStatus()
 	ret.meters = {};
 	local v = 10;
 
+	local key, info;
 	for key, info in pairs(PREC.meterinfo) do
 
 		if (PREC.options.meters[key] and info) then
@@ -1423,6 +1449,7 @@ function PREC.GatherDemoStatus()
 
 	ret.warnings = {};
 
+	local key, info;
 	for key, info in pairs(PREC.warningdefs) do
 
 		if (PREC.options.warnings[key] and info) then
@@ -1457,8 +1484,9 @@ function PREC.GetWarning(key, info)
 
 	if (def.has_buff) then
 
-		local index = 1;
 		local found_buff = false;
+
+		local index = 1;
 		while UnitBuff("player", index) do
 			local name, _, _, count, _, _, buffExpires, caster = UnitBuff("player", index)
 			if (name == def.has_buff) then
@@ -1597,8 +1625,9 @@ function PREC.GetStatus(ability, prio)
 	-- wait until we have a buff?
 	if (ability.havebuff) then
 
-		local index = 1;
 		local found_buff = false;
+
+		local index = 1;
 		while UnitBuff("player", index) do
 			local name, _, _, count, _, _, buffExpires, caster = UnitBuff("player", index)
 			if (name == ability.havebuff) then
@@ -1892,6 +1921,7 @@ end
 
 function PREC.CopyTable(a)
 	local b = {};
+	local k, v;
 	for k, v in pairs(a) do b[k] = v end
 	return b;
 end
