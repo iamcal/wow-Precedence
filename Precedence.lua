@@ -375,6 +375,7 @@ function PREC.CreateOptionsFrame()
 		local key = 'p'..i;
 
 		local data = PREC.options.priorities[key];
+		if (not data) then data = {}; end
 		local ability = data.which or 'none';
 		local who = data.who or 'any';
 		local bind = data.bind or nil;
@@ -856,8 +857,11 @@ function PREC.RebuildFrame()
 	local i;
 	for i=1,PREC.options.max_prios do
 		local key = 'p'..i;
-		local ability = PREC.abilities[PREC.options.priorities[key].which];
-		if (ability) then
+		local prio = PREC.options.priorities[key];
+		if (not prio) then prio = {}; end
+		local ability = {};
+		if (prio.which) then ability = PREC.abilities[prio.which]; end
+		if (ability.icon) then
 			PREC.rot_btns[key]:SetNormalTexture([[Interface\Icons\]] .. ability.icon);
 		else
 			PREC.rot_btns[key]:SetNormalTexture([[Interface\Icons\ability_hunter_pet_dragonhawk]]);
@@ -873,7 +877,9 @@ function PREC.GetBinds()
 	for i=1,PREC.options.max_prios do
 		local key = 'p'..i;
 		local prio = PREC.options.priorities[key];
+		prio = prio or {};
 		local ability = PREC.abilities[prio.which];
+		ability = ability or {};
 
 		if (ability and prio and prio.bind) then
 
@@ -1269,7 +1275,9 @@ function PREC.GatherStatus()
 	for i=1,PREC.options.max_prios do
 		local key = 'p'..i;
 		local prio = PREC.options.priorities[key];
+		prio = prio or {};
 		local ability = PREC.abilities[prio.which];
+		ability = ability or {};
 
 		local ok = false;
 		local t = 0;
