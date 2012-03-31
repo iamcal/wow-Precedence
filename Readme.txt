@@ -45,3 +45,6 @@ TODO
 * Other trap timers
 * Other stings
 * Fade out when dead
+
+The bind a key, currently:
+/run PREC.options.priorities.p7.bind='ALT-7';
