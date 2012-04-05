@@ -59,12 +59,16 @@ PREC.rotations = {
 			who = "any",
 		},
 		p6 = {
+			which = "arcane_es",
+			bind = "ALT-7",
+			who = "any",
+		},
+		p7 = {
 			which = "cobra",
 			bind = "ALT-6",
 			who = "any",
 			--cmd = "MACRO Steady",
 		},
-		p7 = {},
 		p8 = {},
 		p9 = {},
 		p10 = {},

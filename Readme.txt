@@ -48,3 +48,5 @@ TODO
 
 The bind a key, currently:
 /run PREC.options.priorities.p7.bind='ALT-7';
+
+When switching between presets, update the options dialog (else opening and closing it seems to overwrite stuff?)
