@@ -18,10 +18,9 @@ PREC.default_options.meters = {
 
 PREC.default_options.warnings = {
 	no_pet = true,
-	sad_pet = true,
 	bad_aspect = true,
 	no_hunters_mark = true,
-	bad_weapon = true, -- fishing pole, lance
+	hunter_weapon = true,
 	low_ammo = true,
 	growl_solo = true,
 	growl_party = true,
@@ -252,11 +251,6 @@ PREC.warningdefs = {
 		title = "Missing Pet",
 		icon = [[Interface\Icons\inv_box_petcarrier_01]],
 	},
-	sad_pet = {
-		title = "Sad Pet",
-		icon = [[Interface\PetPaperDollFrame\UI-PetHappiness]],
-		tex_coords = {0.375, 0.5625, 0, 0.359375},
-	},
 	bad_aspect = {
 		title = "Wrong Aspect",
 		icon = [[Interface\Icons\spell_nature_ravenform]],
@@ -272,6 +266,10 @@ PREC.warningdefs = {
 	growl_party = {
 		title = "Growl Enabled In Party",
 		icon = [[Interface\Icons\ability_physical_taunt]],
+	},
+	hunter_weapon = {
+		title = "Non-Ranged Weapon Equipped",
+		icon = [[Interface\Icons\inv_weapon_shortblade_05]],
 	},
 };
 
@@ -459,22 +457,6 @@ function PREC.warningdefs.no_pet.func(info)
 	return info;
 end
 
-function PREC.warningdefs.sad_pet.func(info)
-	return info; -- no more pet happiness
-
-	--local happiness, damagePercentage, loyaltyRate = GetPetHappiness()
-	--if (not happiness) then return info; end -- no pet
-	--if (happiness == 3) then return info; end -- happy
-
-	--info.icon = [[Interface\PetPaperDollFrame\UI-PetHappiness]];
-	--info.show = true;
-
-	--if (happiness == 1) then info.tex_coords = {0.375, 0.5625, 0, 0.359375}; end
-	--if (happiness == 2) then info.tex_coords = {0.1875, 0.375, 0, 0.359375}; end
-
-	--return info;
-end
-
 function PREC.warningdefs.bad_aspect.func(info)
 
 	local bad_icon = nil;
@@ -537,6 +519,25 @@ function PREC.warningdefs.growl_party.func(info)
 	if (autostate and PREC.InGroup()) then
 		info.show = true;
 	end
+end
+
+function PREC.warningdefs.hunter_weapon.func(info)
+
+	local itemId = GetInventoryItemID("player", 16);
+
+	if (not itemId) then return info; end
+
+	local _, _, _, level, _, type, subtype = GetItemInfo(itemId);
+
+	if (level) then
+		if (level < 200) then info.show = true; end
+	end
+
+	if (type == "Weapon" and subtype == "Bows"		) then return info; end
+	if (type == "Weapon" and subtype == "Crossbows"		) then return info; end
+	if (type == "Weapon" and subtype == "Guns"		) then return info; end
+
+	info.show = true;
 end
 
 --
