@@ -820,7 +820,7 @@ function PREC.CreateBindButton(parent, id, x, y, w, value)
 
 	-- see Watcher\Libs\AceGUI-3.0\widgets\AceGUIWidget-Keybinding.lua
 
-	local b = CreateFrame("Button", id, parent, "UIPanelButtonTemplate2");
+	local b = CreateFrame("Button", id, parent, "UIPanelButtonTemplate");
 	b:SetPoint("TOPLEFT", x, 0-y)
 	b:SetWidth(w)
 	b:SetHeight(24)
@@ -1522,10 +1522,10 @@ end
 
 function PREC.InGroup()
 
-	local np = GetNumPartyMembers();
+	local np = GetNumSubgroupMembers();
 	if (np > 0) then return true; end
 
-	local nr = GetNumRaidMembers();
+	local nr = GetNumGroupMembers();
 	if (nr > 0) then return true; end
 
 	return false;
