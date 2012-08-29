@@ -269,7 +269,7 @@ PREC.warningdefs = {
 	},
 	hunter_weapon = {
 		title = "Non-Ranged Weapon Equipped",
-		icon = [[Interface\Icons\inv_weapon_shortblade_05]],
+		icon = [[Interface\Icons\inv_misc_ammo_arrow_04]],
 	},
 };
 
