@@ -37,3 +37,9 @@
  * auto-hide for unsupported classes
  * hide during taxi rides
  * added arcane shot with reserved explosive
+
+1.6
+ * updated for 5.0.4
+ * removed "sad pet" warning (deprecated in 4.2)
+ * moved "bad weapon" warning from 'all' to 'priest'
+ * added "non-ranged weapon" warning for hunters
