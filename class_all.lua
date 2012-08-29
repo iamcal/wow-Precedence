@@ -1,12 +1,5 @@
-PREC.default_options.warnings.bad_weapon = true; -- fishing pole, lance
 PREC.default_options.warnings.kirin_tor_ring = false;
 PREC.default_options.warnings.guild_cloak = false;
-
-PREC.warningdefs.bad_weapon = {
-	title = "Bad Weapon Equipped",
-	icon = [[Interface\Icons\inv_weapon_shortblade_05]],
-	--not_implemented = true,
-};
 
 PREC.warningdefs.kirin_tor_ring = {
 	title = "Kirin Tor Ring Equipped",
@@ -17,30 +10,6 @@ PREC.warningdefs.guild_cloak = {
 	title = "Guild Cloak Equipped",
 	icon = [[Interface\Icons\inv_guild_cloak_alliance_a]],
 };
-
-function PREC.warningdefs.bad_weapon.func(info)
-
-	local itemId = GetInventoryItemID("player", 16);
-
-	if (not itemId) then return info; end
-
-	local _, _, _, level, _, type, subtype = GetItemInfo(itemId);
-
-	if (level) then
-		if (level < 200) then info.show = true; end
-	end
-
-	if (type == "Weapon" and subtype == "Daggers"		) then return info; end
-	if (type == "Weapon" and subtype == "Fist Weapons"	) then return info; end
-	if (type == "Weapon" and subtype == "One-Handed Axes"	) then return info; end
-	if (type == "Weapon" and subtype == "One-Handed Swords"	) then return info; end
-	if (type == "Weapon" and subtype == "Polearms"		) then return info; end
-	if (type == "Weapon" and subtype == "Staves"		) then return info; end
-	if (type == "Weapon" and subtype == "Two-Handed Axes"	) then return info; end
-	if (type == "Weapon" and subtype == "Two-Handed Swords"	) then return info; end
-
-	info.show = true;
-end
 
 function PREC.warningdefs.kirin_tor_ring.func(info)
 

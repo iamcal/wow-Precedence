@@ -16,6 +16,7 @@ PREC.default_options.warnings = {
 	shadowform = true,
 	vampiric_embrace = true,
 	shadow_protection = true,
+	bad_weapon = true, -- fishing pole, lance
 };
 
 PREC.rotations = {
@@ -187,6 +188,11 @@ PREC.warningdefs = {
 		has_buff = "Shadowform",
 		scale = 2,
 	},
+	bad_weapon = {
+		title = "Bad Weapon Equipped",
+		icon = [[Interface\Icons\inv_weapon_shortblade_05]],
+		--not_implemented = true,
+	}
 };
 
 PREC.state.simulate_focus_loss_until = 0;
@@ -317,6 +323,29 @@ end
 --function PREC.warningdefs.no_pet.func(info)
 --end
 
+function PREC.warningdefs.bad_weapon.func(info)
+
+	local itemId = GetInventoryItemID("player", 16);
+
+	if (not itemId) then return info; end
+
+	local _, _, _, level, _, type, subtype = GetItemInfo(itemId);
+
+	if (level) then
+		if (level < 200) then info.show = true; end
+	end
+
+	if (type == "Weapon" and subtype == "Daggers"		) then return info; end
+	if (type == "Weapon" and subtype == "Fist Weapons"	) then return info; end
+	if (type == "Weapon" and subtype == "One-Handed Axes"	) then return info; end
+	if (type == "Weapon" and subtype == "One-Handed Swords"	) then return info; end
+	if (type == "Weapon" and subtype == "Polearms"		) then return info; end
+	if (type == "Weapon" and subtype == "Staves"		) then return info; end
+	if (type == "Weapon" and subtype == "Two-Handed Axes"	) then return info; end
+	if (type == "Weapon" and subtype == "Two-Handed Swords"	) then return info; end
+
+	info.show = true;
+end
 
 --
 -- ################################################## Meters ##################################################
