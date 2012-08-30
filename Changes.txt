@@ -43,3 +43,5 @@
  * removed "sad pet" warning (deprecated in 4.2)
  * moved "bad weapon" warning from 'all' to 'priest'
  * added "non-ranged weapon" warning for hunters
+ * added new hunter survival abilities (dire beast, crows)
+ * added support for iron hawk aspect
