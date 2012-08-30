@@ -478,6 +478,7 @@ function PREC.warningdefs.bad_aspect.func(info)
 		if (name == "Aspect of the Pack"	) then bad_icon = "ability_mount_whitetiger"; end
 		if (name == "Aspect of the Wild"	) then bad_icon = "spell_nature_protectionformnature"; end
 		if (name == "Aspect of the Hawk"	) then found_hawk = true; end
+		if (name == "Aspect of the Iron Hawk"	) then found_hawk = true; end
 		index = index + 1
 	end
 
