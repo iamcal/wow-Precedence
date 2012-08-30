@@ -204,6 +204,14 @@ PREC.abilities = {
 		label = "Arcane Shot (reserve Explosive)",
 		between_es = true,
 	},
+	dire_beast = {
+		icon = "ability_hunter_sickem",
+		spell = "Dire Beast",
+	},
+	crows = {
+		icon = "ability_hunter_murderofcrows",
+		spell = "A Murder of Crows",
+	},
 };
 
 PREC.meterinfo = {
