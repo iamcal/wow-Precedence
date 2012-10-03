@@ -59,6 +59,7 @@ PREC.time_between_checks = 5;
 PREC.default_icon = "INV_Misc_QuestionMark";
 PREC.default_icon_full = [[Interface\Icons\INV_Misc_QuestionMark]];
 PREC.debug_data = false;
+PREC.max_char_level = 90;
 
 
 function PREC.OnLoad()
@@ -1982,12 +1983,12 @@ function PREC.CheckWho(who)
 	local isIn, type = IsInInstance();
 
 	if (who == 'boss') then
-		if ((lvl == -1) or (lvl == 87)) then
+		if ((lvl == -1) or (lvl == PREC.max_char_level + 2)) then
 			return true;
 		end
 	end
 	if (who == 'raidboss') then
-		if (((lvl == -1) or (lvl == 88)) and ((type == 'raid') or (type == 'none'))) then
+		if (((lvl == -1) or (lvl == PREC.max_char_level + 3)) and ((type == 'raid') or (type == 'none'))) then
 			return true;
 		end
 	end
