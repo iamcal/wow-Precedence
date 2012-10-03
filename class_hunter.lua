@@ -31,96 +31,30 @@ PREC.default_options.warnings = {
 PREC.rotations = {
 	sv406 = {
 		name = "SV 4.0.6",
-		p1 = {
-			which = "rapid",
-			bind = "ALT-1",
-			who = "boss",
-		},
-		p2 = {
-			which = "kill",
-			bind = "ALT-2",
-			who = "any",
-		},
-		p3 = {
-			which = "explosive",
-			bind = "ALT-3",
-			who = "any",
-		},
-		p4 = {
-			which = "black",
-			bind = "ALT-4",
-			--label = "Chim",
-			who = "any",
-		},
-		p5 = {
-			which = "serpent",
-			bind = "ALT-5",
-			who = "any",
-		},
-		p6 = {
-			which = "arcane_es",
-			bind = "ALT-7",
-			who = "any",
-		},
-		p7 = {
-			which = "cobra",
-			bind = "ALT-6",
-			who = "any",
-			--cmd = "MACRO Steady",
-		},
-		p8 = {},
-		p9 = {},
+		p1  = { which="rapid",		bind="ALT-1",	who = "boss" },
+		p2  = { which="kill",		bind="ALT-2",	who = "any" },
+		p3  = { which="explosive",	bind="ALT-3",	who = "any" },
+		p4  = { which="black",		bind="ALT-4",	who = "any" }, --label = "Chim",
+		p5  = { which="serpent",	bind="ALT-5",	who = "any" },
+		p6  = { which="arcane_es",	bind="ALT-7",	who = "any" },
+		p7  = { which="cobra",		bind="ALT-6",	who = "any" }, --cmd = "MACRO Steady",
+		p8  = {},
+		p9  = {},
 		p10 = {},
 		p11 = {},
 		p12 = {},
 	},
 	mm406 = {
 		name = "MM 4.0.6",
-		p1 = {
-			which = "serpent",
-			bind = "ALT-1",
-			who = "any",
-		},
-		p2 = {
-			which = "chimerarefresh",
-			bind = "ALT-2",
-			who = "any",
-		},
-		p3 = {
-			which = "aimedmmm",
-			bind = "ALT-3",
-			who = "any",
-		},
-		p4 = {
-			which = "steadynoiss",
-			bind = "ALT-4",
-			who = "any",
-		},
-		p5 = {
-			which = "aimed",
-			who = "any",
-			label = "ALT-3",
-		},
-		p6 = {
-			which = "kill",
-			who = "any",
-			bind = "ALT-5",
-		},
-		p7 = {
-			which = "rapid",
-			who = "boss",
-			bind = "ALT-6",
-		},
-		p8 = {
-			which = "readiness",
-			who = "boss",
-			bind = "ALT-7",
-		},
-		p9 = {
-			which = "steady",
-			label = "ALT-4",
-			who = "any",
-		},
+		p1 = { which="serpent",		bind="ALT-1",	who="any" },
+		p2 = { which="chimerarefresh",	bind="ALT-2",	who="any" },
+		p3 = { which="aimedmmm",	bind="ALT-3",	who="any" },
+		p4 = { which="steadynoiss",	bind="ALT-4",	who="any" },
+		p5 = { which="aimed",		bind="ALT-3",	who="any" },
+		p6 = { which="kill",		bind="ALT-5",	who="any" },
+		p7 = { which="rapid",		bind="ALT-6",	who="boss" },
+		p8 = { which="readiness",	bind="ALT-7",	who="boss" },
+		p9 = { which="steady",		bind="ALT-4",	who="any" },
 		p10 = {},
 		p11 = {},
 		p12 = {},
@@ -139,7 +73,6 @@ PREC.rotations = {
 		p10 = { which="serpent",	bind="ALT-5",	who="any" },
 		p11 = { which="arcane_es",	bind="ALT-7",	who="any" },
 		p12 = { which="cobra",		bind="ALT-6",	who="any" },
-
 	},
 };
 
