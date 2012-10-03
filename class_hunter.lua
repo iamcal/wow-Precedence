@@ -71,6 +71,8 @@ PREC.rotations = {
 		p8 = {},
 		p9 = {},
 		p10 = {},
+		p11 = {},
+		p12 = {},
 	},
 	mm406 = {
 		name = "MM 4.0.6",
@@ -120,6 +122,24 @@ PREC.rotations = {
 			who = "any",
 		},
 		p10 = {},
+		p11 = {},
+		p12 = {},
+	},
+	{
+		name = "SV 5.0.5",
+		p1  = { which="black",		bind="ALT-4",	who="any" },
+		p2  = { which="crows",		bind="7",	who="boss" },
+		p3  = { which="dire_beast",	bind="8",	who="boss" },
+		p4  = { which="stampede",	bind="ALT-8",	who="boss" },
+		p5  = { which="rapid",		bind="ALT-1",	who="boss" },
+		p6  = { which="glaive_toss",	bind="2",	who="any" },
+		p7  = { which="kill",		bind="ALT-2",	who="any" },
+		p8  = { which="explosive",	bind="ALT-3",	who="any" },
+		p9  = { which="readiness",	bind="5",	who="boss" },
+		p10 = { which="serpent",	bind="ALT-5",	who="any" },
+		p11 = { which="arcane_es",	bind="ALT-7",	who="any" },
+		p12 = { which="cobra",		bind="ALT-6",	who="any" },
+
 	},
 };
 
@@ -185,6 +205,7 @@ PREC.abilities = {
 	black = {
 		icon = "spell_shadow_painspike",
 		spell = "Black Arrow",
+		debuff = "Black Arrow",
 	},
 	killcmd = {
 		icon = [[ability_hunter_killcommand]],
@@ -211,7 +232,17 @@ PREC.abilities = {
 	crows = {
 		icon = "ability_hunter_murderofcrows",
 		spell = "A Murder of Crows",
+		debuff = "A Murder of Crows",
 	},
+	stampede = {
+		icon = "ability_hunter_bestialdiscipline",
+		spell = "Stampede",
+	},
+	glaive_toss = {
+		icon = "ability_glaivetoss",
+		spell = "Glaive Toss",
+	},
+	
 };
 
 PREC.meterinfo = {

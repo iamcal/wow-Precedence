@@ -24,7 +24,7 @@ PREC.default_options = {
 	cooldown_size = 20,
 	label_font_size = 10,
 	warning_font_size = 20,
-	max_prios = 11,
+	max_prios = 12,
 	max_mtrs = 10,
 	max_warns = 10,
 
@@ -40,6 +40,7 @@ PREC.default_options = {
 		p9 = {},
 		p10 = {},
 		p11 = {},
+		p12 = {},
 	},
 	meters = {},
 	warnings = {},
