@@ -119,6 +119,7 @@ PREC.abilities = {
 	readiness = {
 		icon = "ability_hunter_readiness",
 		spell = "Readiness",
+		buff = "Rapid Fire",
 	},
 	steady = {
 		icon = "ability_hunter_steadyshot",
