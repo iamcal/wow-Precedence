@@ -350,7 +350,7 @@ function PREC.OnSpellCastSent(...)
 	end
 
 	if (unit == "player" and spell == "Explosive Shot") then
-		PREC.state.no_explosive_until = GetTime() + 2;
+		--PREC.state.no_explosive_until = GetTime() + 2;
 		return;
 	end
 end

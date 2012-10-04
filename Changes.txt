@@ -45,3 +45,8 @@
  * added "non-ranged weapon" warning for hunters
  * added new hunter survival abilities (dire beast, crows)
  * added support for iron hawk aspect
+
+1.7
+ * added a new preset for 5.0.5 SV, including new cooldowns
+ * added glaive toss and stampede
+ * removed delay during L&L - explosive shot can be GCD chained now
