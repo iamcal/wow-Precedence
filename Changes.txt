@@ -50,3 +50,5 @@
  * added a new preset for 5.0.5 SV, including new cooldowns
  * added glaive toss and stampede
  * removed delay during L&L - explosive shot can be GCD chained now
+ * fixed a bug with (raid)boss-only abilities appear as ready when they should be totally hidden
+ * don't allow crows to come up as ready when it's already on the target (bug due to crows not having a timer)

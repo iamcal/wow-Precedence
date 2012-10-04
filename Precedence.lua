@@ -1288,7 +1288,7 @@ function PREC.GatherStatus()
 		if (ability) then
 			ok, t, waitmana = PREC.GetStatus(ability, prio);
 		end
-		if (not (prio.who == "any")) then
+		if ((ok) and (not (prio.who == "any"))) then
 			ok = PREC.CheckWho(prio.who);
 		end
 
@@ -1607,6 +1607,13 @@ function PREC.GetStatus(ability, prio)
 		while UnitDebuff("target", index) do
 			local name, _, _, count, _, _, debuffExpires, caster = UnitDebuff("target", index)
 			if ((name == ability.debuff) and (caster == "player")) then
+
+				-- if the debuff has no duration (like crows) then just 
+				-- disable the ability completely until it clears.
+				if (debuffExpires == 0) then
+					return false, 0, false;
+				end
+
 				local t2 = debuffExpires - GetTime()
 				if (t2 > t) then
 					t = t2;
@@ -1704,6 +1711,7 @@ function PREC.GetStatus(ability, prio)
 				t = temp;
 			end
 		else
+
 			if (PREC.state.steady_shots_accum >= 2) then
 
 				-- about to go into ISS, so take this out of rotation. once the
@@ -1811,6 +1819,15 @@ function PREC.GetStatus(ability, prio)
 	end
 
 	return true, t, waitmana;
+end
+
+function PREC.ListDebuffs()
+		local index = 1
+		while UnitDebuff("target", index) do
+			local name, _, _, count, _, _, debuffExpires, caster = UnitDebuff("target", index)
+			print(name.." by "..caster..", time="..debuffExpires);
+			index = index + 1
+		end
 end
 
 function PREC.TimeToPlayerBuffExpires(match_buff, player_cast)
