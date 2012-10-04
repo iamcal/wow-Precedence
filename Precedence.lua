@@ -1821,15 +1821,6 @@ function PREC.GetStatus(ability, prio)
 	return true, t, waitmana;
 end
 
-function PREC.ListDebuffs()
-		local index = 1
-		while UnitDebuff("target", index) do
-			local name, _, _, count, _, _, debuffExpires, caster = UnitDebuff("target", index)
-			print(name.." by "..caster..", time="..debuffExpires);
-			index = index + 1
-		end
-end
-
 function PREC.TimeToPlayerBuffExpires(match_buff, player_cast)
 
 	--
