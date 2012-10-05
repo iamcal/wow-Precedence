@@ -14,36 +14,19 @@ PREC.default_options.warnings = {
 	fort = true,
 	inner_fire = true,
 	shadowform = true,
-	vampiric_embrace = true,
-	shadow_protection = true,
 	bad_weapon = true, -- fishing pole, lance
 };
 
 PREC.rotations = {
-	sp432 = {
-		name = "Shadow Priest (4.3.2)",
-		p1 = { which="sw_death",	bind="ALT-5",	who="any" },
-		p2 = { which="archangel",	bind="ALT-6",	who="any" },
-		p3 = { which="sw_pain",		bind="ALT-1",	who="any" },
-		p4 = { which="mind_blast_orbs",	bind="",	who="any", label="ALT-2" },
-		p5 = { which="vampiric_touch",	bind="ALT-3",	who="any" },
-		p6 = { which="devouring_plague",bind="ALT-4",	who="any" },
-		p7 = { which="mind_blast",	bind="ALT-2",	who="any" },
-		p8 = { which="shadowfiend",	bind="ALT-7",	who="boss" },
-		p9 = { which="mind_flay",	bind="ALT-8",	who="any" },
-		p10 = {},
-		p11 = {},
-		p12 = {},
-	},
-	demo = {
-		name = "BLANK",
-		p1 = {},
-		p2 = {},
-		p3 = {},
-		p4 = {},
-		p5 = {},
-		p6 = {},
-		p7 = {},
+	sp505 = {
+		name = "Shadow Priest (5.0.5)",
+		p1 = { which="sw_pain",		bind="ALT-1",	who="any" },
+		p2 = { which="vampiric_touch",	bind="ALT-3",	who="any" },
+		p3 = { which="plague_three",	bind="ALT-4",	who="any" },
+		p4 = { which="mind_blast",	bind="ALT-2",	who="any" },
+		p5 = { which="surge_spike",	bind="",	who="any" },
+		p6 = { which="sw_death",	bind="ALT-5",	who="any" },
+		p7 = { which="mind_flay",	bind="ALT-8",	who="any" },
 		p8 = {},
 		p9 = {},
 		p10 = {},
@@ -52,7 +35,7 @@ PREC.rotations = {
 	},
 };
 
-PREC.default_options.priorities = PREC.rotations.sp432;
+PREC.default_options.priorities = PREC.rotations.sp505;
 
 PREC.abilities = {
 	sw_pain = {
@@ -64,12 +47,6 @@ PREC.abilities = {
 		icon = "spell_shadow_unholyfrenzy",
 		spell = "Mind Blast",
 	},
-	mind_blast_orbs = {
-		icon = "spell_shadow_unholyfrenzy",
-		spell = "Mind Blast",
-		havebuff = "Shadow Orb",
-		label = "Mind Blast (w/ Orbs)",
-	},
 	vampiric_touch = {
 		icon = "spell_holy_stoicism",
 		spell = "Vampiric Touch",
@@ -78,7 +55,6 @@ PREC.abilities = {
 	devouring_plague = {
 		icon = "spell_shadow_devouringplague",
 		spell = "Devouring Plague",
-		debuff = "Devouring Plague",
 	},
 	sw_death = {
 		icon = "spell_shadow_demonicfortitude",
@@ -106,6 +82,16 @@ PREC.abilities = {
 		icon = "spell_shadow_siphonmana",
 		spell = "Mind Flay",
 	},
+	plague_three = {
+		icon = "spell_shadow_devouringplague",
+		spell = "Devouring Plague",
+		label = "Devouring Plague (w/ 3 Orbs)",
+	},
+	surge_spike = {
+		icon = "spell_priest_mindspike",
+		spell = "Mind Spike",
+		buff = "Surge of Darkness",
+	},
 };
 
 PREC.meterinfo = {
@@ -132,20 +118,10 @@ PREC.warningdefs = {
 		icon = [[Interface\Icons\spell_holy_wordfortitude]],
 		has_buff = "Power Word: Fortitude",
 	},
-	shadow_protection = {
-		title = "Buffed: Shadow Protection",
-		icon = [[Interface\Icons\spell_holy_prayerofshadowprotection]],
-		has_buff = "Shadow Protection",
-	},
 	inner_fire = {
 		title = "Buffed: Inner Fire",
 		icon = [[Interface\Icons\spell_holy_innerfire]],
 		has_buff = "Inner Fire",
-	},
-	vampiric_embrace = {
-		title = "Buffed: Vampiric Embrace",
-		icon = [[Interface\Icons\spell_shadow_unsummonbuilding]],
-		has_buff = "Vampiric Embrace",
 	},
 	shadowform = {
 		title = "Shadowform",
@@ -324,28 +300,6 @@ end
 -- ################################################## Shots ##################################################
 --
 
-function PREC.abilities.mind_blast.func(t, now, waitmana)
-
-	local _, _, _, _, _, _, castTime = GetSpellInfo('Mind Blast');
-	local _,duration,_ = GetSpellCooldown('Mind Blast');
-
-	if (duration <= castTime) then
-		duration = 6.5
-	end
-
-	local delay_until = PREC.state.delay_spell_until['Mind Blast'];
-	if (delay_until and delay_until + 1 > now) then
-		t = (delay_until + duration) - now;
-	end
-
-	return {
-		t = t,
-		waitmana = waitmana,
-	};
-end
-
-PREC.abilities.mind_blast_orbs.func = PREC.abilities.mind_blast.func;
-
 function PREC.abilities.vampiric_touch.func(t, now, waitmana)
 
 	-- if we're within cast time + 1s of casting, just hide this.
@@ -398,6 +352,21 @@ function PREC.abilities.sw_death.func(t, now, waitmana)
 
 	-- over 25%?
 	if (current / max > 0.25) then
+		return {
+			hide_now = true,
+		};
+	end
+
+	return {
+		t = t,
+		waitmana = waitmana,
+	};
+end
+
+function PREC.abilities.plague_three.func(t, now, waitmana)
+
+	local orbs = UnitPower("player", 13);
+	if (orbs < 3) then
 		return {
 			hide_now = true,
 		};

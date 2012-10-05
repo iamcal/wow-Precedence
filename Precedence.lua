@@ -376,7 +376,10 @@ function PREC.CreateOptionsFrame()
 	for i=1,PREC.options.max_prios do
 		local key = 'p'..i;
 
-		local data = PREC.options.priorities[key];
+		local data = {};
+		if (PREC.options.priorities[key]) then
+			data = PREC.options.priorities[key];
+		end
 		if (not data) then data = {}; end
 		local ability = data.which or 'none';
 		local who = data.who or 'any';

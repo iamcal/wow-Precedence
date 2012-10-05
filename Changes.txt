@@ -53,3 +53,5 @@
  * fixed a bug with (raid)boss-only abilities appear as ready when they should be totally hidden
  * don't allow crows to come up as ready when it's already on the target (bug due to crows not having a timer)
  * don't allow readiness during rapid fire buff (bad time to waste a GCD)
+ * new shadow priest rotation (with new orbs and mind spike buff)
+ * removed vampiric embrace and shadow protection warnings
