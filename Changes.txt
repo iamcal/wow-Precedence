@@ -55,3 +55,4 @@
  * don't allow readiness during rapid fire buff (bad time to waste a GCD)
  * new shadow priest rotation (with new orbs and mind spike buff)
  * removed vampiric embrace and shadow protection warnings
+ * fixed 'bad weapon' warning for shadow priests to detect correct weapons

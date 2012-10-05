@@ -277,13 +277,9 @@ function PREC.warningdefs.bad_weapon.func(info)
 	end
 
 	if (type == "Weapon" and subtype == "Daggers"		) then return info; end
-	if (type == "Weapon" and subtype == "Fist Weapons"	) then return info; end
-	if (type == "Weapon" and subtype == "One-Handed Axes"	) then return info; end
-	if (type == "Weapon" and subtype == "One-Handed Swords"	) then return info; end
-	if (type == "Weapon" and subtype == "Polearms"		) then return info; end
+	if (type == "Weapon" and subtype == "One-Handed Maces"	) then return info; end
 	if (type == "Weapon" and subtype == "Staves"		) then return info; end
-	if (type == "Weapon" and subtype == "Two-Handed Axes"	) then return info; end
-	if (type == "Weapon" and subtype == "Two-Handed Swords"	) then return info; end
+	if (type == "Weapon" and subtype == "Wands"		) then return info; end
 
 	info.show = true;
 end
