@@ -93,7 +93,7 @@ PREC.abilities = {
 	surge_spike = {
 		icon = "spell_priest_mindspike",
 		spell = "Mind Spike",
-		buff = "Surge of Darkness",
+		havebuff = "Surge of Darkness",
 	},
 };
 
