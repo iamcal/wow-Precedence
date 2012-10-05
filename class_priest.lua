@@ -22,54 +22,18 @@ PREC.default_options.warnings = {
 PREC.rotations = {
 	sp432 = {
 		name = "Shadow Priest (4.3.2)",
-		p1 = {
-			which = "sw_death",
-			bind = "ALT-5",
-			who = "any",
-		},
-		p2 = {
-			which = "archangel",
-			bind = "ALT-6",
-			who = "any",
-		},
-		p3 = {
-			which = "sw_pain",
-			bind = "ALT-1",
-			who = "any",
-		},
-		p4 = {
-			which = "mind_blast_orbs",
-			bind = "",
-			who = "any",
-			label = "ALT-2",
-		},
-		p5 = {
-			which = "vampiric_touch",
-			bind = "ALT-3",
-			who = "any",
-		},
-		p6 = {
-			which = "devouring_plague",
-			bind = "ALT-4",
-			who = "any",
-		},
-		p7 = {
-			which = "mind_blast",
-			bind = "ALT-2",
-			who = "any",
-		},
-		p8 = {
-			which = "shadowfiend",
-			bind = "ALT-7",
-			who = "boss",
-		},
-		p9 = {
-			which = "mind_flay",
-			bind = "ALT-8",
-			who = "any",
-		},
+		p1 = { which="sw_death",	bind="ALT-5",	who="any" },
+		p2 = { which="archangel",	bind="ALT-6",	who="any" },
+		p3 = { which="sw_pain",		bind="ALT-1",	who="any" },
+		p4 = { which="mind_blast_orbs",	bind="",	who="any", label="ALT-2" },
+		p5 = { which="vampiric_touch",	bind="ALT-3",	who="any" },
+		p6 = { which="devouring_plague",bind="ALT-4",	who="any" },
+		p7 = { which="mind_blast",	bind="ALT-2",	who="any" },
+		p8 = { which="shadowfiend",	bind="ALT-7",	who="boss" },
+		p9 = { which="mind_flay",	bind="ALT-8",	who="any" },
 		p10 = {},
 		p11 = {},
+		p12 = {},
 	},
 	demo = {
 		name = "BLANK",
@@ -84,6 +48,7 @@ PREC.rotations = {
 		p9 = {},
 		p10 = {},
 		p11 = {},
+		p12 = {},
 	},
 };
 
