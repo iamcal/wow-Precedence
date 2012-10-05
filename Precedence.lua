@@ -1685,6 +1685,23 @@ function PREC.GetStatus(ability, prio)
 
 
 	--
+	-- delay spell until
+	--
+
+	if (ability.delay_recast_for) then
+
+		-- if we're within cast time + X seconds of casting, just hide this.
+		-- we'll assume it will apply to target and so does not
+		-- need casting for a while.
+
+		local delay_until = PREC.state.delay_spell_until[ability.spell];
+		if (delay_until and delay_until + ability.delay_recast_for > now) then
+			return false, 0, false;
+		end
+	end
+
+
+	--
 	-- custom handlers
 	--
 

@@ -20,13 +20,13 @@ PREC.default_options.warnings = {
 PREC.rotations = {
 	sp505 = {
 		name = "Shadow Priest (5.0.5)",
-		p1 = { which="sw_pain",		bind="ALT-1",	who="any" },
-		p2 = { which="vampiric_touch",	bind="ALT-3",	who="any" },
-		p3 = { which="plague_three",	bind="ALT-4",	who="any" },
-		p4 = { which="mind_blast",	bind="ALT-2",	who="any" },
-		p5 = { which="surge_spike",	bind="",	who="any" },
-		p6 = { which="sw_death",	bind="ALT-5",	who="any" },
-		p7 = { which="mind_flay",	bind="ALT-8",	who="any" },
+		p1 = { which="sw_pain",		bind="",	who="any", label="1" },
+		p2 = { which="vampiric_touch",	bind="",	who="any", label="3" },
+		p3 = { which="plague_three",	bind="",	who="any", label="4" },
+		p4 = { which="mind_blast",	bind="",	who="any", label="2" },
+		p5 = { which="surge_spike",	bind="",	who="any", label="6" },
+		p6 = { which="sw_death",	bind="",	who="any", label="5" },
+		p7 = { which="mind_flay",	bind="",	who="any", label="8" },
 		p8 = {},
 		p9 = {},
 		p10 = {},
@@ -42,15 +42,18 @@ PREC.abilities = {
 		icon = "spell_shadow_shadowwordpain",
 		spell = "Shadow Word: Pain",
 		debuff = "Shadow Word: Pain",
+		delay_recast_for = 1,
 	},
 	mind_blast = {
 		icon = "spell_shadow_unholyfrenzy",
 		spell = "Mind Blast",
+		delay_recast_for = 4,
 	},
 	vampiric_touch = {
 		icon = "spell_holy_stoicism",
 		spell = "Vampiric Touch",
 		debuff = "Vampiric Touch",
+		delay_recast_for = 1,
 	},
 	devouring_plague = {
 		icon = "spell_shadow_devouringplague",
@@ -295,44 +298,6 @@ end
 --
 -- ################################################## Shots ##################################################
 --
-
-function PREC.abilities.vampiric_touch.func(t, now, waitmana)
-
-	-- if we're within cast time + 1s of casting, just hide this.
-	-- we'll assume it will apply to target and so does not
-	-- need casting for a while.
-
-	local delay_until = PREC.state.delay_spell_until['Vampiric Touch'];
-	if (delay_until and delay_until + 1 > now) then
-		return {
-			hide_now = true,
-		};
-	end
-
-	return {
-		t = t,
-		waitmana = waitmana,
-	};
-end
-
-function PREC.abilities.sw_pain.func(t, now, waitmana)
-
-	-- if we're within 1s of casting, just hide this.
-	-- we'll assume it will apply to target and so does not
-	-- need casting for a while.
-
-	local delay_until = PREC.state.delay_spell_until['Shadow Word: Pain'];
-	if (delay_until and delay_until + 1 > now) then
-		return {
-			hide_now = true,
-		};
-	end
-
-	return {
-		t = t,
-		waitmana = waitmana,
-	};
-end
 
 function PREC.abilities.sw_death.func(t, now, waitmana)
 

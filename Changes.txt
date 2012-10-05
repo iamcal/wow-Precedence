@@ -56,3 +56,5 @@
  * new shadow priest rotation (with new orbs and mind spike buff)
  * removed vampiric embrace and shadow protection warnings
  * fixed 'bad weapon' warning for shadow priests to detect correct weapons
+ * enforced recast delay no longer requires per-ability custom handlers
+ * added enforced recast delay to mind spike
