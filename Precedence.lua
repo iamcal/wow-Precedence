@@ -21,6 +21,8 @@ PREC.default_options = {
 
 	time_limit = 10,
 	font_size = 8,
+	font_size_short = 20,
+
 	cooldown_size = 20,
 	label_font_size = 10,
 	warning_font_size = 20,
@@ -1046,7 +1048,12 @@ function PREC.UpdateFrame()
 				PREC.rot_btns[key]:SetHeight(40);
 				PREC.rot_btns[key]:SetPoint("TOPLEFT", x, y);
 
-				PREC.SetFontSize(PREC.rot_btns[key].label, PREC.options.font_size);
+				if (string.len(info.label) < 3) then
+					PREC.SetFontSize(PREC.rot_btns[key].label, PREC.options.font_size_short);
+				else
+					PREC.SetFontSize(PREC.rot_btns[key].label, PREC.options.font_size);
+				end
+
 				PREC.rot_btns[key].label:SetText(info.label);
 			end
 		

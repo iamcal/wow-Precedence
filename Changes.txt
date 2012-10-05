@@ -58,3 +58,4 @@
  * fixed 'bad weapon' warning for shadow priests to detect correct weapons
  * enforced recast delay no longer requires per-ability custom handlers
  * added enforced recast delay to mind spike
+ * show bigger ability key labels for short labels/binds
