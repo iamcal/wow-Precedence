@@ -11,8 +11,7 @@ Shot/spell priorities:
 * Use macros to trigger shots
 * Time shots to buffs and debuffs
 * Long cooldowns displayed in a useful way
-* Delay all abilities during long casts & casting
-* Leave 2s between Explosive Shot casts during Lock & Load
+* Delay all abilities during long casts & channeling
 
 Warnings:
 * Missing pet
@@ -20,7 +19,7 @@ Warnings:
 * Missing hunter's mark
 * Wrong weapon equipped
 * Growl unexpectedly on/off
-* Kirin Tor (teleport) ring equipped
+* Teleport ring/cloaks equipped
 
 Timers:
 * Misdirect applied, active & on cooldown (with target)
@@ -35,18 +34,16 @@ TODO
 -----------------------------------------------------------------------------
 * config for priorities
 
-* No readiness during rapid fire - make configable
 * Extra wait times for high priority shots
 * Rules for serpent sting (don't use near end)
 * Pet attacking?
-* Not enough mana for certain shots
-* deactivate when dead!
-* warn when wearing pvp gear
+* Deactivate/Fade out when dead
+* Warn when wearing pvp gear
 * Other trap timers
 * Other stings
-* Fade out when dead
 
-The bind a key, currently:
-/run PREC.options.priorities.p7.bind='ALT-7';
+To bind a key, currently:
+
+    /run PREC.options.priorities.p7.bind='ALT-7';
 
 When switching between presets, update the options dialog (else opening and closing it seems to overwrite stuff?)
