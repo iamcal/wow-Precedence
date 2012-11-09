@@ -561,3 +561,22 @@ function PREC.meterinfo.trap_triggered.func(info)
 		info.multi[guid] = info2;
 	end
 end
+
+--
+-- ################################################## Shots ##################################################
+--
+
+function PREC.abilities.explosive.func(t, now, waitmana)
+
+	if (PREC.state.no_explosive_until > now) then
+		local ex_min = PREC.state.no_explosive_until - now;
+		if (t < ex_min) then
+			t = ex_min;
+		end		
+	end
+
+	return {
+		t = t,
+		waitmana = waitmana,
+	};
+end

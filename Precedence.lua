@@ -1598,17 +1598,6 @@ function PREC.GetStatus(ability, prio)
 				t = focus_test;
 			end
 		end
-
-
-		-- delay explosive during L&L procs
-		if (ability.spell == "Explosive Shot") then
-			if (PREC.state.no_explosive_until > now) then
-				local ex_min = PREC.state.no_explosive_until - now;
-				if (t < ex_min) then
-					t = ex_min;
-				end		
-			end
-		end
 	end
 
 	if (ability.debuff) then
