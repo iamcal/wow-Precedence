@@ -253,6 +253,7 @@ PREC.state = {
 	trapped_mobs = {},
 	no_shots_until = 0,
 	no_explosive_until = 0,
+	no_dire_beast_until = 0,
 	simulate_focus_loss = 0,
 	simulate_focus_loss_until = 0,
 	steady_shots_accum = 0,
@@ -352,6 +353,11 @@ function PREC.OnSpellCastSent(...)
 
 	if (unit == "player" and spell == "Explosive Shot") then
 		--PREC.state.no_explosive_until = GetTime() + 2;
+		return;
+	end
+
+	if (unit == "player" and spell == "Dire Beast") then
+		PREC.state.no_dire_beast_until = GetTime() + 15;
 		return;
 	end
 end
@@ -580,3 +586,19 @@ function PREC.abilities.explosive.func(t, now, waitmana)
 		waitmana = waitmana,
 	};
 end
+
+function PREC.abilities.dire_beast.func(t, now, waitmana)
+
+	if (PREC.state.no_dire_beast_until > now) then
+		local db_min = PREC.state.no_dire_beast_until - now;
+		if (t < db_min) then
+			t = db_min;
+		end		
+	end
+
+	return {
+		t = t,
+		waitmana = waitmana,
+	};
+end
+
