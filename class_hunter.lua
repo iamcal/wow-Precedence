@@ -63,7 +63,7 @@ PREC.rotations = {
 		name = "SV 5.0.5",
 		p1  = { which="black",		bind="ALT-4",	who="any" },
 		p2  = { which="crows",		bind="",	who="boss",	label="7" },
-		p3  = { which="dire_beast",	bind="",	who="boss",	label="8" },
+		p3  = { which="dire_beast",	bind="",	who="any",	label="8" },
 		p4  = { which="stampede",	bind="ALT-8",	who="boss" },
 		p5  = { which="rapid",		bind="ALT-1",	who="boss" },
 		p6  = { which="glaive_toss",	bind="",	who="any",	label="2" },
