@@ -71,7 +71,7 @@ PREC.rotations = {
 		p8  = { which="explosive",	bind="ALT-3",	who="any" },
 		p9  = { which="readiness",	bind="",	who="boss",	label="5" },
 		p10 = { which="serpent",	bind="ALT-5",	who="any" },
-		p11 = { which="arcane_es",	bind="ALT-7",	who="any" },
+		p11 = { which="arcane_sv",	bind="ALT-7",	who="any" },
 		p12 = { which="cobra",		bind="ALT-6",	who="any" },
 	},
 };
@@ -158,6 +158,11 @@ PREC.abilities = {
 		spell = "Arcane Shot",
 		label = "Arcane Shot (reserve Explosive)",
 		between_es = true,
+	},
+	arcane_sv = {
+		icon = "ability_impalingbolt",
+		spell = "Arcane Shot",
+		label = "Arcane Shot (reserve SV)",
 	},
 	dire_beast = {
 		icon = "ability_hunter_sickem",
@@ -594,6 +599,107 @@ function PREC.abilities.dire_beast.func(t, now, waitmana)
 		if (t < db_min) then
 			t = db_min;
 		end		
+	end
+
+	return {
+		t = t,
+		waitmana = waitmana,
+	};
+end
+
+function PREC.abilities.arcane_sv.func(t, now, waitmana)
+
+	-- perform this check for every ability listed below that
+	-- is coming up and is higher in the priority list than
+	-- this ability (easy because PREC.current_shots is built
+	-- from highest priority upwards)
+	--
+	-- queue up arcane shot only if:
+	-- 	current focus
+	-- 	+ cost of arcane shot
+	-- 	+ regen until high-priority-shot cooldown
+	-- is more than:
+	-- 	high-priority-shot cost
+
+
+	--
+	-- calculate arcane shot cost/cooldown
+	--
+
+	local _, _, _, shot_cost = GetSpellInfo("Arcane Shot");
+	local shot_start, shot_dur = GetSpellCooldown("Arcane Shot");
+	local regen_base, regen_cast = GetPowerRegen();
+
+	local now = GetTime();
+	local cur_focus = UnitPower("player");
+
+	local shot_cooldown = 0;
+	if (shot_start > 0 and shot_dur > 0) then
+		shot_cooldown = shot_start + shot_dur - now;
+	end
+
+
+	--
+	-- create a map of shots ahead of this one in the rotation
+	-- (if they are marked as .ok, which filters out boss shots, etc)
+	--
+
+	local higher_shots = {};
+	local i;
+	local v;
+
+	for i,v in pairs(PREC.current_shots) do
+
+		local ability = PREC.abilities[i];
+		if (ability and v.ok) then
+			higher_shots[ability.spell] = v;
+		end
+	end
+
+
+	--
+	-- perform wait/focus check for each high-priority shot
+	--
+
+	local reserve_shots = {
+		"Explosive Shot",
+		"Black Arrow",
+		"A Murder of Crows",
+		"Glaive Toss",
+		"Serpent Sting"
+	};
+
+	local i;
+	local v;
+	for i,v in ipairs(reserve_shots) do
+
+		if (higher_shots[v]) then
+
+			local _, _, _, ss_cost = GetSpellInfo(v);
+			local ss_cooldown = higher_shots[v].t;
+
+			-- if shot is going to happen within the next GCD, 
+			-- or within GCD after this shot, ignore this shot
+			if (ss_cooldown - shot_cooldown <= 1.5) then
+
+				--PREC.debug_data = v.." is soon";
+				return {
+					hide_now = true,
+				};
+			end
+
+			local total_focus = cur_focus + (ss_cooldown * regen_cast) - shot_cost;
+
+			--PREC.debug_data = string.format("%f, %f", regen_cast, total_focus);
+
+			if (total_focus < ss_cost) then
+
+				--PREC.debug_data = v.." needs focus";
+				return {
+					hide_now = true,
+				};
+			end
+		end
 	end
 
 	return {

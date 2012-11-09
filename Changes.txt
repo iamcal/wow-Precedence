@@ -61,3 +61,4 @@
  * show bigger ability key labels for short labels/binds
  * don't let Dire Beast overlap after Readiness (probably good, hard to spend focus quick enough with 2 up)
  * include Dire Beast for normal mobs in in SV 5.0.5 rotation
+ * for SV, allow Arcane Shot to wait for several higher-priority shots, not just Explosive
