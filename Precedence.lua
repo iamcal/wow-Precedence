@@ -63,6 +63,7 @@ PREC.default_icon = "INV_Misc_QuestionMark";
 PREC.default_icon_full = [[Interface\Icons\INV_Misc_QuestionMark]];
 PREC.debug_data = false;
 PREC.max_char_level = 90;
+PREC.current_shots = {};
 
 
 function PREC.OnLoad()
@@ -1283,6 +1284,8 @@ function PREC.GatherStatus()
 	ret.active_shots = 0;
 	ret.priorities = {};
 
+	PREC.current_shots = {};
+
 	local i;
 	for i=1,PREC.options.max_prios do
 		local key = 'p'..i;
@@ -1310,13 +1313,15 @@ function PREC.GatherStatus()
 		if (prio.bind) then label = prio.bind; end
 		if (prio.label) then label = prio.label; end
 
-		table.insert(ret.priorities, {
+		PREC.current_shots[prio.which] = {
 			key = key,
 			ok = ok,
 			waitmana = waitmana,
 			t = t,
 			label = label,
-		});
+		};
+
+		table.insert(ret.priorities, PREC.current_shots[prio.which]);
 	end
 
 
