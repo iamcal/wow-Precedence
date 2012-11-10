@@ -1313,7 +1313,7 @@ function PREC.GatherStatus()
 		if (prio.bind) then label = prio.bind; end
 		if (prio.label) then label = prio.label; end
 
-		PREC.current_shots[prio.which] = {
+		local info = {
 			key = key,
 			ok = ok,
 			waitmana = waitmana,
@@ -1321,7 +1321,11 @@ function PREC.GatherStatus()
 			label = label,
 		};
 
-		table.insert(ret.priorities, PREC.current_shots[prio.which]);
+		if (prio.which) then
+			PREC.current_shots[prio.which] = info;
+		end
+
+		table.insert(ret.priorities, info);
 	end
 
 
