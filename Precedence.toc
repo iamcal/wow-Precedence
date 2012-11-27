@@ -1,8 +1,8 @@
-## Interface: 50001
+## Interface: 50100
 ## Title : Precedence
 ## Notes: Hunter dashboard: priorities, warnings & timers
 ## Author: Cal Henderson (Bees on Hyjal-US)
-## Version: 1.6
+## Version: 1.7
 ## Dependencies: 
 ## SavedVariablesPerCharacter: PrecedenceDB
 
