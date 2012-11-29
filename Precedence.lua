@@ -869,6 +869,7 @@ function PREC.RebuildFrame()
 		if (not prio) then prio = {}; end
 		local ability = {};
 		if (prio.which) then ability = PREC.abilities[prio.which]; end
+		if (not ability) then ability = {}; end
 		if (ability.icon) then
 			PREC.rot_btns[key]:SetNormalTexture([[Interface\Icons\]] .. ability.icon);
 		else
