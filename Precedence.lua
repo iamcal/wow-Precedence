@@ -731,6 +731,14 @@ end
 
 function PREC.CreateDropDown(parent, id, x, y, w, options, selected)
 
+	-- disabled because it causes terrible taint issues.
+	-- UIDropDownMenu_* is full of bad code :(
+
+	return {};
+end
+
+function PREC.CreateDropDown_OLD(parent, id, x, y, w, options, selected)
+
 	local menu = CreateFrame("Frame", id, parent, "UIDropDownMenuTemplate");
 	menu.type = CONTROLTYPE_DROPDOWN;
 
