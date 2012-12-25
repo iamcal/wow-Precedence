@@ -33,6 +33,21 @@ PREC.rotations = {
 		p11 = {},
 		p12 = {},
 	},
+	sp510 = {
+		name = "Shadow Priest (5.1.0)",
+		p1 = { which="plague_three",	bind="",	who="any", label="4" },
+		p2 = { which="mind_blast",	bind="",	who="any", label="2" },
+		p3 = { which="sw_death",	bind="",	who="any", label="5" },
+		p4 = { which="halo",		bind="",	who="any", label="9" },
+		p5 = { which="surge_spike",	bind="",	who="any", label="6" },
+		p6 = { which="vampiric_touch",	bind="",	who="any", label="3" },
+		p7 = { which="sw_pain",		bind="",	who="any", label="1" },
+		p8 = { which="mind_flay",	bind="",	who="any", label="8" },
+		p9 = {},
+		p10 = {},
+		p11 = {},
+		p12 = {},
+	},
 };
 
 PREC.default_options.priorities = PREC.rotations.sp505;
@@ -94,6 +109,10 @@ PREC.abilities = {
 		icon = "spell_priest_mindspike",
 		spell = "Mind Spike",
 		havebuff = "Surge of Darkness",
+	},
+	halo = {
+		icon = "ability_priest_halo_shadow",
+		spell = "Halo",
 	},
 };
 

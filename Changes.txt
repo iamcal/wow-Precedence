@@ -64,3 +64,4 @@
  * for SV, allow Arcane Shot to wait for several higher-priority shots, not just Explosive
  * upgrade to interface 50100
  * fix for older saved vars - don't die if we have a prio set to an ability that does not exist
+ * updated priest rotation for 5.1
