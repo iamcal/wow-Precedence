@@ -999,6 +999,11 @@ function PREC.UpdateFrame()
 		return;
 	end
 
+	if (C_PetBattles.IsInBattle()) then
+		PREC.UIFrame:Hide();
+		return;
+	end
+
 	PREC.UIFrame:Show();
 
 
