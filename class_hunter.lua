@@ -449,7 +449,6 @@ end
 function PREC.warningdefs.bad_aspect.func(info)
 
 	local bad_icon = nil;
-	local found_hawk = false;
 
 	local index = 1
 	while UnitBuff("player", index) do
@@ -457,9 +456,6 @@ function PREC.warningdefs.bad_aspect.func(info)
 		if (name == "Aspect of the Cheetah"	) then bad_icon = "ability_mount_jungletiger"; end
 		if (name == "Aspect of the Fox"		) then bad_icon = "ability_hunter_aspectofthefox"; end
 		if (name == "Aspect of the Pack"	) then bad_icon = "ability_mount_whitetiger"; end
-		if (name == "Aspect of the Wild"	) then bad_icon = "spell_nature_protectionformnature"; end
-		if (name == "Aspect of the Hawk"	) then found_hawk = true; end
-		if (name == "Aspect of the Iron Hawk"	) then found_hawk = true; end
 		index = index + 1
 	end
 
@@ -467,11 +463,6 @@ function PREC.warningdefs.bad_aspect.func(info)
 		info.show = true;
 		info.icon = [[Interface\Icons\]] .. bad_icon;
 		info.scale = 1;
-	else
-		if (not found_hawk) then
-			info.show = true;
-			info.icon = [[Interface\Icons\spell_nature_ravenform]];
-		end
 	end
 	return info;
 end
