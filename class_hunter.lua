@@ -18,7 +18,6 @@ PREC.default_options.meters = {
 PREC.default_options.warnings = {
 	no_pet = true,
 	bad_aspect = true,
-	no_hunters_mark = true,
 	hunter_weapon = true,
 	low_ammo = true,
 	growl_solo = true,
@@ -242,10 +241,6 @@ PREC.warningdefs = {
 	bad_aspect = {
 		title = "Wrong Aspect",
 		icon = [[Interface\Icons\spell_nature_ravenform]],
-	},
-	no_hunters_mark = {
-		title = "Missing Hunter's Mark",
-		icon = [[Interface\Icons\ability_hunter_snipershot]],
 	},
 	growl_solo = {
 		title = "Growl Disabled When Solo",
@@ -479,17 +474,6 @@ function PREC.warningdefs.bad_aspect.func(info)
 		end
 	end
 	return info;
-end
-
-function PREC.warningdefs.no_hunters_mark.func(info)
-
-	if (PREC.HasViableTarget()) then
-
-		local temp = PREC.CheckBuff(UnitDebuff, "Hunter's Mark", "target", false);
-		if (temp.t == 0) then
-			info.show = true;
-		end
-	end
 end
 
 function PREC.warningdefs.growl_solo.func(info)
