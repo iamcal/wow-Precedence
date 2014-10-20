@@ -2182,6 +2182,8 @@ function PREC.SlashCommand(msg, editbox)
 		PREC.ResetPos();
 	elseif (msg == 'test') then
 		-- put stuff here
+	elseif (msg == 'reset') then
+		PREC.options = PREC.default_options;
 	else
 		print(L.CMD_HELP);
 		print("   /prec show - "..L.CMD_HELP_SHOW);
