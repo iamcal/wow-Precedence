@@ -1,4 +1,4 @@
-## Interface: 50300
+## Interface: 60000
 ## Title : Precedence
 ## Notes: Hunter dashboard: priorities, warnings & timers
 ## Author: Cal Henderson (Bees on Hyjal-US)
