@@ -9,7 +9,6 @@ PREC.default_options.mana_low_warning = 10;
 PREC.default_options.meters = {
 	md_applied = true,
 	md_cooldown = true,
-	hunters_mark = true,
 	serpent_sting = false,
 	mend_pet = true,
 	trap_set = true,
@@ -67,6 +66,22 @@ PREC.rotations = {
 		p4  = { which="stampede",	bind="ALT-8",	who="boss" },
 		p5  = { which="rapid",		bind="ALT-1",	who="boss" },
 		p6  = { which="glaive_toss",	bind="",	who="any",	label="2" },
+		p7  = { which="kill",		bind="ALT-2",	who="any" },
+		p8  = { which="explosive",	bind="ALT-3",	who="any" },
+		p9  = { which="readiness",	bind="",	who="boss",	label="5" },
+		p10 = { which="serpent",	bind="ALT-5",	who="any" },
+		p11 = { which="arcane_sv",	bind="ALT-7",	who="any" },
+		p12 = { which="cobra",		bind="ALT-6",	who="any" },
+	},
+
+	{
+		name = "SV 5.0.5 SPORES",
+		p1  = { which="black",		bind="ALT-4",	who="any" },
+		p2  = { which="crows",		bind="",	who="boss",	label="7" },
+		p3  = { which="dire_beast",	bind="",	who="any",	label="8" },
+		p4  = { which="stampede",	bind="ALT-8",	who="boss" },
+		p5  = { which="rapid",		bind="ALT-1",	who="boss" },
+		p6  = { },
 		p7  = { which="kill",		bind="ALT-2",	who="any" },
 		p8  = { which="explosive",	bind="ALT-3",	who="any" },
 		p9  = { which="readiness",	bind="",	who="boss",	label="5" },
@@ -198,11 +213,6 @@ PREC.meterinfo = {
 		spell = "Misdirection",
 		color = "red",
 		label = "Cooldown",
-	},
-	hunters_mark = {
-		icon = "ability_hunter_snipershot",
-		debuff = "Hunter's Mark",
-		color = "green",
 	},
 	serpent_sting = {
 		icon = "ability_hunter_quickshot",
