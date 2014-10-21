@@ -54,6 +54,7 @@ PREC.meterinfo = {};
 PREC.warningdefs = {};
 PREC.state = {};
 PREC.event_handlers = {};
+PREC.spell_costs = {};
 
 PREC.everything_ready = false;
 PREC.waiting_for_bind = false;
@@ -1761,50 +1762,6 @@ function PREC.GetStatus(ability, prio)
 		end
 	end
 
-	if (ability.between_es) then
-
-		-- ok if:
-		-- 	current focus
-		-- 	+ cost of shot to weave
-		-- 	+ regen until explosive off cooldown
-		-- is more than:
-		-- 	explosive cost
-
-		local _, _, _, shot_cost = GetSpellInfo(ability.spell);
-		local _, _, _, es_cost = GetSpellInfo("Explosive Shot");
-		local shot_start, shot_dur = GetSpellCooldown(ability.spell);
-		local es_start, es_dur = GetSpellCooldown("Explosive Shot");
-		local regen_base, regen_cast = GetPowerRegen();
-
-		local now = GetTime();
-
-		local shot_cooldown = 0;
-		if (shot_start > 0 and shot_dur > 0) then
-			shot_cooldown = shot_start + shot_dur - now;
-		end
-
-		local es_cooldown = 0;
-		if (es_start > 0 and es_dur > 0) then
-			es_cooldown = es_start + es_dur - now;
-		end
-
-		-- if ES is going to happen within the next GCD, 
-		-- or within GCD after this shot, ignore this shot
-		if (es_cooldown - shot_cooldown <= 1.5) then
-
-			return false, 0, false;
-		end
-
-		local total_focus = UnitPower("player") + (es_cooldown * regen_cast) - shot_cost;
-
-		--PREC.debug_data = string.format("%f, %f", regen_cast, total_focus);
-
-		if (total_focus < es_cost) then
-
-			return false, 0, false;
-		end
-	end
-
 	if (ability.chimerarefresh) then
 
 		local serpent_off = PREC.TimeToTargetBuffExpires("Serpent Sting", false);
@@ -1902,7 +1859,7 @@ end
 
 function PREC.GetFocusTimeout(spell)
 
-	local _, _, _, cost = GetSpellInfo(spell);
+	local cost = PREC.SpellCost(spell);
 	local current = UnitPower("player", SPELL_POWER_FOCUS);
 
 	if (PREC.state.simulate_focus_loss_until > GetTime()) then
@@ -2171,6 +2128,18 @@ function PREC.DebuffElseGCD(aName)
 	return 0
 end
 
+function PREC.SpellCastTime(spellName)
+	local _, _, _, castTime = GetSpellInfo(spellName);
+	return castTime;
+end
+
+function PREC.SpellCost(spellName)
+	if (PREC.spell_costs[spellName]) then
+		return PREC.spell_costs[spellName];
+	end
+	return 0;
+end
+
 function PREC.SlashCommand(msg, editbox)
 	if (msg == 'show') then
 		PREC.SetHide(false);
@@ -2182,7 +2151,7 @@ function PREC.SlashCommand(msg, editbox)
 		PREC.ResetPos();
 	elseif (msg == 'test') then
 		-- put stuff here
-	elseif (msg == 'reset') then
+	elseif (msg == 'reset-opts') then
 		PREC.options = PREC.default_options;
 	else
 		print(L.CMD_HELP);

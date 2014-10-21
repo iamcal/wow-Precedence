@@ -193,7 +193,7 @@ function PREC.OnSpellCastSent(...)
 	--
 
 	if (unit == "player") then
-		local _, _, _, _, _, _, castTime = GetSpellInfo(spell);
+		local castTime = PREC.SpellCastTime(spell);
 
 		if (castTime) then
 

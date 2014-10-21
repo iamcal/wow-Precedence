@@ -26,71 +26,47 @@ PREC.default_options.warnings = {
 	guild_cloak = false,	
 };
 
+PREC.spell_costs['Black Arrow'] = 35;
+PREC.spell_costs['Glaive Toss'] = 15;
+PREC.spell_costs['Explosive Shot'] = 15;
+PREC.spell_costs['Arcane Shot'] = 30;
+PREC.spell_costs['Aimed Shot'] = 0;
+
 PREC.rotations = {
-	sv406 = {
-		name = "SV 4.0.6",
-		p1  = { which="rapid",		bind="ALT-1",	who = "boss" },
-		p2  = { which="kill",		bind="ALT-2",	who = "any" },
-		p3  = { which="explosive",	bind="ALT-3",	who = "any" },
-		p4  = { which="black",		bind="ALT-4",	who = "any" }, --label = "Chim",
-		p5  = { which="serpent",	bind="ALT-5",	who = "any" },
-		p6  = { which="arcane_es",	bind="ALT-7",	who = "any" },
-		p7  = { which="cobra",		bind="ALT-6",	who = "any" }, --cmd = "MACRO Steady",
+	sv60 = {
+		name = "SV 6.0",
+		p1  = { which="black",		bind="ALT-4",	who="any" },
+		p2  = { which="dire_beast",	bind="",	who="any",	label="8" },
+		p3  = { which="stampede",	bind="ALT-8",	who="boss" },
+		p4  = { which="glaive_toss",	bind="",	who="any",	label="2" },
+		p5  = { which="explosive",	bind="ALT-3",	who="any" },
+		p6  = { which="arcane_sv",	bind="ALT-7",	who="any" },
+		p7  = { which="cobra",		bind="ALT-6",	who="any" },
 		p8  = {},
 		p9  = {},
 		p10 = {},
 		p11 = {},
 		p12 = {},
 	},
-	mm406 = {
-		name = "MM 4.0.6",
-		p1 = { which="serpent",		bind="ALT-1",	who="any" },
-		p2 = { which="chimerarefresh",	bind="ALT-2",	who="any" },
-		p3 = { which="aimedmmm",	bind="ALT-3",	who="any" },
-		p4 = { which="steadynoiss",	bind="ALT-4",	who="any" },
-		p5 = { which="aimed",		bind="ALT-3",	who="any" },
-		p6 = { which="kill",		bind="ALT-5",	who="any" },
-		p7 = { which="rapid",		bind="ALT-6",	who="boss" },
-		p8 = { which="readiness",	bind="ALT-7",	who="boss" },
-		p9 = { which="steady",		bind="ALT-4",	who="any" },
+
+	sv60_debug = {
+		name = "SV 6.0 DEBUG",
+		p1  = {},
+		p2  = {},
+		p3  = {},
+		p4  = {},
+		p5  = { which="explosive",	bind="ALT-3",	who="any" },
+		p6  = { which="arcane_sv",	bind="ALT-7",	who="any" },
+		p7  = { which="cobra",		bind="ALT-6",	who="any" },
+		p8  = {},
+		p9  = {},
 		p10 = {},
 		p11 = {},
 		p12 = {},
 	},
-	{
-		name = "SV 5.0.5",
-		p1  = { which="black",		bind="ALT-4",	who="any" },
-		p2  = { which="crows",		bind="",	who="boss",	label="7" },
-		p3  = { which="dire_beast",	bind="",	who="any",	label="8" },
-		p4  = { which="stampede",	bind="ALT-8",	who="boss" },
-		p5  = { which="rapid",		bind="ALT-1",	who="boss" },
-		p6  = { which="glaive_toss",	bind="",	who="any",	label="2" },
-		p7  = { which="kill",		bind="ALT-2",	who="any" },
-		p8  = { which="explosive",	bind="ALT-3",	who="any" },
-		p9  = { which="readiness",	bind="",	who="boss",	label="5" },
-		p10 = { which="serpent",	bind="ALT-5",	who="any" },
-		p11 = { which="arcane_sv",	bind="ALT-7",	who="any" },
-		p12 = { which="cobra",		bind="ALT-6",	who="any" },
-	},
-
-	{
-		name = "SV 5.0.5 SPORES",
-		p1  = { which="black",		bind="ALT-4",	who="any" },
-		p2  = { which="crows",		bind="",	who="boss",	label="7" },
-		p3  = { which="dire_beast",	bind="",	who="any",	label="8" },
-		p4  = { which="stampede",	bind="ALT-8",	who="boss" },
-		p5  = { which="rapid",		bind="ALT-1",	who="boss" },
-		p6  = { },
-		p7  = { which="kill",		bind="ALT-2",	who="any" },
-		p8  = { which="explosive",	bind="ALT-3",	who="any" },
-		p9  = { which="readiness",	bind="",	who="boss",	label="5" },
-		p10 = { which="serpent",	bind="ALT-5",	who="any" },
-		p11 = { which="arcane_sv",	bind="ALT-7",	who="any" },
-		p12 = { which="cobra",		bind="ALT-6",	who="any" },
-	},
 };
 
-PREC.default_options.priorities = PREC.rotations.sv406;
+PREC.default_options.priorities = PREC.rotations.sv60;
 
 PREC.abilities = {
 	rapid = {
@@ -336,13 +312,13 @@ function PREC.OnSpellCastSent(...)
 	end
 
 	if (unit == "player" and spell == "Cobra Shot") then
-		local _, _, _, _, _, _, castTime = GetSpellInfo("Cobra Shot")
+		local castTime = PREC.SpellCastTime("Cobra Shot");
 		PREC.state.no_shots_until = GetTime() + (castTime / 1000);
 		return;
 	end
 
 	if (unit == "player" and spell == "Steady Shot") then
-		local _, _, _, _, _, _, castTime = GetSpellInfo("Steady Shot")
+		local castTime = PREC.SpellCastTime("Steady Shot")
 		PREC.state.no_shots_until = GetTime() + (castTime / 1000);
 		return;
 	end
@@ -350,7 +326,8 @@ function PREC.OnSpellCastSent(...)
 	if (unit == "player" and spell == "Aimed Shot") then
 		local test = PREC.TimeToPlayerBuffExpires("Fire!", false);
 		if (test == -1) then
-			local _, _, _, cost, _, _, castTime = GetSpellInfo("Aimed Shot")
+			local castTime = PREC.SpellCastTime("Aimed Shot");
+			local cost = PREC.SpellCost("Aimed Shot");
 
 			local cast_ends = GetTime() + (castTime / 1000);
 
@@ -594,6 +571,19 @@ end
 
 function PREC.abilities.arcane_sv.func(t, now, waitmana)
 
+	-- first, check if we need to apply serpent sting
+	-- (missing, or falls off in 1.5 seconds)
+
+	local et = PREC.TimeToTargetBuffExpires("Serpent Sting", true);
+	if (et < 1.5) then
+
+		return {
+			t = t,
+			waitmana = waitmana,
+		};
+	end
+
+
 	-- perform this check for every ability listed below that
 	-- is coming up and is higher in the priority list than
 	-- this ability (easy because PREC.current_shots is built
@@ -611,7 +601,8 @@ function PREC.abilities.arcane_sv.func(t, now, waitmana)
 	-- calculate arcane shot cost/cooldown
 	--
 
-	local _, _, _, shot_cost = GetSpellInfo("Arcane Shot");
+	local shot_cost =  PREC.SpellCost("Arcane Shot");
+
 	local shot_start, shot_dur = GetSpellCooldown("Arcane Shot");
 	local regen_base, regen_cast = GetPowerRegen();
 
@@ -651,7 +642,6 @@ function PREC.abilities.arcane_sv.func(t, now, waitmana)
 		"Black Arrow",
 		"A Murder of Crows",
 		"Glaive Toss",
-		"Serpent Sting"
 	};
 
 	local i;
@@ -660,7 +650,7 @@ function PREC.abilities.arcane_sv.func(t, now, waitmana)
 
 		if (higher_shots[v]) then
 
-			local _, _, _, ss_cost = GetSpellInfo(v);
+			local ss_cost = PREC.SpellCost(v);
 			local ss_cooldown = higher_shots[v].t;
 
 			-- if shot is going to happen within the next GCD, 
@@ -693,3 +683,56 @@ function PREC.abilities.arcane_sv.func(t, now, waitmana)
 	};
 end
 
+
+function PREC.abilities.arcane_es.func(t, now, waitmana)
+
+	-- ok if:
+	-- 	current focus
+	-- 	+ cost of shot to weave
+	-- 	+ regen until explosive off cooldown
+	-- is more than:
+	-- 	explosive cost
+
+	local shot_cost = PREC.SpellCost("Arcane Shot");
+	local es_cost = PREC.SpellCost("Explosive Shot");
+
+	local shot_start, shot_dur = GetSpellCooldown("Arcane Shot");
+	local es_start, es_dur = GetSpellCooldown("Explosive Shot");
+
+	local regen_base, regen_cast = GetPowerRegen();
+
+	local shot_cooldown = 0;
+	if (shot_start > 0 and shot_dur > 0) then
+		shot_cooldown = shot_start + shot_dur - now;
+	end
+
+	local es_cooldown = 0;
+	if (es_start > 0 and es_dur > 0) then
+		es_cooldown = es_start + es_dur - now;
+	end
+
+	-- if ES is going to happen within the next GCD, 
+	-- or within GCD after this shot, ignore this shot
+	if (es_cooldown - shot_cooldown <= 1.5) then
+
+		return {
+			hide_now = true
+		};
+	end
+
+	local total_focus = UnitPower("player") + (es_cooldown * regen_cast) - shot_cost;
+
+	--PREC.debug_data = string.format("%f, %f", regen_cast, total_focus);
+
+	if (total_focus < es_cost) then
+
+		return {
+			hide_now = true
+		};
+	end
+
+	return {
+		t = t,
+		waitmana = waitmana,
+	};
+end
